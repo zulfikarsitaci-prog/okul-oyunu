@@ -8,37 +8,43 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 
 # --- SAYFA AYARLARI ---
-st.set_page_config(page_title="Bağarası ÇPAL Sınav Merkezi", page_icon="🏫", layout="centered")
+st.set_page_config(page_title="Bağarası ÇPAL Sınav Merkezi", page_icon="📝", layout="centered")
 
-# --- GÖRÜNTÜ AYARLARI (SARI ZEMİN - SİYAH YAZI) ---
+# --- GÖRÜNTÜ AYARLARI (SARI ZEMİN - SİYAH YAZI - KONTRAST TASARIM) ---
 st.markdown("""
     <style>
-    /* 1. Arka Planı SARI Yap */
+    /* 1. Arka Planı Canlı SARI Yap */
     .stApp {
-        background-color: #FFF9C4 !important; /* Açık Sarı */
+        background-color: #FFF59D !important; /* Okunabilir Tatlı Sarı */
     }
     
-    /* 2. Tüm Yazıları SİYAH Yap */
-    h1, h2, h3, h4, h5, h6, p, div, span, label, li, .stMarkdown {
+    /* 2. Tüm Yazıları Simsiyah ve Kalın Yap */
+    h1, h2, h3, h4, h5, h6, p, div, span, label, li, .stMarkdown, .stRadio label {
         color: #000000 !important;
+        font-family: 'Arial', sans-serif;
     }
     
-    /* 3. Buton Tasarımı (Turuncu/Sarı tonlu, Siyah Yazılı) */
+    /* 3. Şık Butonları (Beyaz Zemin, Siyah Yazı, Sarı Kenarlık) */
     .stButton>button { 
         width: 100%; 
-        border-radius: 10px; 
-        min-height: 4em; 
-        font-weight: 600; 
-        background-color: #FFEB3B !important; /* Canlı Sarı */
+        border-radius: 12px; 
+        min-height: 4.5em; 
+        font-weight: 700; 
+        background-color: #FFFFFF !important; 
         color: #000000 !important; 
-        border: 2px solid #FBC02D !important; /* Koyu Sarı Kenarlık */
+        border: 3px solid #FBC02D !important; /* Koyu Sarı Çerçeve */
         white-space: pre-wrap; 
         text-align: left !important; 
-        padding-left: 20px;
+        padding: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
     }
+    
+    /* Üzerine gelince */
     .stButton>button:hover { 
-        background-color: #FDD835 !important; 
+        background-color: #FFEB3B !important; /* Daha koyu sarı */
         border-color: #000000 !important; 
+        transform: scale(1.01);
     }
     
     /* 4. Giriş Kutuları */
@@ -46,14 +52,24 @@ st.markdown("""
         background-color: #FFFFFF !important; 
         color: #000000 !important; 
         border: 2px solid #000000 !important;
+        font-weight: bold;
     }
     
-    /* 5. Soru Yazısı Stili */
+    /* 5. Soru Metni */
     .big-font { 
-        font-size: 22px !important; 
-        font-weight: 800; 
+        font-size: 24px !important; 
+        font-weight: 900; 
         color: #000000 !important; 
-        margin-bottom: 25px; 
+        margin-bottom: 25px;
+        padding: 15px;
+        background-color: rgba(255,255,255,0.4);
+        border-radius: 10px;
+        border-left: 5px solid #000;
+    }
+    
+    /* İlerleme Çubuğu Rengi */
+    .stProgress > div > div > div > div {
+        background-color: #000000 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -78,64 +94,47 @@ MUFREDAT = {
     ]
 }
 
-# --- 2. DETAYLI KONU HAVUZU (10. SINIF GÜNCELLENDİ) ---
+# --- 2. DETAYLI KONU HAVUZU (YILLIK PLANLARDAN ÇEKİLDİ) ---
+# Yapay Zeka bu konuları karıştırarak soracak.
 KONU_HAVUZU = {
-    # --- 10. SINIF (SİZİN BELİRLEDİĞİNİZ KONULAR) ---
-    "Temel Hukuk": [
-        "Hukuğa Giriş ve Hukukun Dalları", 
-        "Borçlar Hukuku (Borcun Unsurları)", 
-        "Hukuki Ehliyet (Hak ve Fiil Ehliyeti)", 
-        "Mülkiyet Kavramı ve Hakkı", 
-        "Sözleşme Çeşitleri ve Geçersizliği", 
-        "Ticaret Hukuku (Tacir, Ticari İşletme)", 
-        "Kıymetli Evrak Hukuku (Bono, Poliçe, Çek)", 
-        "Sigorta Hukuku (Can ve Mal Sigortası)"
-    ],
-    "Ekonomi": [
-        "Ekonomiye Giriş ve Temel Kavramlar (İhtiyaç, Fayda)", 
-        "Arz ve Talep İlişkisi", 
-        "Fiyat Oluşumu ve Piyasa Dengesi", 
-        "Piyasa Mekanizması (Tam ve Eksik Rekabet)", 
-        "Ekonomik Büyüme ve İstihdam", 
-        "Para, Bankacılık ve Enflasyon", 
-        "Ödemeler Dengesi (Cari Açık/Fazla)", 
-        "Dış Ticaret ve Uluslararası Kuruluşlar (IMF, DB, AB)"
-    ],
-    "Genel Muhasebe": [
-        "Bilanço Eşitliği ve Düzenlenmesi", 
-        "Muhasebenin Temel Kavramları", 
-        "Tekdüzen Hesap Planı Mantığı", 
-        "Gelir Tablosu İlkeleri", 
-        "Hesapların İşleyişi (Borç/Alacak Kuralları)", 
-        "Satılan Ticari Mallar Maliyeti (STMM)", 
-        "Muhasebe Uygulamaları (Yevmiye Kayıtları)", 
-        "Aktif ve Pasif Hesapların Özellikleri"
-    ],
-    
-    # --- 9. SINIF (ÖNCEKİ YILLIK PLANDAN) ---
-    "Temel Muhasebe": ["Ticari Defterler", "Fatura ve İrsaliye", "Perakende Satış Fişi", "Gider Pusulası", "İşletme Hesabı Defteri", "Vergi Dairesi İşlemleri"],
-    "Mesleki Matematik": ["Yüzde Hesapları", "Maliyet ve Satış Fiyatı", "KDV Hesaplamaları", "İskonto İşlemleri", "Karışım Problemleri"],
-    "Ofis Uygulamaları": ["Word Biçimlendirme", "Excel Formülleri (Topla, Ortalama)", "PowerPoint Sunu Tasarımı", "Yazıcı Ayarları"],
-    "Mesleki Gelişim Atölyesi": ["Ahilik Kültürü", "Etkili İletişim", "İş Sağlığı ve Güvenliği", "Girişimcilik Fikirleri"],
-
-    # --- 11. SINIF (ÖNCEKİ YILLIK PLANDAN) ---
-    "Bilgisayarlı Muhasebe (Luca)": ["Şirket Açma", "Stok/Cari Kart", "Fatura İşleme", "Muhasebe Fişleri", "KDV Beyannamesi", "Dönem Sonu"],
-    "Maliyet Muhasebesi": ["7A/7B Maliyet", "Direkt İlk Madde (150)", "Direkt İşçilik (720)", "Genel Üretim Gideri (730)", "Satılan Mamul Maliyeti"],
-    "Şirketler Muhasebesi": ["Şirket Kuruluşu", "Sermaye Artırımı", "Kar Dağıtımı", "Tasfiye", "Şirket Birleşmeleri"],
-    "Vergi ve Beyannameler": ["Gelir Vergisi", "Kurumlar Vergisi", "KDV", "MTV", "ÖTV", "Muhtasar Beyanname"],
-
-    # --- 12. SINIF (ÖNCEKİ YILLIK PLANDAN) ---
-    "Dış Ticaret": ["İhracat/İthalat Rejimi", "Teslim Şekilleri (Incoterms)", "Ödeme Şekilleri", "Gümrük Mevzuatı"],
-    "Kooperatifçilik": ["Kooperatif Kuruluşu", "Ortaklık Hakları", "Risturn Hesaplama", "Genel Kurul"],
-    "Hızlı Klavye": ["F Klavye Hız Çalışmaları", "Adli Metin Yazımı", "Rapor Düzenleme"]
+    "Temel Hukuk": ["Hukukun Kaynakları (Yazılı/Yazısız)", "Hak Ehliyeti ve Fiil Ehliyeti", "Kişilik Kavramı (Gerçek/Tüzel)", "Borcun Unsurları (Alacaklı, Borçlu, Edim)", "Sözleşme Çeşitleri", "Haksız Fiil ve Sebepsiz Zenginleşme", "Mülkiyet Hakkı", "Tacir ve Esnaf Ayrımı", "Kıymetli Evrak (Bono, Çek, Poliçe)", "Sigorta Türleri (Can, Mal, Sorumluluk)"],
+    "Ekonomi": ["Fayda ve Değer Kavramları", "Üretim Faktörleri (Emek, Sermaye, Doğal Kaynak)", "Arz ve Talep Kanunu", "Piyasa Dengesi ve Fiyat", "Tam Rekabet ve Tekel Piyasaları", "Enflasyon ve Deflasyon", "Milli Gelir (GSYİH)", "Merkez Bankası ve Para Politikası", "Ödemeler Dengesi", "Uluslararası Kuruluşlar (IMF, Dünya Bankası)"],
+    "Genel Muhasebe": ["Bilanço Temel Denkliği", "Dönen ve Duran Varlıklar", "Kısa ve Uzun Vadeli Yabancı Kaynaklar", "Özkaynaklar", "Gelir Tablosu İlkeleri", "Tek Düzen Hesap Planı Kodları", "Yevmiye Defteri Borç/Alacak Mantığı", "Büyük Defter (Defter-i Kebir)", "Mizan (Geçici ve Kesin)", "Satılan Ticari Mallar Maliyeti"],
+    "Temel Muhasebe": ["Fatura ve İrsaliye Ayrımı", "Yazar Kasa Fişi Sınırları", "Gider Pusulası Kullanımı", "Serbest Meslek Makbuzu", "İşletme Defteri Gider Kaydı", "İşletme Defteri Gelir Kaydı", "Vergi Dairesi Mükellefiyet", "Defter Saklama Süreleri"],
+    "Mesleki Matematik": ["Yüzde Hesapları", "Maliyet ve Satış Fiyatı", "KDV Hariç/Dahil Hesaplama", "İskonto (İndirim) Hesapları", "Basit Faiz Hesabı", "Kar/Zarar Problemleri"],
+    "Ofis Uygulamaları": ["Word Biçimlendirme", "Excel Hücre Adresleri", "Excel Topla/Ortalama Formülleri", "Excel Eğer Formülü", "PowerPoint Animasyonları", "Klavye Kısayolları (CTRL+C, CTRL+V)"],
 }
 
-# --- YEDEK DEPO (ACİL DURUM İÇİN) ---
+# --- 3. DEVASA YEDEK DEPO (TEKRARI ÖNLEMEK İÇİN SABİT SORULAR) ---
+# Yapay Zeka çalışmazsa buradan çekecek. Her derse özel 10-15 soru var.
 YEDEK_DEPO = {
+    "Temel Hukuk": [
+        {"soru": "Aşağıdakilerden hangisi hukukun yazılı kaynaklarından biri değildir?", "secenekler": ["Anayasa", "Kanun", "Yönetmelik", "Örf ve Adet", "Cumhurbaşkanlığı Kararnamesi"], "cevap": "Örf ve Adet"},
+        {"soru": "Hak ehliyeti ne zaman başlar?", "secenekler": ["Sağ ve tam doğmak koşuluyla ana rahmine düşüldüğü an", "18 yaşını doldurunca", "Doğumdan 1 hafta sonra", "Okula başlayınca", "Evlenince"], "cevap": "Sağ ve tam doğmak koşuluyla ana rahmine düşüldüğü an"},
+        {"soru": "Bir kimsenin borcunu ödememesi durumunda alacaklının devlet gücüyle alacağını tahsil etmesine ne denir?", "secenekler": ["Cebri İcra", "Tazminat", "Hapis", "Müsadere", "Vergi"], "cevap": "Cebri İcra"},
+        {"soru": "Aşağıdakilerden hangisi Borcun unsurlarından biridir?", "secenekler": ["Edim", "Hakim", "Savcı", "Tapu", "Noter"], "cevap": "Edim"},
+        {"soru": "Tacir sıfatını kazanmak için temel şart nedir?", "secenekler": ["Bir ticari işletmeyi kısmen de olsa kendi adına işletmek", "18 yaşını doldurmak", "Zengin olmak", "Şirket ortağı olmak", "Dükkan kiralamak"], "cevap": "Bir ticari işletmeyi kısmen de olsa kendi adına işletmek"},
+        {"soru": "Çek üzerinde yazılı olan ve ödeme gününü belirten tarihe ne ad verilir?", "secenekler": ["Keşide Tarihi", "Vade", "Tanzim", "Ciro", "Aval"], "cevap": "Keşide Tarihi"},
+        {"soru": "Hangisi bir 'Özel Hukuk' dalıdır?", "secenekler": ["Medeni Hukuk", "İdare Hukuku", "Vergi Hukuku", "Ceza Hukuku", "Anayasa Hukuku"], "cevap": "Medeni Hukuk"}
+    ],
+    "Ekonomi": [
+        {"soru": "İnsan ihtiyaçlarını karşılayan mal ve hizmetlerin miktarının, insan ihtiyaçlarına göre az olmasına ne denir?", "secenekler": ["Kıtlık", "Bolluk", "Enflasyon", "Deflasyon", "Fayda"], "cevap": "Kıtlık"},
+        {"soru": "Bir malın fiyatı arttığında talebinin azalması, fiyatı düştüğünde talebinin artması neyi ifade eder?", "secenekler": ["Talep Kanunu", "Arz Kanunu", "Fırsat Maliyeti", "Marjinal Fayda", "Üretim"], "cevap": "Talep Kanunu"},
+        {"soru": "Paranın değerinin düşmesi ve fiyatlar genel seviyesinin sürekli artmasına ne ad verilir?", "secenekler": ["Enflasyon", "Devalüasyon", "Resesyon", "Deflasyon", "Stagflasyon"], "cevap": "Enflasyon"},
+        {"soru": "Aşağıdakilerden hangisi Üretim Faktörlerinden biri değildir?", "secenekler": ["Para", "Emek (İşgücü)", "Sermaye", "Doğal Kaynaklar", "Girişimci"], "cevap": "Para"},
+        {"soru": "Türkiye Cumhuriyet Merkez Bankasının temel amacı nedir?", "secenekler": ["Fiyat İstikrarını Sağlamak", "Kar Etmek", "Kredi Vermek", "Döviz Satmak", "Maaş Dağıtmak"], "cevap": "Fiyat İstikrarını Sağlamak"}
+    ],
+    "Genel Muhasebe": [
+        {"soru": "Bilanço eşitliği aşağıdakilerden hangisidir?", "secenekler": ["Varlıklar = Yabancı Kaynaklar + Özkaynaklar", "Aktif = Giderler", "Borç = Alacak", "Gelir = Gider", "Kasa = Banka"], "cevap": "Varlıklar = Yabancı Kaynaklar + Özkaynaklar"},
+        {"soru": "İşletmenin kasasına nakit para girdiğinde '100 Kasa' hesabı nasıl çalışır?", "secenekler": ["Borçlanır", "Alacaklanır", "Kapanır", "Bakiyesi Silinir", "Pasife Yazılır"], "cevap": "Borçlanır"},
+        {"soru": "Satıcıya olan veresiye borçlar hangi hesapta izlenir?", "secenekler": ["320 Satıcılar", "120 Alıcılar", "100 Kasa", "102 Bankalar", "600 Satışlar"], "cevap": "320 Satıcılar"},
+        {"soru": "Tek düzen hesap planında '6' ile başlayan hesap grubu nedir?", "secenekler": ["Gelir Tablosu Hesapları", "Dönen Varlıklar", "Duran Varlıklar", "Özkaynaklar", "Maliyet Hesapları"], "cevap": "Gelir Tablosu Hesapları"},
+        {"soru": "Dönem sonunda '600 Yurt İçi Satışlar' hesabı hangi hesaba devredilerek kapatılır?", "secenekler": ["690 Dönem Karı veya Zararı", "100 Kasa", "500 Sermaye", "320 Satıcılar", "120 Alıcılar"], "cevap": "690 Dönem Karı veya Zararı"}
+    ],
     "Genel": [
-        {"soru": "VUK'a göre fatura düzenleme sınırı aşıldığında hangi belge düzenlenmelidir?", "secenekler": ["Fatura", "Fiş", "Gider Pusulası", "İrsaliye", "Dekont"], "cevap": "Fatura"},
-        {"soru": "Bilanço temel denkliği hangisidir?", "secenekler": ["Varlıklar = Kaynaklar", "Gelir = Gider", "Borç = Alacak", "Aktif = Pasif + Sermaye", "Kasa = Banka"], "cevap": "Varlıklar = Kaynaklar"},
-        {"soru": "Excel'de 'EĞER' formülü ne işe yarar?", "secenekler": ["Mantıksal kıyaslama yapar", "Toplama yapar", "Ortalama alır", "Yazı rengini değiştirir", "Tablo çizer"], "cevap": "Mantıksal kıyaslama yapar"}
+        {"soru": "Excel'de 'Toplama' işlemini yapan formül hangisidir?", "secenekler": ["=TOPLA()", "=ÇIKAR()", "=SAY()", "=EĞER()", "=ORTALAMA()"], "cevap": "=TOPLA()"},
+        {"soru": "Word programında 'Kaydet' kısayolu nedir?", "secenekler": ["CTRL + S", "CTRL + P", "CTRL + C", "CTRL + V", "CTRL + Z"], "cevap": "CTRL + S"},
+        {"soru": "KDV hariç 100 TL olan bir ürünün %20 KDV dahil fiyatı nedir?", "secenekler": ["120 TL", "100 TL", "118 TL", "110 TL", "102 TL"], "cevap": "120 TL"}
     ]
 }
 
@@ -146,27 +145,30 @@ if "GOOGLE_API_KEY" in st.secrets:
 def yapay_zeka_soru_uret(sinif, ders):
     ai_sorulari = []
     
-    # 1. KONU SEÇİMİ (TEKRARI ÖNLEMEK İÇİN)
-    # Havuzdan rastgele 3 konu seçiyoruz. Böylece her sınavda farklı konu kombinasyonu gelir.
+    # 1. KONU SEÇİMİ (HAVUZDAN RASTGELE KONULAR ÇEKİLİR)
+    # Bu sayede her seferinde farklı bir haftanın konusu gelir.
     tum_konular = KONU_HAVUZU.get(ders, ["Genel Konular"])
+    
+    # Rastgele 3 konu seç
     secilen_konular = random.sample(tum_konular, min(3, len(tum_konular)))
     konu_metni = ", ".join(secilen_konular)
     
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         
+        # --- KESİN PROMPT ---
         prompt = f"""
         Rolün: Lise Öğretmeni.
         Ders: {ders} (Sınıf: {sinif}).
         
-        Aşağıdaki Konulardan 10 ADET özgün test sorusu hazırla:
-        KONULAR: {konu_metni}
+        GÖREV: Aşağıdaki Konu Başlıklarından 10 ADET ÖZGÜN test sorusu hazırla.
+        SEÇİLEN KONULAR: {konu_metni}
         
         KURALLAR:
         1. Sorular {sinif} seviyesine uygun ve MEB müfredatıyla uyumlu olsun.
         2. Her sorunun 5 şıkkı (A,B,C,D,E) olsun.
         3. Cevaplar şıklara rastgele dağılsın (Hepsi A olmasın).
-        4. Sorular asla tekrar etmemeli, farklı soru tipleri kullan.
+        4. "Aşağıdakilerden hangisi" kalıbını sık kullanma, olay örgüsü kur.
         5. Çıktı SADECE JSON formatında olsun.
         
         JSON FORMATI:
@@ -185,15 +187,20 @@ def yapay_zeka_soru_uret(sinif, ders):
     except Exception as e:
         ai_sorulari = []
 
-    # 2. YEDEKLEME (Eksik gelirse)
+    # 2. YEDEKLEME (Eğer AI çalışmazsa devreye girer)
     if len(ai_sorulari) < 10:
-        yedek = YEDEK_DEPO["Genel"]
+        # Önce derse özel yedeği dene, yoksa genele bak
+        yedek = YEDEK_DEPO.get(ders, YEDEK_DEPO["Genel"])
         eksik = 10 - len(ai_sorulari)
-        ai_sorulari.extend(random.choices(yedek, k=eksik))
+        
+        # Yedeği karıştırarak al
+        random.shuffle(yedek)
+        ai_sorulari.extend(yedek[:eksik])
             
-    # 3. KARIŞTIRMA (PYTHON TARAFINDA GARANTİ KARIŞTIRMA)
+    # 3. ŞIKLARI VE SORULARI KARIŞTIR
+    random.shuffle(ai_sorulari) # Soruların sırasını karıştır
     for soru in ai_sorulari:
-        random.shuffle(soru["secenekler"])
+        random.shuffle(soru["secenekler"]) # Şıkları karıştır
     
     return ai_sorulari[:10]
 
@@ -225,16 +232,21 @@ if 'kayit_ok' not in st.session_state: st.session_state.kayit_ok = False
 if not st.session_state.oturum_basladi:
     st.markdown("<h1 style='text-align: center;'>Bağarası ÇPAL Sınav Merkezi</h1>", unsafe_allow_html=True)
     
-    st.write("### 1. Ders Seçimi")
-    secilen_sinif = st.selectbox("Sınıfınız:", list(MUFREDAT.keys()))
-    dersler = MUFREDAT[secilen_sinif]
-    secilen_ders = st.selectbox("Ders Seçiniz:", dersler)
+    col_a, col_b = st.columns(2)
+    with col_a:
+        secilen_sinif = st.selectbox("Sınıfınız:", list(MUFREDAT.keys()))
+    with col_b:
+        dersler = MUFREDAT[secilen_sinif]
+        secilen_ders = st.selectbox("Ders Seçiniz:", dersler)
     
-    st.write("### 2. Öğrenci Bilgileri")
+    st.write("---")
+    
     with st.form("giris_formu"):
+        st.write("### 🎓 Öğrenci Bilgileri")
         col1, col2 = st.columns(2)
         ad = col1.text_input("Adınız")
         soyad = col2.text_input("Soyadınız")
+        st.write("")
         btn = st.form_submit_button("Sınavı Başlat 🚀")
         
         if btn:
@@ -243,13 +255,13 @@ if not st.session_state.oturum_basladi:
                 st.session_state.yukleniyor = True
                 st.rerun()
             else:
-                st.warning("Ad ve Soyad zorunludur.")
+                st.warning("Lütfen Ad ve Soyad giriniz.")
 
     if st.session_state.yukleniyor:
         with st.status(f"Sorular Hazırlanıyor... ({st.session_state.kimlik['ders']})", expanded=True):
             sorular = yapay_zeka_soru_uret(st.session_state.kimlik['sinif'], st.session_state.kimlik['ders'])
             
-            if not sorular: 
+            if not sorular: # Hiç soru gelmezse
                 sorular = YEDEK_DEPO["Genel"]
                 
             st.session_state.soru_listesi = sorular
@@ -284,24 +296,27 @@ else:
     st.success("Sınav Tamamlandı!")
     
     st.markdown(f"""
-    <div style='background-color:#FFEB3B; padding:20px; border-radius:10px; text-align:center; border: 2px solid #000;'>
+    <div style='background-color:#FFEB3B; padding:20px; border-radius:15px; text-align:center; border: 3px solid #000; box-shadow: 5px 5px 0px #000;'>
         <h2>{st.session_state.kimlik['ad']} {st.session_state.kimlik['soyad']}</h2>
-        <h3>Puan: {st.session_state.puan}</h3>
-        <p>{st.session_state.kimlik['sinif']} - {st.session_state.kimlik['ders']}</p>
+        <h1>PUAN: {st.session_state.puan}</h1>
+        <p><b>{st.session_state.kimlik['sinif']} - {st.session_state.kimlik['ders']}</b></p>
     </div>
     """, unsafe_allow_html=True)
     
     if not st.session_state.kayit_ok:
-        with st.spinner("Sonuç kaydediliyor..."):
+        with st.spinner("Sonuç öğretmene gönderiliyor..."):
             res = sonuclari_kaydet(
                 st.session_state.kimlik["ad"], st.session_state.kimlik["soyad"],
                 st.session_state.kimlik["sinif"], st.session_state.kimlik["ders"],
                 st.session_state.puan
             )
             if res:
-                st.success("Kayıt Başarılı ✅")
+                st.success("Sonuç Kaydedildi ✅")
                 st.session_state.kayit_ok = True
+            else:
+                st.error("Bağlantı Hatası: Sonuç kaydedilemedi.")
     
+    st.write("")
     if st.button("Çıkış Yap"):
         st.session_state.oturum_basladi = False
         st.rerun()
