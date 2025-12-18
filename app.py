@@ -2,6 +2,9 @@ import streamlit as st
 import google.generativeai as genai
 import json
 import time
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası AI Finans", page_icon="🤖", layout="centered")
@@ -14,167 +17,144 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- API ANAHTARI KONTROLÜ ---
+# --- 1. GOOGLE SHEETS BAĞLANTISI ---
+def sonuclari_kaydet(ad, soyad, sinif, puan):
+    try:
+        # Secrets'tan bilgileri al
+        secrets_dict = st.secrets["gcp_service_account"]
+        
+        # Google'a bağlan
+        scope = ["https://www.googleapis.com/auth/spreadsheets"]
+        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
+        client = gspread.authorize(creds)
+        
+        # Tabloyu aç (Dosya adının 'Okul_Puanlari' olduğundan emin olun)
+        sheet = client.open("Okul_Puanlari").sheet1
+        
+        # Tarih bilgisini al
+        tarih = datetime.now().strftime("%d-%m-%Y %H:%M")
+        
+        # Yeni satır ekle
+        yeni_satir = [tarih, f"{ad} {soyad}", sinif, puan]
+        sheet.append_row(yeni_satir)
+        return True
+    except Exception as e:
+        st.error(f"Kayıt Hatası: {e}")
+        return False
+
+# --- 2. GEMINI AI BAĞLANTISI ---
 if "GOOGLE_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 else:
-    st.error("API Anahtarı bulunamadı! Lütfen Streamlit Secrets ayarlarını yapın.")
+    st.error("API Anahtarı bulunamadı!")
     st.stop()
 
-# --- YEDEK SORU HAVUZU (Acil Durumlar İçin) ---
+# Yedek Sorular
 yedek_sorular = [
     {"soru": "Kasa hesabına para girişi olduğunda hesap nasıl çalışır?", "secenekler": ["Borçlanır", "Alacaklanır", "Kapanır"], "cevap": "Borçlanır"},
-    {"soru": "Veresiye mal satışında hangi hesap kullanılır?", "secenekler": ["120 Alıcılar", "320 Satıcılar", "100 Kasa"], "cevap": "120 Alıcılar"},
-    {"soru": "Satıcıya borcumuzu ödersek 320 Satıcılar hesabı ne olur?", "secenekler": ["Borçlanır (Azalır)", "Alacaklanır (Artar)", "Değişmez"], "cevap": "Borçlanır (Azalır)"},
-    {"soru": "Hangisi bir varlık hesabıdır?", "secenekler": ["100 Kasa", "600 Satışlar", "320 Satıcılar"], "cevap": "100 Kasa"},
-    {"soru": "KDV hangi hesapta takip edilmez?", "secenekler": ["600 Yurt İçi Satışlar", "191 İndirilecek KDV", "391 Hesaplanan KDV"], "cevap": "600 Yurt İçi Satışlar"}
+    {"soru": "Veresiye mal satışında hangi hesap kullanılır?", "secenekler": ["120 Alıcılar", "320 Satıcılar", "100 Kasa"], "cevap": "120 Alıcılar"}
 ]
 
-# --- YAPAY ZEKA FONKSİYONU ---
 def yapay_zeka_soru_uret():
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = """
         Sen uzman bir Muhasebe Öğretmenisin. Lise öğrencileri için Genel Muhasebe dersiyle ilgili
-        5 adet çoktan seçmeli soru hazırla. Sorular ne çok kolay ne çok zor olsun.
-        Konular: Kasa, Banka, Çek, Senet, KDV, Mal Alış/Satış, Bilanço Esasları.
+        5 adet çoktan seçmeli soru hazırla.
+        Konular: Kasa, Banka, Çek, Senet, KDV, Mal Alış/Satış, Bilanço.
         
-        Çıktıyı SADECE şu JSON formatında ver, başka hiçbir açıklama yazma:
+        Çıktıyı SADECE şu JSON formatında ver:
         [
             {
-                "soru": "Soru metni buraya",
-                "secenekler": ["A şıkkı", "B şıkkı", "C şıkkı"],
-                "cevap": "Doğru olan şıkkın aynısı"
+                "soru": "Soru metni",
+                "secenekler": ["A", "B", "C"],
+                "cevap": "Doğru şıkkın tam metni"
             }
         ]
-        Dil: Türkçe. Türkiye Tek Düzen Hesap Planına uygun olsun.
+        Dil: Türkçe.
         """
         response = model.generate_content(prompt)
         text_response = response.text.strip()
-        
-        # JSON temizliği
         if text_response.startswith("```"):
             text_response = text_response.split("```")[1]
             if text_response.startswith("json"):
                 text_response = text_response[4:]
-        
         return json.loads(text_response)
-    except Exception as e:
+    except:
         return yedek_sorular
 
-# --- OTURUM AYARLARI ---
-if 'oturum_basladi' not in st.session_state:
-    st.session_state.oturum_basladi = False
-if 'soru_listesi' not in st.session_state:
-    st.session_state.soru_listesi = []
-if 'mevcut_soru_index' not in st.session_state:
-    st.session_state.mevcut_soru_index = 0
-if 'puan' not in st.session_state:
-    st.session_state.puan = 0
-if 'yukleniyor' not in st.session_state:
-    st.session_state.yukleniyor = False
-if 'user_info' not in st.session_state:
-    st.session_state.user_info = {}
-
-# --- FONKSİYONLAR ---
-def sinavi_baslat(ad, soyad, sinif):
-    st.session_state.user_info = {"ad": ad, "soyad": soyad, "sinif": sinif}
-    st.session_state.yukleniyor = True
-    st.rerun()
-
-def cevap_ver(secilen, dogru_cevap):
-    if secilen == dogru_cevap:
-        st.session_state.puan += 20
-        st.toast("✅ Doğru! (+20 Puan)", icon="🎉")
-    else:
-        st.toast(f"❌ Yanlış! Doğrusu: {dogru_cevap}", icon="⚠️")
-    
-    time.sleep(1.5)
-    
-    if st.session_state.mevcut_soru_index + 1 < len(st.session_state.soru_listesi):
-        st.session_state.mevcut_soru_index += 1
-        st.rerun()
-    else:
-        st.session_state.sinav_bitti = True
-        st.rerun()
-
-def yeniden_baslat():
-    st.session_state.oturum_basladi = False
-    st.session_state.sinav_bitti = False
-    st.session_state.yukleniyor = False
-    st.session_state.puan = 0
-    st.rerun()
+# --- OTURUM YÖNETİMİ ---
+if 'oturum_basladi' not in st.session_state: st.session_state.oturum_basladi = False
+if 'soru_listesi' not in st.session_state: st.session_state.soru_listesi = []
+if 'mevcut_soru_index' not in st.session_state: st.session_state.mevcut_soru_index = 0
+if 'puan' not in st.session_state: st.session_state.puan = 0
+if 'yukleniyor' not in st.session_state: st.session_state.yukleniyor = False
+if 'kayit_yapildi' not in st.session_state: st.session_state.kayit_yapildi = False
 
 # --- EKRAN AKIŞI ---
 if not st.session_state.oturum_basladi:
     # GİRİŞ EKRANI
-    st.image("https://cdn-icons-png.flaticon.com/512/4712/4712035.png", width=80)
     st.title("Bağarası AI Finans Ligi 🤖")
-    st.write("Yapay Zeka (Gemini) senin için özel sorular hazırlıyor...")
+    st.info("Sorular Yapay Zeka tarafından anlık üretilir.")
     
     if st.session_state.yukleniyor:
-        with st.status("🧠 Yapay Zeka Soruları Hazırlıyor...", expanded=True) as status:
-            st.write("Muhasebe veritabanı taranıyor...")
-            time.sleep(1)
-            st.write("Gemini ile bağlantı kuruluyor...")
-            # --- AI BURADA ÇALIŞIYOR ---
+        with st.status("Sorular Hazırlanıyor...", expanded=True):
             sorular = yapay_zeka_soru_uret()
-            # ---------------------------
             st.session_state.soru_listesi = sorular
-            status.update(label="Sorular Hazır! Başarılar...", state="complete", expanded=False)
-            time.sleep(1)
             st.session_state.oturum_basladi = True
-            st.session_state.sinav_bitti = False
+            st.session_state.kayit_yapildi = False
             st.session_state.yukleniyor = False
             st.rerun()
-            
     else:
-        with st.form("giris_formu"):
-            ad = st.text_input("Adınız")
-            soyad = st.text_input("Soyadınız")
-            sinif = st.selectbox("Sınıfınız", ["9-A", "10-A", "11-Muhasebe", "12-Muhasebe", "Öğretmen"])
-            submit = st.form_submit_button("Sınavı Başlat 🚀")
-            
-            if submit:
+        with st.form("giris"):
+            ad = st.text_input("Ad")
+            soyad = st.text_input("Soyad")
+            sinif = st.selectbox("Sınıf", ["9-A", "10-A", "11-Muhasebe", "12-Muhasebe"])
+            if st.form_submit_button("Başla"):
                 if ad and soyad:
-                    sinavi_baslat(ad, soyad, sinif)
-                else:
-                    st.warning("Lütfen isminizi giriniz.")
+                    st.session_state.user_info = {"ad": ad, "soyad": soyad, "sinif": sinif}
+                    st.session_state.puan = 0
+                    st.session_state.mevcut_soru_index = 0
+                    st.session_state.yukleniyor = True
+                    st.rerun()
 
-elif not st.session_state.sinav_bitti:
+elif st.session_state.mevcut_soru_index < len(st.session_state.soru_listesi):
     # SORU EKRANI
-    soru_data = st.session_state.soru_listesi[st.session_state.mevcut_soru_index]
-    toplam = len(st.session_state.soru_listesi)
-    suanki = st.session_state.mevcut_soru_index + 1
+    soru = st.session_state.soru_listesi[st.session_state.mevcut_soru_index]
+    st.progress((st.session_state.mevcut_soru_index + 1) / len(st.session_state.soru_listesi))
+    st.subheader(soru["soru"])
     
-    st.progress(suanki / toplam)
-    st.caption(f"Soru {suanki}/{toplam} | {st.session_state.user_info['ad']} {st.session_state.user_info['soyad']}")
-    
-    st.markdown(f"<div class='big-font'>{soru_data['soru']}</div>", unsafe_allow_html=True)
-    st.write("")
-    
-    for secenek in soru_data["secenekler"]:
+    for secenek in soru["secenekler"]:
         if st.button(secenek, use_container_width=True):
-            cevap_ver(secenek, soru_data["cevap"])
+            if secenek == soru["cevap"]:
+                st.session_state.puan += 20
+                st.toast("✅ Doğru!", icon="🎉")
+            else:
+                st.toast("❌ Yanlış!", icon="⚠️")
+            time.sleep(1)
+            st.session_state.mevcut_soru_index += 1
+            st.rerun()
 
 else:
     # SONUÇ EKRANI
     st.balloons()
-    st.title("🏁 Sınav Bitti!")
+    st.title(f"Sınav Bitti! Puanın: {st.session_state.puan}")
     
-    st.divider()
-    col1, col2 = st.columns(2)
-    col1.metric("Öğrenci", f"{st.session_state.user_info['ad']}")
-    col2.metric("PUAN", f"{st.session_state.puan}")
-    
-    st.divider()
-    
-    if st.session_state.puan >= 80:
-        st.success("Tebrikler! Yapay zekayı alt ettin. 🦾")
-    elif st.session_state.puan >= 50:
-        st.warning("Güzel sonuç, ama daha iyisi olabilir.")
-    else:
-        st.error("Biraz daha çalışman lazım.")
-        
-    if st.button("🔄 Yeni Sorularla Tekrar Dene"):
-        yeniden_baslat()
+    # --- KAYIT İŞLEMİ (OTOMATİK) ---
+    if not st.session_state.kayit_yapildi:
+        with st.spinner("Puanın Öğretmenine Gönderiliyor..."):
+            basari = sonuclari_kaydet(
+                st.session_state.user_info["ad"],
+                st.session_state.user_info["soyad"],
+                st.session_state.user_info["sinif"],
+                st.session_state.puan
+            )
+            if basari:
+                st.success("✅ Sonucun Başarıyla Kaydedildi!")
+                st.session_state.kayit_yapildi = True
+            else:
+                st.error("Kayıt sırasında bir hata oluştu.")
+
+    if st.button("Yeni Sınav"):
+        st.session_state.oturum_basladi = False
+        st.rerun()
