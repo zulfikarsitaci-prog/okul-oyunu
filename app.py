@@ -23,8 +23,11 @@ def sonuclari_kaydet(ad, soyad, sinif, puan):
         # Secrets'tan bilgileri al
         secrets_dict = st.secrets["gcp_service_account"]
         
-        # Google'a bağlan
-        scope = ["https://www.googleapis.com/auth/spreadsheets"]
+        # Google'a bağlan (BURASI GÜNCELLENDİ: Hem Sheets hem Drive yetkisi eklendi)
+        scope = [
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive"
+        ]
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         
@@ -108,8 +111,8 @@ if not st.session_state.oturum_basladi:
     else:
         with st.form("giris"):
             ad = st.text_input("Ad")
-            soyad = st.text_input("Soyad")
-            sinif = st.selectbox("Sınıf", ["9-A", "10-A", "11-Muhasebe", "12-Muhasebe"])
+            soyad = st.text_input("Soyadınız")
+            sinif = st.selectbox("Sınıfınız", ["9-A", "10-A", "11-Muhasebe", "12-Muhasebe"])
             if st.form_submit_button("Başla"):
                 if ad and soyad:
                     st.session_state.user_info = {"ad": ad, "soyad": soyad, "sinif": sinif}
@@ -153,7 +156,7 @@ else:
                 st.success("✅ Sonucun Başarıyla Kaydedildi!")
                 st.session_state.kayit_yapildi = True
             else:
-                st.error("Kayıt sırasında bir hata oluştu.")
+                st.error("Kayıt sırasında bir hata oluştu. Lütfen öğretmeninize haber verin.")
 
     if st.button("Yeni Sınav"):
         st.session_state.oturum_basladi = False
