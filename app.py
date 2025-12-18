@@ -10,23 +10,34 @@ from datetime import datetime
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası ÇPAL Sınav Merkezi", page_icon="🏫", layout="centered")
 
-# --- GÖRÜNTÜ AYARLARI (Zorla Beyaz Ekran) ---
+# --- GÖRÜNTÜ AYARLARI (Beyaz Ekran ve Okunaklı Butonlar) ---
 st.markdown("""
     <style>
     .stApp { background-color: #ffffff !important; }
     h1, h2, h3, h4, h5, h6, p, div, span, label, li { color: #000000 !important; }
+    
+    /* Şık Butonları Tasarımı */
     .stButton>button { 
-        width: 100%; border-radius: 12px; height: auto; min-height: 3.5em; 
-        font-weight: bold; background-color: #f0f2f6 !important; 
-        color: #000000 !important; border: 2px solid #d1d5db !important;
-        white-space: pre-wrap;
+        width: 100%; 
+        border-radius: 10px; 
+        min-height: 4em; /* Butonlar biraz daha yüksek */
+        font-weight: 500; 
+        background-color: #f8f9fa !important; 
+        color: #000000 !important; 
+        border: 2px solid #e9ecef !important;
+        white-space: pre-wrap; /* Uzun yazılar alt satıra geçsin */
+        text-align: left !important; /* Şıklar sola dayalı olsun */
+        padding-left: 20px;
     }
-    .stButton>button:hover { background-color: #e5e7eb !important; border-color: #000000 !important; }
-    .big-font { font-size: 20px !important; font-weight: 700; color: #111827 !important; margin-bottom: 20px; }
+    .stButton>button:hover { 
+        background-color: #e2e6ea !important; 
+        border-color: #adb5bd !important; 
+    }
+    
+    .big-font { font-size: 22px !important; font-weight: 700; color: #111827 !important; margin-bottom: 25px; }
     .stTextInput input, .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #ffffff !important; color: #000000 !important; border-color: #9ca3af !important;
+        background-color: #ffffff !important; color: #000000 !important; border-color: #ced4da !important;
     }
-    .stStatus { background-color: #ffffff !important; border: 1px solid #ddd; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -38,41 +49,52 @@ MUFREDAT = {
     "12. Sınıf": ["Bankacılık ve Finans", "Finansal Okuryazarlık"]
 }
 
-# --- YEDEK SORU DEPOSU (MÜFREDATA UYGUN) ---
-# AI çalışmazsa devreye girer. Her ders için en az 5-10 soru var.
+# --- YEDEK SORU DEPOSU (5 ŞIKLI VE GÜNCEL) ---
+# AI çalışmazsa buradan çeker. Şıklar her seferinde karışır.
 YEDEK_DEPO = {
-    # 9. SINIF - YENİ MÜFREDAT
     "Temel Muhasebe": [
-        {"soru": "Aşağıdakilerden hangisi Fatura yerine geçen belgelerden biridir?", "secenekler": ["Perakende Satış Fişi", "Bilanço", "Mizan"], "cevap": "Perakende Satış Fişi"},
-        {"soru": "Malın bir yerden bir yere taşınması sırasında düzenlenen belge hangisidir?", "secenekler": ["Sevk İrsaliyesi", "Fatura", "Gider Pusulası"], "cevap": "Sevk İrsaliyesi"},
-        {"soru": "İşletme Hesabı Defterinin sol tarafına ne kaydedilir?", "secenekler": ["Giderler", "Gelirler", "Karlar"], "cevap": "Giderler"},
-        {"soru": "Serbest meslek erbabının (Doktor, Avukat vb.) düzenlediği belge nedir?", "secenekler": ["Serbest Meslek Makbuzu", "Fatura", "Müstahsil Makbuzu"], "cevap": "Serbest Meslek Makbuzu"},
-        {"soru": "Vergi levhası nereden alınır?", "secenekler": ["Vergi Dairesi (GİB)", "Belediye", "Muhtarlık"], "cevap": "Vergi Dairesi (GİB)"},
-        {"soru": "Çiftçiden ürün alırken düzenlenen belge hangisidir?", "secenekler": ["Müstahsil Makbuzu", "Gider Pusulası", "Fatura"], "cevap": "Müstahsil Makbuzu"},
-        {"soru": "Vergi hatası düzeltme, yoklama gibi işlemler hangi kurumla ilgilidir?", "secenekler": ["Vergi Dairesi", "SGK", "Belediye"], "cevap": "Vergi Dairesi"},
-        {"soru": "İş yeri açma ve çalışma ruhsatı nereden alınır?", "secenekler": ["Belediye", "Vergi Dairesi", "Bankalar"], "cevap": "Belediye"},
-        {"soru": "Sigortalı işe giriş bildirgesi hangi kuruma verilir?", "secenekler": ["SGK", "İŞKUR", "Maliye"], "cevap": "SGK"},
-        {"soru": "Defter tutma hadleri her yıl kim tarafından belirlenir?", "secenekler": ["Hazine ve Maliye Bakanlığı", "Belediyeler", "Valilik"], "cevap": "Hazine ve Maliye Bakanlığı"}
+        {
+            "soru": "Aşağıdakilerden hangisi fatura yerine geçen belgelerden biri DEĞİLDİR?", 
+            "secenekler": ["Perakende Satış Fişi", "Serbest Meslek Makbuzu", "Gider Pusulası", "Sevk İrsaliyesi", "Yevmiye Defteri"], 
+            "cevap": "Yevmiye Defteri"
+        },
+        {
+            "soru": "Bir malın satışı sırasında, malın sevkiyatı için düzenlenen ve üzerinde fiyat bulunma zorunluluğu olmayan belge hangisidir?", 
+            "secenekler": ["Sevk İrsaliyesi", "Fatura", "Gider Pusulası", "Tahsilat Makbuzu", "Çek"], 
+            "cevap": "Sevk İrsaliyesi"
+        },
+        {
+            "soru": "İşletme Hesabı Esasına göre defter tutanlar, giderlerini defterin hangi tarafına kaydeder?", 
+            "secenekler": ["Gider (Sol) Tarafına", "Gelir (Sağ) Tarafına", "Alt Tarafına", "Arka Sayfaya", "İşletme defterinde gider yazılmaz"], 
+            "cevap": "Gider (Sol) Tarafına"
+        },
+        {
+            "soru": "Vergi, resim ve harçların toplanması, tarh ve tahakkuk ettirilmesi hangi kurumun görevidir?", 
+            "secenekler": ["Vergi Dairesi", "Belediye", "SGK", "İşkur", "Valilik"], 
+            "cevap": "Vergi Dairesi"
+        },
+        {
+            "soru": "İş yeri açma ve çalışma ruhsatı almak için hangi kuruma başvurulur?", 
+            "secenekler": ["Belediye", "Maliye Bakanlığı", "Nüfus Müdürlüğü", "Tapu Dairesi", "Emniyet"], 
+            "cevap": "Belediye"
+        }
     ],
-    
-    # 10. SINIF - FİNANSAL MUHASEBE (Eski Temel Muhasebe Konuları Buraya Kaydı)
-    "Finansal Muhasebe": [
-        {"soru": "Varlık ve Kaynakların gösterildiği finansal tablo hangisidir?", "secenekler": ["Bilanço", "Gelir Tablosu", "Mizan"], "cevap": "Bilanço"},
-        {"soru": "Tek Düzen Hesap Planında '100 Kasa' hesabı hangi gruptadır?", "secenekler": ["Dönen Varlıklar", "Duran Varlıklar", "Özkaynaklar"], "cevap": "Dönen Varlıklar"},
-        {"soru": "Yevmiye defterinden Büyük deftere (Defter-i Kebir) aktarım yapılırken ne kullanılır?", "secenekler": ["Yevmiye Madde Numarası", "Tarih", "Tutar"], "cevap": "Yevmiye Madde Numarası"},
-        {"soru": "Borç ve Alacak toplamlarının eşitliğini kontrol eden tablo nedir?", "secenekler": ["Mizan", "Bilanço", "Envanter"], "cevap": "Mizan"},
-        {"soru": "Satıcıya veresiye borçlandığımızda hangi hesap çalışır?", "secenekler": ["320 Satıcılar", "120 Alıcılar", "100 Kasa"], "cevap": "320 Satıcılar"},
-        {"soru": "Banka hesabına para yatırıldığında '102 Bankalar' hesabı nasıl çalışır?", "secenekler": ["Borçlanır", "Alacaklanır", "Kapanır"], "cevap": "Borçlanır"},
-        {"soru": "Dönem net karı veya zararı hangi tabloda sonucunu gösterir?", "secenekler": ["Gelir Tablosu", "Mizan", "Kasa Defteri"], "cevap": "Gelir Tablosu"}
-    ],
-
-    # GENEL YEDEK (Her ders için acil durum)
     "Genel": [
-        {"soru": "Bir işletmenin en likit varlığı hangisidir?", "secenekler": ["Kasa", "Demirbaş", "Bina"], "cevap": "Kasa"},
-        {"soru": "KDV'nin açılımı nedir?", "secenekler": ["Katma Değer Vergisi", "Kurumlar Vergisi", "Gelir Vergisi"], "cevap": "Katma Değer Vergisi"},
-        {"soru": "Bilgisayarda 'Kopyala' kısayolu nedir?", "secenekler": ["CTRL+C", "CTRL+V", "CTRL+X"], "cevap": "CTRL+C"},
-        {"soru": "Excel'de formül hangi işaretle başlar?", "secenekler": ["=", "?", "%"], "cevap": "="},
-        {"soru": "Brüt ücretten kesintiler çıkınca ne kalır?", "secenekler": ["Net Ücret", "Vergi", "Sigorta"], "cevap": "Net Ücret"}
+        {
+            "soru": "KDV (Katma Değer Vergisi) ne tür bir vergidir?", 
+            "secenekler": ["Harcama üzerinden alınan vergi", "Gelir üzerinden alınan vergi", "Servet vergisi", "Emlak vergisi", "Motorlu taşıtlar vergisi"], 
+            "cevap": "Harcama üzerinden alınan vergi"
+        },
+        {
+            "soru": "Excel programında A1 ile A5 hücreleri arasındaki sayıların ortalamasını alan formül hangisidir?", 
+            "secenekler": ["=ORTALAMA(A1:A5)", "=TOPLA(A1:A5)", "=SAY(A1:A5)", "=MİN(A1:A5)", "=MAK(A1:A5)"], 
+            "cevap": "=ORTALAMA(A1:A5)"
+        },
+        {
+            "soru": "Bir işletmenin varlıklarının ve borçlarının gösterildiği tabloya ne ad verilir?", 
+            "secenekler": ["Bilanço", "Gelir Tablosu", "Mizan", "Kasa Defteri", "Nazım Hesaplar"], 
+            "cevap": "Bilanço"
+        }
     ]
 }
 
@@ -83,51 +105,61 @@ if "GOOGLE_API_KEY" in st.secrets:
 def yapay_zeka_soru_uret(sinif, ders):
     ai_sorulari = []
     
-    # 1. KONUYA ÖZEL PROMPT AYARLAMA (Müfredat Kontrolü)
-    konu_detayi = ""
-    if ders == "Temel Muhasebe" and "9" in sinif:
-        konu_detayi = "Konular: Fatura ve yerine geçen belgeler (İrsaliye, Fiş, Serbest Meslek Makbuzu, Gider Pusulası), İşletme Hesabı Defteri, Serbest Meslek Kazanç Defteri, Vergi Dairesi, SGK, Belediye işlemleri. (Bilanço ve Yevmiye SORMA)."
-    elif ders == "Finansal Muhasebe":
-        konu_detayi = "Konular: Bilanço Eşitliği, Yevmiye Kayıtları, Büyük Defter, Mizan, Tek Düzen Hesap Planı, Varlık ve Kaynak hesapları."
-    elif ders == "Bilgisayarlı Muhasebe (Luca)":
-        konu_detayi = "Konular: Luca muhasebe programı menüleri, Fiş girişi, Kısayol tuşları, Şirket açma işlemleri."
+    # 1. GÜNCEL MEVZUAT VE DERS AYARLARI
+    konu_detayi = "Güncel 2024-2025 mevzuatına uygun olsun."
     
+    if ders == "Temel Muhasebe" and "9" in sinif:
+        konu_detayi += " Konular: Belge Düzeni (Fatura, İrsaliye, Gider Pusulası), Vergi Dairesi ve Belediye İşlemleri, Basit Usul, İşletme Defteri."
+    elif ders == "Finansal Muhasebe":
+        konu_detayi += " Konular: Tek Düzen Hesap Planı, Yevmiye Kayıtları, Bilanço İlkeleri (Bilanço ve Yevmiye sorulabilir)."
+    elif "Bilgisayarlı" in ders:
+        konu_detayi += " Konular: Program arayüzü, Fiş girişleri, Kısayol tuşları."
+
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        # PROMPT (EMİR): 5 ŞIKLI VE KARIŞIK CEVAPLI
         prompt = f"""
-        Rolün: Lise Öğretmeni.
+        Rolün: Türkiye Mevzuatına hakim Meslek Lisesi Öğretmeni.
         Ders: {ders} (Sınıf: {sinif}).
-        {konu_detayi}
+        Özel Not: {konu_detayi}
         
-        GÖREV: Bu ders ve konular için TAM 10 ADET çoktan seçmeli soru hazırla.
-        Zorluk seviyesi: Öğrenciyi düşündürecek, ezber bozan sorular olsun.
+        GÖREV: Bu ders için TAM 10 ADET çoktan seçmeli soru hazırla.
         
-        ÇIKTI JSON FORMATINDA OLMALI:
-        [ {{ "soru": "...", "secenekler": ["A", "B", "C"], "cevap": "..." }} ]
+        KRİTİK KURALLAR:
+        1. Her sorunun **5 ADET SEÇENEĞİ** (A,B,C,D,E) olsun.
+        2. Doğru cevap şıkkı (A, B, C, D, E) arasında **RASTGELE DAĞILSIN**. Hepsi A olmasın.
+        3. Sorular güncel, mantıklı ve düşündürücü olsun.
+        4. Çıktı SADECE JSON formatında olsun.
+        
+        JSON FORMATI:
+        [ {{ "soru": "Soru metni...", "secenekler": ["Şık1", "Şık2", "Şık3", "Şık4", "Şık5"], "cevap": "Doğru olan şıkkın tam metni" }} ]
         """
         response = model.generate_content(prompt)
         text_response = response.text.strip()
+        
         if text_response.startswith("```"):
             text_response = text_response.split("```")[1]
             if text_response.startswith("json"):
                 text_response = text_response[4:]
+        
         ai_sorulari = json.loads(text_response)
-    except:
+        
+    except Exception as e:
         ai_sorulari = []
 
-    # 2. HATA KORUMASI VE YEDEK TAMAMLAMA
-    # Eğer AI çalışmazsa veya eksik soru üretirse:
+    # 2. YEDEK DEPO KONTROLÜ
     if len(ai_sorulari) < 10:
-        # Önce o dersin kendi yedeğini dene
-        ozel_yedek = YEDEK_DEPO.get(ders, [])
-        if not ozel_yedek:
-            # O dersin yedeği yoksa "Genel" yedekten çek (Hata vermemek için)
-            ozel_yedek = YEDEK_DEPO["Genel"]
+        yedek = YEDEK_DEPO.get(ders, YEDEK_DEPO.get("Genel"))
+        eksik = 10 - len(ai_sorulari)
+        if yedek:
+            eklenecekler = random.choices(yedek, k=eksik)
+            ai_sorulari.extend(eklenecekler)
             
-        eksik_sayi = 10 - len(ai_sorulari)
-        # Yedekleri karıştır ve ekle
-        eklenecekler = random.choices(ozel_yedek, k=eksik_sayi) # choices: tekrar seçebilir (soru bitmesin diye)
-        ai_sorulari.extend(eklenecekler)
+    # 3. ZORUNLU KARIŞTIRMA (PYTHON TARAFINDA)
+    # AI şıkları hep A yapsa bile, biz burada zorla karıştırıyoruz.
+    for soru in ai_sorulari:
+        random.shuffle(soru["secenekler"])
     
     return ai_sorulari[:10]
 
@@ -184,8 +216,7 @@ if not st.session_state.oturum_basladi:
         with st.status(f"Sorular Hazırlanıyor... ({st.session_state.kimlik['ders']})", expanded=True):
             sorular = yapay_zeka_soru_uret(st.session_state.kimlik['sinif'], st.session_state.kimlik['ders'])
             
-            # KESİN KORUMA: Sorular bir şekilde boş gelirse bile listeyi zorla doldur.
-            if len(sorular) == 0:
+            if len(sorular) == 0: # Çok nadir hata durumu için koruma
                 sorular = YEDEK_DEPO["Genel"]
                 
             st.session_state.soru_listesi = sorular
@@ -203,14 +234,19 @@ elif st.session_state.index < len(st.session_state.soru_listesi):
     
     st.markdown(f"<div class='big-font'>{soru['soru']}</div>", unsafe_allow_html=True)
     
-    for sec in soru["secenekler"]:
+    # ŞIKLARI LİSTELE
+    secenekler = soru["secenekler"]
+    # NOT: Zaten fonksiyonda karıştırdık, burada tekrar karıştırmaya gerek yok ama 
+    # butonları oluştururken doğru cevabı kontrol etmeliyiz.
+    
+    for sec in secenekler:
         if st.button(sec, use_container_width=True):
             if sec == soru["cevap"]:
                 st.session_state.puan += 10
                 st.toast("✅ Doğru!", icon="🎉")
             else:
                 st.toast(f"❌ Yanlış! Cevap: {soru['cevap']}", icon="⚠️")
-            time.sleep(1)
+            time.sleep(1.5)
             st.session_state.index += 1
             st.rerun()
 
