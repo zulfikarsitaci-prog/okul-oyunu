@@ -18,57 +18,54 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- 1. DEV SORU DEPOSU (YEDEK GÜÇ) ---
-# Buraya 100'lerce soru ekleyebilirsiniz. AI çalışmazsa buradan çeker.
+# --- 1. YEDEK DEPO (İNTERNET KOPARSA HERKESE ORTAK SORULAR) ---
 YEDEK_DEPO = [
     {"soru": "İşletme kasasından bankaya para yatırıldığında hangi hesap borçlu çalışır?", "secenekler": ["100 Kasa", "102 Bankalar", "103 Verilen Çekler"], "cevap": "102 Bankalar"},
     {"soru": "Veresiye mal satışı yapıldığında alacaklı hesap hangisidir?", "secenekler": ["600 Yurt İçi Satışlar", "120 Alıcılar", "391 Hesaplanan KDV"], "cevap": "600 Yurt İçi Satışlar"},
-    {"soru": "İşletmenin borçlarını ödeme gücünü gösteren oranlara ne ad verilir?", "secenekler": ["Likidite Oranları", "Karlılık Oranları", "Faaliyet Oranları"], "cevap": "Likidite Oranları"},
-    {"soru": "KDV hariç 1000 TL'lik malın %20 KDV dahil tutarı ne kadardır?", "secenekler": ["1200 TL", "1020 TL", "1180 TL"], "cevap": "1200 TL"},
-    {"soru": "Satıcıya olan borcumuzu çek vererek ödedik. Hangi hesap ALACAKLI çalışır?", "secenekler": ["103 Verilen Çekler ve Ödeme Emirleri", "320 Satıcılar", "100 Kasa"], "cevap": "103 Verilen Çekler ve Ödeme Emirleri"},
+    {"soru": "Satıcıya olan borcumuzu çek vererek ödedik. Hangi hesap ALACAKLI çalışır?", "secenekler": ["103 Verilen Çekler", "320 Satıcılar", "100 Kasa"], "cevap": "103 Verilen Çekler"},
     {"soru": "Aşağıdakilerden hangisi bir 'Duran Varlık' kalemidir?", "secenekler": ["255 Demirbaşlar", "153 Ticari Mallar", "100 Kasa"], "cevap": "255 Demirbaşlar"},
-    {"soru": "Dönem sonunda '600 Yurt İçi Satışlar' hesabı hangi hesaba devredilerek kapatılır?", "secenekler": ["690 Dönem Karı veya Zararı", "500 Sermaye", "100 Kasa"], "cevap": "690 Dönem Karı veya Zararı"},
-    {"soru": "Çek üzerindeki vade tarihine ne ad verilir?", "secenekler": ["Keşide Tarihi", "Vade", "Ciro"], "cevap": "Keşide Tarihi"},
-    {"soru": "İşletme sahibinin işletmeye koyduğu varlıklara ne denir?", "secenekler": ["Sermaye", "Borç", "Gelir"], "cevap": "Sermaye"},
-    {"soru": "Mal alırken ödenen KDV hangi hesapta izlenir?", "secenekler": ["191 İndirilecek KDV", "391 Hesaplanan KDV", "360 Ödenecek Vergi"], "cevap": "191 İndirilecek KDV"},
-    {"soru": "Müşteriden alınan senet tahsil edildiğinde hangi hesap ALACAKLI çalışır?", "secenekler": ["121 Alacak Senetleri", "100 Kasa", "102 Bankalar"], "cevap": "121 Alacak Senetleri"},
-    {"soru": "Bilanço eşitliği aşağıdakilerden hangisidir?", "secenekler": ["Varlıklar = Kaynaklar", "Varlıklar = Borçlar", "Dönen Varlıklar = Duran Varlıklar"], "cevap": "Varlıklar = Kaynaklar"},
-    {"soru": "Bankadaki paramıza faiz tahakkuk ettiğinde (Faiz Geliri), hangi hesap ALACAKLI olur?", "secenekler": ["642 Faiz Gelirleri", "102 Bankalar", "100 Kasa"], "cevap": "642 Faiz Gelirleri"},
-    {"soru": "Aşağıdakilerden hangisi Nazım Hesap örneğidir?", "secenekler": ["900 Teminat Mektupları", "100 Kasa", "500 Sermaye"], "cevap": "900 Teminat Mektupları"},
-    {"soru": "Satılan malın maliyeti kaydı yapılırken borçlu hesap hangisidir?", "secenekler": ["621 Satılan Ticari Mallar Maliyeti", "153 Ticari Mallar", "600 Yurt İçi Satışlar"], "cevap": "621 Satılan Ticari Mallar Maliyeti"},
-    {"soru": "Personele avans verildiğinde hangi hesap kullanılır?", "secenekler": ["196 Personel Avansları", "335 Personele Borçlar", "770 Genel Yönetim Giderleri"], "cevap": "196 Personel Avansları"},
-    {"soru": "100 Kasa hesabı ne tür bir bakiyedir?", "secenekler": ["Borç Bakiyesi", "Alacak Bakiyesi", "Bakiye Vermez"], "cevap": "Borç Bakiyesi"},
-    {"soru": "Kısa vadeli borçlar bilançonun kaçıncı grubunda yer alır?", "secenekler": ["3. Grup", "4. Grup", "5. Grup"], "cevap": "3. Grup"},
-    {"soru": "Hisse senedi ihraç primleri hangi grupta yer alır?", "secenekler": ["Özkaynaklar", "Yabancı Kaynaklar", "Dönen Varlıklar"], "cevap": "Özkaynaklar"},
-    {"soru": "Açılış fişinde Pasif hesaplar nasıl kaydedilir?", "secenekler": ["Alacak tarafına", "Borç tarafına", "Kaydedilmez"], "cevap": "Alacak tarafına"},
-    {"soru": "Bankadan kredi çekildiğinde '300 Banka Kredileri' hesabı nasıl çalışır?", "secenekler": ["Alacaklanır", "Borçlanır", "Kapanır"], "cevap": "Alacaklanır"},
-    {"soru": "Elektrik faturası ödendiğinde genellikle hangi gider hesabı kullanılır?", "secenekler": ["770 Genel Yönetim Giderleri", "760 Pazarlama Giderleri", "153 Ticari Mallar"], "cevap": "770 Genel Yönetim Giderleri"},
-    {"soru": "Demirbaş satışından elde edilen kar hangi hesaba yazılır?", "secenekler": ["679 Diğer Olağandışı Gelir ve Karlar", "600 Yurt İçi Satışlar", "642 Faiz Gelirleri"], "cevap": "679 Diğer Olağandışı Gelir ve Karlar"},
-    {"soru": "Cari oran hesaplanırken hangi kalemler kullanılır?", "secenekler": ["Dönen Varlıklar / Kısa Vadeli Yabancı Kaynaklar", "Duran Varlıklar / Özkaynaklar", "Kasa / Borçlar"], "cevap": "Dönen Varlıklar / Kısa Vadeli Yabancı Kaynaklar"},
-    {"soru": "320 Satıcılar hesabı hangi durumda borçlanır?", "secenekler": ["Satıcıya ödeme yapıldığında", "Mal alındığında", "Senet ciro edildiğinde"], "cevap": "Satıcıya ödeme yapıldığında"}
+    {"soru": "KDV hariç 1000 TL'lik malın %20 KDV dahil tutarı ne kadardır?", "secenekler": ["1200 TL", "1020 TL", "1180 TL"], "cevap": "1200 TL"}
 ]
 
-# --- 2. GEMINI AI BAĞLANTISI ---
+# --- 2. GEMINI AI BAĞLANTISI (AKILLI ÖĞRETMEN MODU) ---
 if "GOOGLE_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
-def yapay_zeka_soru_uret():
-    # Önce AI'dan soru isteyelim
+def yapay_zeka_soru_uret(sinif_seviyesi):
+    # Sınıfa göre konu belirleme mantığı
+    konu_kapsami = "Genel Muhasebe"
+    zorluk = "Orta"
+    
+    if "9" in sinif_seviyesi:
+        konu_kapsami = "Mesleki Gelişim, Temel Hukuk Bilgisi, Ofis Programları, Tacir/Esnaf Kavramları"
+        zorluk = "Başlangıç (Kolay)"
+    elif "10" in sinif_seviyesi:
+        konu_kapsami = "Genel Muhasebe 1, Yevmiye Kayıtları, Büyük Defter, Mizan, Varlık Hesapları (Kasa, Banka, Çek)"
+        zorluk = "Orta"
+    elif "11" in sinif_seviyesi:
+        konu_kapsami = "Dönem Sonu İşlemleri, Envanter, Şirketler Muhasebesi, Bilgisayarlı Muhasebe, Duran Varlıklar"
+        zorluk = "İleri"
+    elif "12" in sinif_seviyesi:
+        konu_kapsami = "Maliyet Muhasebesi (7A/7B), Beyannameler, Mali Tablolar Analizi, İş ve Sosyal Güvenlik Hukuku"
+        zorluk = "Zor/Uzman"
+
     ai_sorulari = []
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
-        prompt = """
-        Sen tecrübeli bir Muhasebe Öğretmenisin.
-        Bana Lise düzeyinde Genel Muhasebe dersi için 5 adet ÖZGÜN, ZORLUĞU DENGELİ, çoktan seçmeli soru üret.
-        Konular: Yevmiye Kayıtları, Bilanço, KDV Hesaplamaları, Tek Düzen Hesap Planı.
+        prompt = f"""
+        Sen Türkiye müfredatına hakim uzman bir Muhasebe Öğretmenisin.
+        Şu an sınava giren öğrenci seviyesi: **{sinif_seviyesi}**.
         
-        LÜTFEN ÇIKTIYI SADECE AŞAĞIDAKİ JSON FORMATINDA VER:
+        Lütfen bu seviyeye uygun, **{zorluk}** zorluk derecesinde, şu konulardan 5 adet çoktan seçmeli soru hazırla:
+        **{konu_kapsami}**
+        
+        ÇIKTIYI SADECE AŞAĞIDAKİ JSON FORMATINDA VER (Başka açıklama yapma):
         [
-            {
-                "soru": "Soru metni buraya",
-                "secenekler": ["A şıkkı", "B şıkkı", "C şıkkı"],
-                "cevap": "Doğru olan şıkkın metni"
-            }
+            {{
+                "soru": "Soru metni",
+                "secenekler": ["A", "B", "C"],
+                "cevap": "Doğru şıkkın aynısı"
+            }}
         ]
         """
         response = model.generate_content(prompt)
@@ -83,18 +80,13 @@ def yapay_zeka_soru_uret():
         print(f"AI Hatası: {e}")
         ai_sorulari = []
 
-    # EĞER AI AZ SORU ÜRETİRSE VEYA HATA VERİRSE, DEPODAN TAMAMLA
+    # Eğer AI hata verirse veya az soru üretirse depodan tamamla
     eksik_sayi = 10 - len(ai_sorulari)
-    
     if eksik_sayi > 0:
-        # Depodan rastgele soru seçip ekle
         ek_sorular = random.sample(YEDEK_DEPO, min(eksik_sayi, len(YEDEK_DEPO)))
         ai_sorulari.extend(ek_sorular)
         
-    # Toplam listeyi karıştır ki AI ve Depo soruları iç içe geçsin
     random.shuffle(ai_sorulari)
-    
-    # Maksimum 10 soru döndür
     return ai_sorulari[:10]
 
 # --- 3. GOOGLE SHEETS KAYIT ---
@@ -126,11 +118,12 @@ if 'kayit_ok' not in st.session_state: st.session_state.kayit_ok = False
 if not st.session_state.oturum_basladi:
     st.image("https://cdn-icons-png.flaticon.com/512/2883/2883857.png", width=100)
     st.title("Bağarası Hibrit Sınav Sistemi")
-    st.markdown("**Yapay Zeka** + **Geniş Soru Havuzu** ile güçlendirildi.")
+    st.info("Sorular sınıf seviyenize (9-10-11-12) göre özel olarak hazırlanacaktır.")
     
     if st.session_state.yukleniyor:
-        with st.status("Sorular Hazırlanıyor... (AI + Depo)", expanded=True):
-            sorular = yapay_zeka_soru_uret()
+        secilen_sinif = st.session_state.kimlik["sinif"]
+        with st.status(f"Yapay Zeka {secilen_sinif} seviyesine uygun sorular hazırlıyor...", expanded=True):
+            sorular = yapay_zeka_soru_uret(secilen_sinif)
             st.session_state.soru_listesi = sorular
             st.session_state.oturum_basladi = True
             st.session_state.kayit_ok = False
@@ -140,7 +133,9 @@ if not st.session_state.oturum_basladi:
         with st.form("giris"):
             ad = st.text_input("Adınız")
             soyad = st.text_input("Soyadınız")
-            sinif = st.selectbox("Sınıf", ["9-A", "10-A", "11-Muhasebe", "12-Muhasebe"])
+            # Sınıf listesini buradan güncelleyebilirsiniz
+            sinif = st.selectbox("Sınıfınız", ["9-A", "9-B", "10-A", "10-B", "11-Muhasebe", "12-Muhasebe"])
+            
             if st.form_submit_button("Sınavı Başlat"):
                 if ad and soyad:
                     st.session_state.kimlik = {"ad": ad, "soyad": soyad, "sinif": sinif}
@@ -159,11 +154,8 @@ elif st.session_state.index < len(st.session_state.soru_listesi):
     st.markdown(f"<div class='big-font'>{soru['soru']}</div>", unsafe_allow_html=True)
     st.write("")
     
-    # Seçenekleri karıştır
     secenekler = list(soru["secenekler"])
-    # Not: Seçenekleri her seferinde karıştırmak isterseniz burayı açın:
-    # random.shuffle(secenekler)
-
+    
     for sec in secenekler:
         if st.button(sec, use_container_width=True):
             if sec == soru["cevap"]:
@@ -179,7 +171,7 @@ elif st.session_state.index < len(st.session_state.soru_listesi):
 else:
     st.balloons()
     st.title(f"Puanın: {st.session_state.puan}")
-    st.info(f"Öğrenci: {st.session_state.kimlik['ad']} {st.session_state.kimlik['soyad']}")
+    st.info(f"Öğrenci: {st.session_state.kimlik['ad']} {st.session_state.kimlik['soyad']} ({st.session_state.kimlik['sinif']})")
     
     if not st.session_state.kayit_ok:
         with st.spinner("Sonuç kaydediliyor..."):
