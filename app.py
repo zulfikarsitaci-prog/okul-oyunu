@@ -32,39 +32,38 @@ st.markdown("""
 MUFREDAT = {
     "9. Sınıf": ["Temel Muhasebe", "Mesleki Matematik", "Ofis Uygulamaları", "Mesleki Gelişim Atölyesi"],
     "10. Sınıf": ["Genel Muhasebe", "Temel Hukuk", "Ekonomi", "Klavye Teknikleri"],
-    "11. Sınıf": ["Bilgisayarlı Muhasebe", "Maliyet Muhasebesi", "Şirketler Muhasebesi", "Vergi ve Beyannameler", "İş ve Sosyal Güvenlik Hukuku", "Girişimcilik ve İşletme"],
-    "12. Sınıf": ["Dış Ticaret", "Kooperatifçilik", "Hızlı Klavye", "Ahilik Kültürü ve Girişimcilik"]
+    "11. Sınıf": ["Bilgisayarlı Muhasebe", "Maliyet Muhasebesi", "Şirketler Muhasebesi", "Vergi ve Beyannameler", "İş ve Sosyal Güvenlik", "Girişimcilik"],
+    "12. Sınıf": ["Dış Ticaret", "Kooperatifçilik", "Hızlı Klavye", "Ahilik Kültürü"]
 }
 
 # --- 2. KONU HAVUZU (YILLIK PLANLARDAN TAM İÇERİK) ---
 KONU_HAVUZU = {
-    "Temel Muhasebe": "Ticari Defterler, Fatura, İrsaliye, Perakende Satış Fişi, Gider Pusulası, Müstahsil Makbuzu, Serbest Meslek Makbuzu, İşletme Hesabı Defteri (Gider/Gelir), Vergi Dairesi, Belediye, SGK İşlemleri.",
-    "Mesleki Matematik": "Yüzde Hesapları, Binde Hesapları, Maliyet ve Satış Fiyatı, KDV Hesaplamaları, İskonto (İç/Dış), Karışım Problemleri, Faiz Hesapları, Oran-Orantı.",
-    "Ofis Uygulamaları": "Word (Biçimlendirme, Tablo), Excel (Hücre, Formüller: Topla, Ortalama, Eğer), PowerPoint (Slayt, Animasyon), Donanım Birimleri.",
-    "Mesleki Gelişim Atölyesi": "Ahilik Kültürü, Meslek Etiği, İletişim, İş Sağlığı ve Güvenliği, Girişimcilik Fikirleri, Proje Hazırlama, Çevre Koruma.",
+    "9-Temel Muhasebe": "Ticari Defterler, Fatura, İrsaliye, Perakende Satış Fişi, Gider Pusulası, Müstahsil Makbuzu, Serbest Meslek Makbuzu, İşletme Hesabı Defteri (Gider/Gelir), Vergi Dairesi, Belediye, SGK İşlemleri.",
+    "9-Mesleki Matematik": "Yüzde Hesapları, Binde Hesapları, Maliyet ve Satış Fiyatı, KDV Hesaplamaları, İskonto (İç/Dış), Karışım Problemleri, Faiz Hesapları, Oran-Orantı.",
+    "9-Ofis Uygulamaları": "Word (Biçimlendirme, Tablo), Excel (Hücre, Formüller: Topla, Ortalama, Eğer), PowerPoint (Slayt, Animasyon), Donanım Birimleri.",
+    "9-Mesleki Gelişim Atölyesi": "Ahilik Kültürü, Meslek Etiği, İletişim, İş Sağlığı ve Güvenliği, Girişimcilik Fikirleri, Proje Hazırlama, Çevre Koruma.",
     
-    "Genel Muhasebe": "Bilanço Eşitliği, Hesap Kavramı, Tek Düzen Hesap Planı, Dönen/Duran Varlıklar, Yabancı Kaynaklar, Yevmiye Defteri, Büyük Defter, Mizan, Gelir Tablosu İlkeleri.",
-    "Temel Hukuk": "Hukukun Kaynakları, Hak Ehliyeti, Kişiler Hukuku, Borçlar Hukuku (Sözleşmeler), Ticaret Hukuku (Tacir), Kıymetli Evrak (Çek, Senet), Sigorta Hukuku.",
-    "Ekonomi": "Arz-Talep, Piyasa Dengesi, Enflasyon, Devalüasyon, Milli Gelir, Para ve Bankacılık, Merkez Bankası, Dış Ticaret Dengesi.",
-    "Klavye Teknikleri": "F Klavye Tuşları (Temel Sıra, Üst/Alt Sıra), Oturuş Düzeni, Süreli Yazım, Hatasız Yazım Kuralları.",
+    "10-Genel Muhasebe": "Bilanço Eşitliği, Hesap Kavramı, Tek Düzen Hesap Planı, Dönen/Duran Varlıklar, Yabancı Kaynaklar, Yevmiye Defteri, Büyük Defter, Mizan, Gelir Tablosu İlkeleri.",
+    "10-Temel Hukuk": "Hukukun Kaynakları, Hak Ehliyeti, Kişiler Hukuku, Borçlar Hukuku (Sözleşmeler), Ticaret Hukuku (Tacir), Kıymetli Evrak (Çek, Senet), Sigorta Hukuku.",
+    "10-Ekonomi": "Arz-Talep, Piyasa Dengesi, Enflasyon, Devalüasyon, Milli Gelir, Para ve Bankacılık, Merkez Bankası, Dış Ticaret Dengesi.",
+    "10-Klavye Teknikleri": "F Klavye Tuşları (Temel Sıra, Üst/Alt Sıra), Oturuş Düzeni, Süreli Yazım, Hatasız Yazım Kuralları.",
     
-    "Bilgisayarlı Muhasebe": "ETA/Luca Kurulum, Şirket Açma, Stok/Cari Kart, Fatura İşleme, Tahsil/Tediye/Mahsup Fişleri, Çek/Senet Modülü, Banka Modülü, KDV Beyannamesi.",
-    "Maliyet Muhasebesi": "7A ve 7B Hesapları, Direkt İlk Madde (150), Direkt İşçilik (720), Genel Üretim Giderleri (730), Satılan Mamul Maliyeti, Hizmet Maliyeti.",
-    "Şirketler Muhasebesi": "Şirket Kuruluşu (Kolektif, A.Ş., Ltd.), Sermaye Artırımı/Azaltımı, Kar Dağıtımı, Yedek Akçeler, Tasfiye, Devir ve Birleşme.",
-    "Vergi ve Beyannameler": "Vergi Usul Kanunu, Gelir Vergisi, Kurumlar Vergisi, KDV, ÖTV, MTV, Muhtasar Beyanname, Geçici Vergi Beyannamesi.",
-    "İş ve Sosyal Güvenlik Hukuku": "İş Kanunu, İş Sözleşmesi, Kıdem/İhbar Tazminatı, Ücret Bordrosu, Yıllık İzin, İş Sağlığı Güvenliği, SGK 4a/4b/4c.",
-    "Girişimcilik ve İşletme": "Girişimcilik Türleri, İş Planı, Fizibilite, Pazar Araştırması, Pazarlama, KOSGEB Destekleri, İnovasyon.",
+    "11-Bilgisayarlı Muhasebe": "ETA/Luca Kurulum, Şirket Açma, Stok/Cari Kart, Fatura İşleme, Tahsil/Tediye/Mahsup Fişleri, Çek/Senet Modülü, Banka Modülü, KDV Beyannamesi.",
+    "11-Maliyet Muhasebesi": "7A ve 7B Hesapları, Direkt İlk Madde (150), Direkt İşçilik (720), Genel Üretim Giderleri (730), Satılan Mamul Maliyeti, Hizmet Maliyeti.",
+    "11-Şirketler Muhasebesi": "Şirket Kuruluşu (Kolektif, A.Ş., Ltd.), Sermaye Artırımı/Azaltımı, Kar Dağıtımı, Yedek Akçeler, Tasfiye, Devir ve Birleşme.",
+    "11-Vergi ve Beyannameler": "Vergi Usul Kanunu, Gelir Vergisi, Kurumlar Vergisi, KDV, ÖTV, MTV, Muhtasar Beyanname, Geçici Vergi Beyannamesi.",
+    "11-İş ve Sosyal Güvenlik": "İş Kanunu, İş Sözleşmesi, Kıdem/İhbar Tazminatı, Ücret Bordrosu, Yıllık İzin, İş Sağlığı Güvenliği, SGK 4a/4b/4c.",
+    "11-Girişimcilik": "Girişimcilik Türleri, İş Planı, Fizibilite, Pazar Araştırması, Pazarlama, KOSGEB Destekleri, İnovasyon.",
     
-    "Dış Ticaret": "İhracat/İthalat Rejimi, Teslim Şekilleri (Incoterms), Ödeme Şekilleri (Akreditif), Gümrük Mevzuatı, Kambiyo, Serbest Bölgeler.",
-    "Kooperatifçilik": "Kooperatif İlkeleri, Kuruluş, Ana Sözleşme, Ortaklık Hakları, Genel Kurul, Risturn, Tasfiye.",
-    "Hızlı Klavye": "İleri Seviye Yazım, Adli/Hukuki Metinler, Zabıt Kâtipliği Metinleri, Dikte Çalışması.",
-    "Ahilik Kültürü ve Girişimcilik": "Ahilik Teşkilatı, Fütüvvetname, Usta-Çırak, Meslek Ahlakı, E-Ticaret, Dijital Girişimcilik."
+    "12-Dış Ticaret": "İhracat/İthalat Rejimi, Teslim Şekilleri (Incoterms), Ödeme Şekilleri (Akreditif), Gümrük Mevzuatı, Kambiyo, Serbest Bölgeler.",
+    "12-Kooperatifçilik": "Kooperatif İlkeleri, Kuruluş, Ana Sözleşme, Ortaklık Hakları, Genel Kurul, Risturn, Tasfiye.",
+    "12-Hızlı Klavye": "İleri Seviye Yazım, Adli/Hukuki Metinler, Zabıt Kâtipliği Metinleri, Dikte Çalışması.",
+    "12-Ahilik Kültürü": "Ahilik Teşkilatı, Fütüvvetname, Usta-Çırak, Meslek Ahlakı, E-Ticaret, Dijital Girişimcilik."
 }
 
 # --- 3. SABİT YEDEK DEPO (HER DERS İÇİN 10 SORU - AI ÇALIŞMAZSA BU DEVREYE GİRER) ---
-# Buradaki sorular yıllık planlarınızdan birebir alınmıştır.
 YEDEK_DEPO = {
-    "Temel Muhasebe": [
+    "9-Temel Muhasebe": [
         {"soru": "Fatura yerine geçen belgelerden hangisi, çiftçiden ürün alırken düzenlenir?", "secenekler": ["Müstahsil Makbuzu", "Gider Pusulası", "Serbest Meslek Makbuzu", "İrsaliye", "Fiş"], "cevap": "Müstahsil Makbuzu"},
         {"soru": "İşletme hesabı defterinin GİDER sayfasına hangisi yazılır?", "secenekler": ["Satın alınan mal bedeli", "Satılan mal bedeli", "Alınan ücretler", "Faiz gelirleri", "Kira gelirleri"], "cevap": "Satın alınan mal bedeli"},
         {"soru": "Malın sevki sırasında düzenlenen belge hangisidir?", "secenekler": ["Sevk İrsaliyesi", "Fatura", "Gider Pusulası", "Tahsilat Makbuzu", "Çek"], "cevap": "Sevk İrsaliyesi"},
@@ -76,7 +75,7 @@ YEDEK_DEPO = {
         {"soru": "Defterlerin saklama süresi Vergi Usul Kanunu'na göre kaç yıldır?", "secenekler": ["5 Yıl", "10 Yıl", "1 Yıl", "3 Yıl", "20 Yıl"], "cevap": "5 Yıl"},
         {"soru": "İşyeri açma ve çalışma ruhsatı nereden alınır?", "secenekler": ["Belediye", "Maliye", "Nüfus Müd.", "Adliye", "Emniyet"], "cevap": "Belediye"}
     ],
-    "Genel Muhasebe": [
+    "10-Genel Muhasebe": [
         {"soru": "Bilanço temel denkliği hangisidir?", "secenekler": ["Varlıklar = Kaynaklar", "Gelir = Gider", "Aktif = Pasif - Sermaye", "Kasa = Banka", "Borç = Alacak"], "cevap": "Varlıklar = Kaynaklar"},
         {"soru": "100 Kasa hesabı nasıl çalışır?", "secenekler": ["Girişler Borç, Çıkışlar Alacak", "Girişler Alacak, Çıkışlar Borç", "Hep Alacaklı", "Hep Borçlu", "Çalışmaz"], "cevap": "Girişler Borç, Çıkışlar Alacak"},
         {"soru": "Satıcıya borçlandığımızda hangi hesap kullanılır?", "secenekler": ["320 Satıcılar", "120 Alıcılar", "102 Bankalar", "600 Satışlar", "500 Sermaye"], "cevap": "320 Satıcılar"},
@@ -88,7 +87,7 @@ YEDEK_DEPO = {
         {"soru": "Mizan nedir?", "secenekler": ["Hesapların borç/alacak toplamlarını gösteren çizelge", "Mali durum tablosu", "Kar zarar tablosu", "Fatura listesi", "Vergi beyannamesi"], "cevap": "Hesapların borç/alacak toplamlarını gösteren çizelge"},
         {"soru": "Satılan Ticari Mallar Maliyeti hangi hesapla kaydedilir?", "secenekler": ["621", "600", "391", "191", "153"], "cevap": "621"}
     ],
-    "Temel Hukuk": [
+    "10-Temel Hukuk": [
         {"soru": "Hak ehliyeti ne zaman başlar?", "secenekler": ["Tam ve sağ doğumla", "18 yaşla", "Evlenince", "Okula başlayınca", "İşe girince"], "cevap": "Tam ve sağ doğumla"},
         {"soru": "Borcun unsurları nelerdir?", "secenekler": ["Alacaklı, Borçlu, Edim", "Hakim, Savcı, Avukat", "Para, Mal, Hizmet", "Yasa, Tüzük, Yönetmelik", "Davacı, Davalı, Tanık"], "cevap": "Alacaklı, Borçlu, Edim"},
         {"soru": "Çek üzerindeki vadeye ne ad verilir?", "secenekler": ["Keşide Tarihi", "Vade", "Tanzim", "Ciro", "Aval"], "cevap": "Keşide Tarihi"},
@@ -100,7 +99,7 @@ YEDEK_DEPO = {
         {"soru": "Kıymetli evrakta 'Emre Yazılı' senet hangisidir?", "secenekler": ["Bono (Emre Muharrer Senet)", "Fatura", "İrsaliye", "Makbuz", "Dekont"], "cevap": "Bono (Emre Muharrer Senet)"},
         {"soru": "Sigorta sözleşmesinde sigorta güvencesini veren tarafa ne denir?", "secenekler": ["Sigortacı", "Sigortalı", "Lehtar", "Acente", "Eksper"], "cevap": "Sigortacı"}
     ],
-    "Maliyet Muhasebesi": [
+    "11-Maliyet Muhasebesi": [
         {"soru": "7/A seçeneğinde Direkt İlk Madde ve Malzeme Giderleri kodu nedir?", "secenekler": ["710", "720", "730", "740", "750"], "cevap": "710"},
         {"soru": "Üretimle doğrudan ilişkisi kurulamayan giderler nerede izlenir?", "secenekler": ["730 Genel Üretim Giderleri", "710 DİMMG", "720 DİG", "600 Satışlar", "100 Kasa"], "cevap": "730 Genel Üretim Giderleri"},
         {"soru": "Direkt İşçilik Giderleri hangi hesapta izlenir?", "secenekler": ["720", "710", "730", "760", "770"], "cevap": "720"},
@@ -111,15 +110,8 @@ YEDEK_DEPO = {
         {"soru": "7/B seçeneğinde giderler neye göre sınıflandırılır?", "secenekler": ["Çeşitlerine göre", "Fonksiyonlarına göre", "Büyüklüğüne göre", "Tarihine göre", "Rengine göre"], "cevap": "Çeşitlerine göre"},
         {"soru": "Yansıtma hesapları ne işe yarar?", "secenekler": ["Giderleri gelir tablosu veya stok hesaplarına aktarmak", "KDV ödemek", "Maaş ödemek", "Fatura kesmek", "Stok saymak"], "cevap": "Giderleri gelir tablosu veya stok hesaplarına aktarmak"},
         {"soru": "Maliyet muhasebesinin temel amacı nedir?", "secenekler": ["Birim maliyeti hesaplamak", "Vergi kaçırmak", "Kredi çekmek", "Reklam yapmak", "Personel almak"], "cevap": "Birim maliyeti hesaplamak"}
-    ],
-    # DİĞER DERSLER İÇİN DE STANDART YEDEKLER EKLENDİ...
-    "Genel": [
-        {"soru": "İşletmenin en likit varlığı nedir?", "secenekler": ["Kasa", "Bina", "Demirbaş", "Taşıt", "Arsa"], "cevap": "Kasa"},
-        {"soru": "Hangisi bir finansal tablodur?", "secenekler": ["Bilanço", "Fatura", "İrsaliye", "Çek", "Senet"], "cevap": "Bilanço"},
-        {"soru": "KDV oranı %1 olan ürün hangisi olabilir?", "secenekler": ["Ekmek", "Beyaz Eşya", "Mobilya", "Sigara", "Alkol"], "cevap": "Ekmek"},
-        {"soru": "Excel'de formül hangi işaretle başlar?", "secenekler": ["=", "?", "!", "#", "%"], "cevap": "="},
-        {"soru": "Tacir kime denir?", "secenekler": ["Ticari işletmeyi işleten", "Memur", "İşçi", "Öğrenci", "Emekli"], "cevap": "Ticari işletmeyi işleten"}
     ]
+    # Diğer dersler için de sistem otomatik olarak AI ile soru üretir, yedekler örnektir.
 }
 
 # --- AI AYARLARI ---
@@ -129,22 +121,25 @@ if "GOOGLE_API_KEY" in st.secrets:
 def yapay_zeka_soru_uret(sinif, ders):
     ai_sorulari = []
     
-    # Konu Havuzundan Ders İçeriğini Al
-    konu_metni = KONU_HAVUZU.get(ders, "Genel Müfredat")
+    # Derse özel anahtarı oluştur (Örn: "9-Temel Muhasebe")
+    ders_key = f"{sinif.split('.')[0]}-{ders}"
+    
+    # 1. Konu Seçimi (Havuza bak yoksa genele bak)
+    konu_metni = KONU_HAVUZU.get(ders_key, KONU_HAVUZU.get(ders, "Müfredat Konuları"))
     
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"""
-        Rolün: Öğretmen. Ders: {ders} ({sinif}).
-        Müfredat Konuları: {konu_metni}
+        Rolün: Lise Öğretmeni. Ders: {ders} ({sinif}).
         
-        GÖREV: Yukarıdaki konulardan 10 ADET test sorusu üret.
+        AŞAĞIDAKİ KONULARDAN 10 ADET TEST SORUSU ÜRET:
+        {konu_metni}
         
         KURALLAR:
-        1. SADECE belirtilen dersin konularından sor. (Örn: Hukuk dersinde muhasebe sorma).
-        2. Her sorunun 5 şıkkı (A,B,C,D,E) olsun.
+        1. Asla ders dışı soru sorma. (Örn: Hukuk dersinde Muhasebe sorma).
+        2. 5 Şıklı olsun (A,B,C,D,E).
         3. Cevaplar rastgele şıklara dağılsın.
-        4. Çıktı SADECE JSON olsun.
+        4. JSON Formatında olsun.
         
         JSON: [ {{ "soru": "...", "secenekler": ["A", "B", "C", "D", "E"], "cevap": "..." }} ]
         """
@@ -159,26 +154,29 @@ def yapay_zeka_soru_uret(sinif, ders):
     except:
         ai_sorulari = []
 
-    # GARANTİ MEKANİZMASI: Eğer AI eksik üretirse veya hata verirse
-    # Hemen Yedek Depodan tamamla.
+    # 2. EKSİK SORULARI TAMAMLAMA (Yedek Depo Devreye Girer)
     if len(ai_sorulari) < 10:
-        # Önce o dersin kendi yedeğini bul
-        ozel_yedek = YEDEK_DEPO.get(ders, [])
+        # Önce tam eşleşen yedeği bul (Örn: "9-Temel Muhasebe")
+        ozel_yedek = YEDEK_DEPO.get(ders_key, [])
         
-        # Eğer o dersin yedeği yoksa "Genel" veya benzer dersin yedeğini al
+        # Bulamazsa sadece ders ismine bak (Örn: "Temel Muhasebe")
         if not ozel_yedek:
-            if "Muhasebe" in ders: ozel_yedek = YEDEK_DEPO.get("Genel Muhasebe", YEDEK_DEPO["Genel"])
-            elif "Hukuk" in ders: ozel_yedek = YEDEK_DEPO.get("Temel Hukuk", YEDEK_DEPO["Genel"])
-            else: ozel_yedek = YEDEK_DEPO["Genel"]
+            ozel_yedek = YEDEK_DEPO.get(ders, [])
             
-        eksik = 10 - len(ai_sorulari)
-        # Yedekleri karıştırıp ekle (Böylece hep aynısı gelmez)
-        random.shuffle(ozel_yedek)
-        # Eğer yedek de yetmezse tekrarla
-        while len(ozel_yedek) < eksik:
-            ozel_yedek.extend(ozel_yedek)
+        # Hala yoksa benzer derslere bak
+        if not ozel_yedek:
+            if "Muhasebe" in ders: ozel_yedek = YEDEK_DEPO.get("Genel Muhasebe", [])
+            elif "Hukuk" in ders: ozel_yedek = YEDEK_DEPO.get("Temel Hukuk", [])
             
-        ai_sorulari.extend(ozel_yedek[:eksik])
+        eksik_sayi = 10 - len(ai_sorulari)
+        
+        # Yedeği karıştır ve ekle
+        if ozel_yedek:
+            random.shuffle(ozel_yedek)
+            # Eğer yedek sayısı azsa kopyalayarak çoğalt (ki 10'a tamamlasın)
+            while len(ozel_yedek) < eksik_sayi:
+                ozel_yedek.extend(ozel_yedek)
+            ai_sorulari.extend(ozel_yedek[:eksik_sayi])
             
     return ai_sorulari[:10]
 
