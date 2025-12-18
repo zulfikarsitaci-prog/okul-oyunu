@@ -10,26 +10,58 @@ from datetime import datetime
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası ÇPAL Sınav Merkezi", page_icon="🏫", layout="centered")
 
-# --- GÖRÜNTÜ AYARLARI ---
+# --- GÖRÜNTÜ AYARLARI (SARI ZEMİN - SİYAH YAZI) ---
 st.markdown("""
     <style>
-    .stApp { background-color: #ffffff !important; }
-    h1, h2, h3, h4, h5, h6, p, div, span, label, li { color: #000000 !important; }
-    .stButton>button { 
-        width: 100%; border-radius: 10px; min-height: 4em; 
-        font-weight: 500; background-color: #f8f9fa !important; 
-        color: #000000 !important; border: 2px solid #e9ecef !important;
-        white-space: pre-wrap; text-align: left !important; padding-left: 20px;
+    /* 1. Arka Planı SARI Yap */
+    .stApp {
+        background-color: #FFF9C4 !important; /* Açık Sarı */
     }
-    .stButton>button:hover { background-color: #e2e6ea !important; border-color: #adb5bd !important; }
-    .big-font { font-size: 20px !important; font-weight: 700; color: #111827 !important; margin-bottom: 20px; }
+    
+    /* 2. Tüm Yazıları SİYAH Yap */
+    h1, h2, h3, h4, h5, h6, p, div, span, label, li, .stMarkdown {
+        color: #000000 !important;
+    }
+    
+    /* 3. Buton Tasarımı (Turuncu/Sarı tonlu, Siyah Yazılı) */
+    .stButton>button { 
+        width: 100%; 
+        border-radius: 10px; 
+        min-height: 4em; 
+        font-weight: 600; 
+        background-color: #FFEB3B !important; /* Canlı Sarı */
+        color: #000000 !important; 
+        border: 2px solid #FBC02D !important; /* Koyu Sarı Kenarlık */
+        white-space: pre-wrap; 
+        text-align: left !important; 
+        padding-left: 20px;
+    }
+    .stButton>button:hover { 
+        background-color: #FDD835 !important; 
+        border-color: #000000 !important; 
+    }
+    
+    /* 4. Giriş Kutuları */
+    .stTextInput input, .stSelectbox div[data-baseweb="select"] > div {
+        background-color: #FFFFFF !important; 
+        color: #000000 !important; 
+        border: 2px solid #000000 !important;
+    }
+    
+    /* 5. Soru Yazısı Stili */
+    .big-font { 
+        font-size: 22px !important; 
+        font-weight: 800; 
+        color: #000000 !important; 
+        margin-bottom: 25px; 
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# --- 1. MÜFREDAT LİSTESİ (Yıllık Planlarınızdaki Tüm Dersler) ---
+# --- 1. MÜFREDAT LİSTESİ ---
 MUFREDAT = {
     "9. Sınıf": ["Temel Muhasebe", "Mesleki Matematik", "Ofis Uygulamaları", "Mesleki Gelişim Atölyesi"],
-    "10. Sınıf": ["Finansal Muhasebe", "Temel Hukuk", "Temel Ekonomi", "Klavye Teknikleri"],
+    "10. Sınıf": ["Genel Muhasebe", "Temel Hukuk", "Ekonomi", "Klavye Teknikleri"],
     "11. Sınıf": [
         "Bilgisayarlı Muhasebe (Luca)", 
         "Maliyet Muhasebesi", 
@@ -46,111 +78,62 @@ MUFREDAT = {
     ]
 }
 
-# --- 2. DETAYLI KONU HAVUZU (YILLIK PLANLARDAN ÇEKİLENLER) ---
-# Sistem buradan her seferinde rastgele 3 konu seçip soruyu ona göre üretecek.
+# --- 2. DETAYLI KONU HAVUZU (10. SINIF GÜNCELLENDİ) ---
 KONU_HAVUZU = {
-    # --- 9. SINIF ---
-    "Temel Muhasebe": [
-        "Ticari Defter ve Belgeler", "Fatura ve İrsaliye Düzenleme", "Perakende Satış Fişi ve Yazar Kasa",
-        "Gider Pusulası ve Müstahsil Makbuzu", "Serbest Meslek Makbuzu", "İşletme Hesabı Defteri Gider Kayıtları",
-        "İşletme Hesabı Defteri Gelir Kayıtları", "Vergi Dairesi İşlemleri ve Bildirimler", "Belediye İşlemleri (Ruhsat vb.)"
-    ],
-    "Mesleki Matematik": [
-        "Yüzde Hesaplamaları", "Binde Hesaplamaları", "Maliyet ve Satış Fiyatı Hesaplama",
-        "KDV Hesaplamaları (Hariç ve Dahil)", "Ticari Belgelerde Tutar Hesaplama", 
-        "Basit İskonto Hesaplamaları (İç ve Dış)", "Karışım ve Alaşım Problemleri", "Faiz Hesaplamaları"
-    ],
-    "Ofis Uygulamaları": [
-        "Kelime İşlemci (Word) Sekmeler ve Şeritler", "Metin Biçimlendirme ve Yazı Tipi",
-        "Word'de Tablo ve Resim Ekleme", "Elektronik Tablolama (Excel) Hücre Yapısı",
-        "Excel Formülleri (Topla, Ortalama, Eğer, Mak, Min)", "Excel'de Grafik Oluşturma",
-        "Sunu Hazırlama (PowerPoint) Slayt Tasarımı", "Slayt Geçişleri ve Animasyonlar"
-    ],
-    "Mesleki Gelişim Atölyesi": [
-        "Ahilik Kültürü ve Meslek Etiği", "İletişim Süreci ve Türleri", "Etkili İletişim Teknikleri",
-        "İş Sağlığı ve Güvenliği Tedbirleri", "Girişimcilik Fikirleri ve İnovasyon",
-        "Kişisel Gelişim ve Kariyer Planlama", "Teknolojik Gelişmeler ve Meslekler"
-    ],
-
-    # --- 10. SINIF ---
-    "Finansal Muhasebe": [
-        "Muhasebe Temel Kavramları", "Bilanço Eşitliği ve İlkeleri", "Varlık Hesapları (100-299)",
-        "Kaynak Hesapları (300-599)", "Yevmiye Defteri Kayıt Kuralları", "Büyük Defter (Defter-i Kebir) Aktarımı",
-        "Mizan Düzenleme (Geçici ve Kesin Mizan)", "7/A ve 7/B Maliyet Seçenekleri", "Nazım Hesapların İşleyişi"
-    ],
+    # --- 10. SINIF (SİZİN BELİRLEDİĞİNİZ KONULAR) ---
     "Temel Hukuk": [
-        "Hukukun Temel Kaynakları", "Hak Kavramı ve Türleri", "Kişiler Hukuku (Gerçek ve Tüzel Kişiler)",
-        "Borçlar Hukuku ve Sözleşmeler", "Mülkiyet Hakkı", "Yargı Sistemi ve Dava Türleri",
-        "Sigorta Hukuku (Can ve Mal Sigortaları)"
+        "Hukuğa Giriş ve Hukukun Dalları", 
+        "Borçlar Hukuku (Borcun Unsurları)", 
+        "Hukuki Ehliyet (Hak ve Fiil Ehliyeti)", 
+        "Mülkiyet Kavramı ve Hakkı", 
+        "Sözleşme Çeşitleri ve Geçersizliği", 
+        "Ticaret Hukuku (Tacir, Ticari İşletme)", 
+        "Kıymetli Evrak Hukuku (Bono, Poliçe, Çek)", 
+        "Sigorta Hukuku (Can ve Mal Sigortası)"
     ],
-    "Temel Ekonomi": [
-        "Ekonomik Sistemler", "Arz ve Talep Kanunları", "Piyasa Dengesi ve Fiyat Oluşumu",
-        "Enflasyon, Deflasyon ve Devalüasyon", "Milli Gelir Kavramları", "Para ve Bankacılık",
-        "Uluslararası Ekonomik Kuruluşlar", "Türkiye-AB İlişkileri"
+    "Ekonomi": [
+        "Ekonomiye Giriş ve Temel Kavramlar (İhtiyaç, Fayda)", 
+        "Arz ve Talep İlişkisi", 
+        "Fiyat Oluşumu ve Piyasa Dengesi", 
+        "Piyasa Mekanizması (Tam ve Eksik Rekabet)", 
+        "Ekonomik Büyüme ve İstihdam", 
+        "Para, Bankacılık ve Enflasyon", 
+        "Ödemeler Dengesi (Cari Açık/Fazla)", 
+        "Dış Ticaret ve Uluslararası Kuruluşlar (IMF, DB, AB)"
     ],
-    "Klavye Teknikleri": [
-        "F Klavye Temel Sıra Tuşları (A, K, E, M...)", "Üst ve Alt Sıra Tuşları", "Rakam ve Sembol Tuşları",
-        "Oturuş ve Duruş Teknikleri", "Süreli Metin Yazma Çalışmaları", "Hatasız Yazım Teknikleri"
+    "Genel Muhasebe": [
+        "Bilanço Eşitliği ve Düzenlenmesi", 
+        "Muhasebenin Temel Kavramları", 
+        "Tekdüzen Hesap Planı Mantığı", 
+        "Gelir Tablosu İlkeleri", 
+        "Hesapların İşleyişi (Borç/Alacak Kuralları)", 
+        "Satılan Ticari Mallar Maliyeti (STMM)", 
+        "Muhasebe Uygulamaları (Yevmiye Kayıtları)", 
+        "Aktif ve Pasif Hesapların Özellikleri"
     ],
+    
+    # --- 9. SINIF (ÖNCEKİ YILLIK PLANDAN) ---
+    "Temel Muhasebe": ["Ticari Defterler", "Fatura ve İrsaliye", "Perakende Satış Fişi", "Gider Pusulası", "İşletme Hesabı Defteri", "Vergi Dairesi İşlemleri"],
+    "Mesleki Matematik": ["Yüzde Hesapları", "Maliyet ve Satış Fiyatı", "KDV Hesaplamaları", "İskonto İşlemleri", "Karışım Problemleri"],
+    "Ofis Uygulamaları": ["Word Biçimlendirme", "Excel Formülleri (Topla, Ortalama)", "PowerPoint Sunu Tasarımı", "Yazıcı Ayarları"],
+    "Mesleki Gelişim Atölyesi": ["Ahilik Kültürü", "Etkili İletişim", "İş Sağlığı ve Güvenliği", "Girişimcilik Fikirleri"],
 
-    # --- 11. SINIF ---
-    "Bilgisayarlı Muhasebe (Luca)": [
-        "Muhasebe Programı Kurulumu ve Şirket Açma", "Stok Kartı ve Cari Kart Tanımlama",
-        "Alış ve Satış Faturası İşleme", "Muhasebe Fişleri (Tahsil, Tediye, Mahsup)",
-        "Çek ve Senet Modülü İşlemleri", "Banka Hareketleri Kaydı", "KDV Beyannamesi Alma", "Dönem Sonu Devir İşlemleri"
-    ],
-    "Maliyet Muhasebesi": [
-        "Gider, Harcama ve Maliyet Kavramları", "Direkt İlk Madde ve Malzeme Giderleri (150)",
-        "Direkt İşçilik Giderleri (720)", "Genel Üretim Giderleri (730)", "7A ve 7B Maliyet Seçenekleri",
-        "Satılan Mamul Maliyeti Tablosu", "Hizmet Üretim Maliyeti"
-    ],
-    "Şirketler Muhasebesi": [
-        "Şahıs ve Sermaye Şirketleri", "Kolektif Şirket Kuruluşu", "Anonim Şirket Kuruluş Kayıtları",
-        "Sermaye Artırımı İşlemleri", "Sermaye Azaltımı İşlemleri", "Kar Dağıtımı ve Yedek Akçeler",
-        "Şirket Birleşmeleri ve Devir", "Şirketlerde Tasfiye Süreci"
-    ],
-    "Vergi ve Beyannameler": [
-        "Vergi Hukuku ve Verginin Tarafları", "Gelir Vergisi Beyannamesi", "Kurumlar Vergisi Beyannamesi",
-        "Katma Değer Vergisi (KDV)", "Özel Tüketim Vergisi (ÖTV)", "Motorlu Taşıtlar Vergisi (MTV)",
-        "Muhtasar ve Prim Hizmet Beyannamesi"
-    ],
-    "İş ve Sosyal Güvenlik Hukuku": [
-        "4857 Sayılı İş Kanunu", "İş Sözleşmesi Türleri", "Ücret ve Ücret Bordrosu Hesaplama",
-        "Kıdem ve İhbar Tazminatı", "Yıllık İzin Hakları", "İş Sağlığı ve Güvenliği Mevzuatı",
-        "Sosyal Sigortalar ve GSS (4a, 4b, 4c)"
-    ],
-    "Girişimcilik ve İşletme": [
-        "Girişimcilik Özellikleri ve Türleri", "İş Planı (Business Plan) Hazırlama",
-        "Fizibilite Raporu (Yapılabilirlik)", "Pazar Araştırması", "Pazarlama Stratejileri",
-        "KOSGEB ve Devlet Destekleri", "İnovasyon ve Yaratıcılık"
-    ],
+    # --- 11. SINIF (ÖNCEKİ YILLIK PLANDAN) ---
+    "Bilgisayarlı Muhasebe (Luca)": ["Şirket Açma", "Stok/Cari Kart", "Fatura İşleme", "Muhasebe Fişleri", "KDV Beyannamesi", "Dönem Sonu"],
+    "Maliyet Muhasebesi": ["7A/7B Maliyet", "Direkt İlk Madde (150)", "Direkt İşçilik (720)", "Genel Üretim Gideri (730)", "Satılan Mamul Maliyeti"],
+    "Şirketler Muhasebesi": ["Şirket Kuruluşu", "Sermaye Artırımı", "Kar Dağıtımı", "Tasfiye", "Şirket Birleşmeleri"],
+    "Vergi ve Beyannameler": ["Gelir Vergisi", "Kurumlar Vergisi", "KDV", "MTV", "ÖTV", "Muhtasar Beyanname"],
 
-    # --- 12. SINIF ---
-    "Dış Ticaret": [
-        "İhracat ve İthalat Rejimi", "Teslim Şekilleri (Incoterms - FOB, CIF, EXW)",
-        "Ödeme Şekilleri (Akreditif, Peşin, Vesaik Mukabili)", "Gümrük Mevzuatı ve Belgeler",
-        "Kambiyo İşlemleri", "Serbest Bölgeler", "Dış Ticaret Finansmanı"
-    ],
-    "Kooperatifçilik": [
-        "Kooperatifçilik İlkeleri", "Kooperatif Kuruluş İşlemleri ve Ana Sözleşme",
-        "Ortaklık Hak ve Ödevleri", "Kooperatif Organları (Genel Kurul, Yönetim)",
-        "Risturn (Kar Payı) Dağıtımı", "Kooperatiflerde Tasfiye"
-    ],
-    "Hızlı Klavye": [
-        "İleri Seviye Metin Yazma", "Dikte Çalışmaları", "Adli ve Hukuki Metin Yazımı",
-        "Resmi Yazışma Kuralları", "Rapor ve Tutanak Düzenleme"
-    ],
-    "Ahilik Kültürü ve Girişimcilik": [
-        "Ahilik Teşkilatı ve Fütüvvetnameler", "Ahilikte Meslek Ahlakı ve İlkeler",
-        "Usta-Çırak İlişkisi ve Şed Kuşanma", "Günümüz Esnaf Teşkilatları",
-        "Girişimcilikte Etik Değerler", "E-Ticaret ve Dijital Girişimcilik"
-    ]
+    # --- 12. SINIF (ÖNCEKİ YILLIK PLANDAN) ---
+    "Dış Ticaret": ["İhracat/İthalat Rejimi", "Teslim Şekilleri (Incoterms)", "Ödeme Şekilleri", "Gümrük Mevzuatı"],
+    "Kooperatifçilik": ["Kooperatif Kuruluşu", "Ortaklık Hakları", "Risturn Hesaplama", "Genel Kurul"],
+    "Hızlı Klavye": ["F Klavye Hız Çalışmaları", "Adli Metin Yazımı", "Rapor Düzenleme"]
 }
 
-# --- YEDEK DEPO (ACİL DURUM) ---
+# --- YEDEK DEPO (ACİL DURUM İÇİN) ---
 YEDEK_DEPO = {
     "Genel": [
-        {"soru": "VUK'a göre fatura düzenleme sınırı (2025) aşıldığında hangi belge düzenlenmelidir?", "secenekler": ["Fatura", "Fiş", "Gider Pusulası", "İrsaliye", "Dekont"], "cevap": "Fatura"},
+        {"soru": "VUK'a göre fatura düzenleme sınırı aşıldığında hangi belge düzenlenmelidir?", "secenekler": ["Fatura", "Fiş", "Gider Pusulası", "İrsaliye", "Dekont"], "cevap": "Fatura"},
         {"soru": "Bilanço temel denkliği hangisidir?", "secenekler": ["Varlıklar = Kaynaklar", "Gelir = Gider", "Borç = Alacak", "Aktif = Pasif + Sermaye", "Kasa = Banka"], "cevap": "Varlıklar = Kaynaklar"},
         {"soru": "Excel'de 'EĞER' formülü ne işe yarar?", "secenekler": ["Mantıksal kıyaslama yapar", "Toplama yapar", "Ortalama alır", "Yazı rengini değiştirir", "Tablo çizer"], "cevap": "Mantıksal kıyaslama yapar"}
     ]
@@ -163,29 +146,27 @@ if "GOOGLE_API_KEY" in st.secrets:
 def yapay_zeka_soru_uret(sinif, ders):
     ai_sorulari = []
     
-    # 1. KONU SEÇİMİ (HAVUZDAN RASTGELE KONULAR ÇEKİLİR)
-    # Bu sayede her seferinde farklı bir haftanın konusu gelir.
+    # 1. KONU SEÇİMİ (TEKRARI ÖNLEMEK İÇİN)
+    # Havuzdan rastgele 3 konu seçiyoruz. Böylece her sınavda farklı konu kombinasyonu gelir.
     tum_konular = KONU_HAVUZU.get(ders, ["Genel Konular"])
-    # Listeden rastgele 2 veya 3 konu seç
     secilen_konular = random.sample(tum_konular, min(3, len(tum_konular)))
     konu_metni = ", ".join(secilen_konular)
     
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         
-        # --- PROMPT ---
         prompt = f"""
         Rolün: Lise Öğretmeni.
         Ders: {ders} (Sınıf: {sinif}).
         
-        GÖREV: Aşağıdaki Yıllık Plan Konularından 10 ADET özgün test sorusu hazırla.
-        SEÇİLEN KONULAR: {konu_metni}
+        Aşağıdaki Konulardan 10 ADET özgün test sorusu hazırla:
+        KONULAR: {konu_metni}
         
         KURALLAR:
         1. Sorular {sinif} seviyesine uygun ve MEB müfredatıyla uyumlu olsun.
         2. Her sorunun 5 şıkkı (A,B,C,D,E) olsun.
-        3. Cevaplar şıklara rastgele dağılsın.
-        4. Sorular seçilen konulara odaklanmalı.
+        3. Cevaplar şıklara rastgele dağılsın (Hepsi A olmasın).
+        4. Sorular asla tekrar etmemeli, farklı soru tipleri kullan.
         5. Çıktı SADECE JSON formatında olsun.
         
         JSON FORMATI:
@@ -204,13 +185,13 @@ def yapay_zeka_soru_uret(sinif, ders):
     except Exception as e:
         ai_sorulari = []
 
-    # 2. YEDEKLEME
+    # 2. YEDEKLEME (Eksik gelirse)
     if len(ai_sorulari) < 10:
         yedek = YEDEK_DEPO["Genel"]
         eksik = 10 - len(ai_sorulari)
         ai_sorulari.extend(random.choices(yedek, k=eksik))
             
-    # 3. KARIŞTIRMA
+    # 3. KARIŞTIRMA (PYTHON TARAFINDA GARANTİ KARIŞTIRMA)
     for soru in ai_sorulari:
         random.shuffle(soru["secenekler"])
     
@@ -265,7 +246,7 @@ if not st.session_state.oturum_basladi:
                 st.warning("Ad ve Soyad zorunludur.")
 
     if st.session_state.yukleniyor:
-        with st.status(f"Yıllık Plandan Konular Seçiliyor... ({st.session_state.kimlik['ders']})", expanded=True):
+        with st.status(f"Sorular Hazırlanıyor... ({st.session_state.kimlik['ders']})", expanded=True):
             sorular = yapay_zeka_soru_uret(st.session_state.kimlik['sinif'], st.session_state.kimlik['ders'])
             
             if not sorular: 
@@ -303,7 +284,7 @@ else:
     st.success("Sınav Tamamlandı!")
     
     st.markdown(f"""
-    <div style='background-color:#f0f2f6; padding:20px; border-radius:10px; text-align:center;'>
+    <div style='background-color:#FFEB3B; padding:20px; border-radius:10px; text-align:center; border: 2px solid #000;'>
         <h2>{st.session_state.kimlik['ad']} {st.session_state.kimlik['soyad']}</h2>
         <h3>Puan: {st.session_state.puan}</h3>
         <p>{st.session_state.kimlik['sinif']} - {st.session_state.kimlik['ders']}</p>
