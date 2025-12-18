@@ -1,46 +1,68 @@
 import streamlit as st
+import google.generativeai as genai
+import json
 import time
-import random
 
 # --- SAYFA AYARLARI ---
-st.set_page_config(page_title="Bağarası Finans Ligi", page_icon="🎓", layout="centered")
+st.set_page_config(page_title="Bağarası AI Finans", page_icon="🤖", layout="centered")
 
-# --- STİL (CSS) ---
+# --- STİL ---
 st.markdown("""
     <style>
-    .stButton>button {
-        width: 100%;
-        border-radius: 10px;
-        height: 3em;
-        font-weight: bold;
-    }
-    .success-msg { color: #28a745; font-weight: bold; font-size: 20px; }
-    .error-msg { color: #dc3545; font-weight: bold; font-size: 20px; }
-    .big-font { font-size: 24px !important; font-weight: bold; }
+    .stButton>button { width: 100%; border-radius: 10px; height: 3em; font-weight: bold; }
+    .big-font { font-size: 22px !important; font-weight: bold; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- SORU HAVUZU (MUHASEBE & FİNANS) ---
-# Buraya istediğiniz kadar soru ekleyebilirsiniz.
-tum_sorular = [
-    {"soru": "İşletmenin kasasına nakit para girişi olduğunda '100 Kasa Hesabı' nasıl çalışır?", "secenekler": ["Borçlanır (Giriş)", "Alacaklanır (Çıkış)", "Değişmez"], "cevap": "Borçlanır (Giriş)"},
-    {"soru": "Satıcıya olan veresiye borcumuzu ödediğimizde hangi hesap BORÇLANIR?", "secenekler": ["320 Satıcılar", "100 Kasa", "120 Alıcılar"], "cevap": "320 Satıcılar"},
-    {"soru": "Mal alışı sırasında ödenen Katma Değer Vergisi hangi hesapta izlenir?", "secenekler": ["191 İndirilecek KDV", "391 Hesaplanan KDV", "360 Ödenecek Vergi"], "cevap": "191 İndirilecek KDV"},
-    {"soru": "Müşteriden alınan çeklerin izlendiği hesap hangisidir?", "secenekler": ["101 Alınan Çekler", "103 Verilen Çekler", "121 Alacak Senetleri"], "cevap": "101 Alınan Çekler"},
-    {"soru": "Banka hesabımızdan para çekildiğinde '102 Bankalar' hesabı nasıl çalışır?", "secenekler": ["Alacaklanır (Azalış)", "Borçlanır (Artış)", "Kapanır"], "cevap": "Alacaklanır (Azalış)"},
-    {"soru": "İşletme sahibi sermaye olarak 50.000 TL nakit koymuştur. Alacaklı hesap hangisidir?", "secenekler": ["500 Sermaye", "100 Kasa", "600 Yurt İçi Satışlar"], "cevap": "500 Sermaye"},
-    {"soru": "Mal satışı yapıldığında, satış tutarı (gelir) hangi hesabın alacağına yazılır?", "secenekler": ["600 Yurt İçi Satışlar", "153 Ticari Mallar", "391 Hesaplanan KDV"], "cevap": "600 Yurt İçi Satışlar"},
-    {"soru": "Aşağıdakilerden hangisi bir 'Varlık' hesabıdır?", "secenekler": ["102 Bankalar", "300 Banka Kredileri", "320 Satıcılar"], "cevap": "102 Bankalar"},
-    {"soru": "Senetsiz (veresiye) mal sattığımızda hangi hesap borçlanır?", "secenekler": ["120 Alıcılar", "320 Satıcılar", "100 Kasa"], "cevap": "120 Alıcılar"},
-    {"soru": "Dönem sonunda '191 İndirilecek KDV' hesabının bakiyesi, '391 Hesaplanan KDV'den büyükse ne oluşur?", "secenekler": ["Devreden KDV", "Ödenecek KDV", "KDV İadesi"], "cevap": "Devreden KDV"},
-    {"soru": "Kısa vadeli yabancı kaynaklar bilançonun hangi grubunda yer alır?", "secenekler": ["3. Grup", "4. Grup", "5. Grup"], "cevap": "3. Grup"},
-    {"soru": "Demirbaş alımında ödenen KDV hangi hesaba kaydedilir?", "secenekler": ["191 İndirilecek KDV", "255 Demirbaşlar", "770 Genel Yönetim Gid."], "cevap": "191 İndirilecek KDV"},
-    {"soru": "Çek keşide etmek (düzenleyip vermek) hangi hesabı alacaklandırır?", "secenekler": ["103 Verilen Çekler ve Ödeme Emirleri", "101 Alınan Çekler", "102 Bankalar"], "cevap": "103 Verilen Çekler ve Ödeme Emirleri"},
-    {"soru": "Aşağıdakilerden hangisi Nazım Hesap niteliğindedir?", "secenekler": ["900 Borçlu Nazım Hesaplar", "100 Kasa", "500 Sermaye"], "cevap": "900 Borçlu Nazım Hesaplar"},
-    {"soru": "İşletmenin 1 yıldan uzun vadeli borçları hangi ana grupta izlenir?", "secenekler": ["Uzun Vadeli Yabancı Kaynaklar", "Duran Varlıklar", "Özkaynaklar"], "cevap": "Uzun Vadeli Yabancı Kaynaklar"}
+# --- API ANAHTARI KONTROLÜ ---
+if "GOOGLE_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+else:
+    st.error("API Anahtarı bulunamadı! Lütfen Streamlit Secrets ayarlarını yapın.")
+    st.stop()
+
+# --- YEDEK SORU HAVUZU (Acil Durumlar İçin) ---
+yedek_sorular = [
+    {"soru": "Kasa hesabına para girişi olduğunda hesap nasıl çalışır?", "secenekler": ["Borçlanır", "Alacaklanır", "Kapanır"], "cevap": "Borçlanır"},
+    {"soru": "Veresiye mal satışında hangi hesap kullanılır?", "secenekler": ["120 Alıcılar", "320 Satıcılar", "100 Kasa"], "cevap": "120 Alıcılar"},
+    {"soru": "Satıcıya borcumuzu ödersek 320 Satıcılar hesabı ne olur?", "secenekler": ["Borçlanır (Azalır)", "Alacaklanır (Artar)", "Değişmez"], "cevap": "Borçlanır (Azalır)"},
+    {"soru": "Hangisi bir varlık hesabıdır?", "secenekler": ["100 Kasa", "600 Satışlar", "320 Satıcılar"], "cevap": "100 Kasa"},
+    {"soru": "KDV hangi hesapta takip edilmez?", "secenekler": ["600 Yurt İçi Satışlar", "191 İndirilecek KDV", "391 Hesaplanan KDV"], "cevap": "600 Yurt İçi Satışlar"}
 ]
 
-# --- OTURUM AYARLARI (SESSION STATE) ---
+# --- YAPAY ZEKA FONKSİYONU ---
+def yapay_zeka_soru_uret():
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = """
+        Sen uzman bir Muhasebe Öğretmenisin. Lise öğrencileri için Genel Muhasebe dersiyle ilgili
+        5 adet çoktan seçmeli soru hazırla. Sorular ne çok kolay ne çok zor olsun.
+        Konular: Kasa, Banka, Çek, Senet, KDV, Mal Alış/Satış, Bilanço Esasları.
+        
+        Çıktıyı SADECE şu JSON formatında ver, başka hiçbir açıklama yazma:
+        [
+            {
+                "soru": "Soru metni buraya",
+                "secenekler": ["A şıkkı", "B şıkkı", "C şıkkı"],
+                "cevap": "Doğru olan şıkkın aynısı"
+            }
+        ]
+        Dil: Türkçe. Türkiye Tek Düzen Hesap Planına uygun olsun.
+        """
+        response = model.generate_content(prompt)
+        text_response = response.text.strip()
+        
+        # JSON temizliği
+        if text_response.startswith("```"):
+            text_response = text_response.split("```")[1]
+            if text_response.startswith("json"):
+                text_response = text_response[4:]
+        
+        return json.loads(text_response)
+    except Exception as e:
+        return yedek_sorular
+
+# --- OTURUM AYARLARI ---
 if 'oturum_basladi' not in st.session_state:
     st.session_state.oturum_basladi = False
 if 'soru_listesi' not in st.session_state:
@@ -49,36 +71,25 @@ if 'mevcut_soru_index' not in st.session_state:
     st.session_state.mevcut_soru_index = 0
 if 'puan' not in st.session_state:
     st.session_state.puan = 0
-if 'dogru_sayisi' not in st.session_state:
-    st.session_state.dogru_sayisi = 0
-if 'yanlis_sayisi' not in st.session_state:
-    st.session_state.yanlis_sayisi = 0
-if 'sinav_bitti' not in st.session_state:
-    st.session_state.sinav_bitti = False
+if 'yukleniyor' not in st.session_state:
+    st.session_state.yukleniyor = False
 if 'user_info' not in st.session_state:
     st.session_state.user_info = {}
 
 # --- FONKSİYONLAR ---
 def sinavi_baslat(ad, soyad, sinif):
     st.session_state.user_info = {"ad": ad, "soyad": soyad, "sinif": sinif}
-    # Havuzdan rastgele 10 soru seç
-    st.session_state.soru_listesi = random.sample(tum_sorular, min(10, len(tum_sorular)))
-    st.session_state.oturum_basladi = True
-    st.session_state.sinav_bitti = False
-    st.session_state.puan = 0
-    st.session_state.mevcut_soru_index = 0
+    st.session_state.yukleniyor = True
     st.rerun()
 
 def cevap_ver(secilen, dogru_cevap):
     if secilen == dogru_cevap:
-        st.session_state.puan += 10
-        st.session_state.dogru_sayisi += 1
-        st.toast("✅ Doğru Cevap! (+10 Puan)", icon="🎉")
+        st.session_state.puan += 20
+        st.toast("✅ Doğru! (+20 Puan)", icon="🎉")
     else:
-        st.session_state.yanlis_sayisi += 1
         st.toast(f"❌ Yanlış! Doğrusu: {dogru_cevap}", icon="⚠️")
     
-    time.sleep(1) # Cevabı görmesi için bekle
+    time.sleep(1.5)
     
     if st.session_state.mevcut_soru_index + 1 < len(st.session_state.soru_listesi):
         st.session_state.mevcut_soru_index += 1
@@ -88,87 +99,82 @@ def cevap_ver(secilen, dogru_cevap):
         st.rerun()
 
 def yeniden_baslat():
-    for key in st.session_state.keys():
-        del st.session_state[key]
+    st.session_state.oturum_basladi = False
+    st.session_state.sinav_bitti = False
+    st.session_state.yukleniyor = False
+    st.session_state.puan = 0
     st.rerun()
 
-# --- ANA UYGULAMA AKIŞI ---
-
-# 1. GİRİŞ EKRANI
+# --- EKRAN AKIŞI ---
 if not st.session_state.oturum_basladi:
-    st.image("https://cdn-icons-png.flaticon.com/512/3135/3135823.png", width=100)
-    st.title("Bağarası ÇPAL | Finans Ligi")
-    st.write("Muhasebe bilgini test et, skorunu yükselt!")
+    # GİRİŞ EKRANI
+    st.image("https://cdn-icons-png.flaticon.com/512/4712/4712035.png", width=80)
+    st.title("Bağarası AI Finans Ligi 🤖")
+    st.write("Yapay Zeka (Gemini) senin için özel sorular hazırlıyor...")
     
-    with st.form("giris_formu"):
-        ad = st.text_input("Adınız")
-        soyad = st.text_input("Soyadınız")
-        sinif = st.selectbox("Sınıfınız", ["9-A", "9-B", "10-A", "10-B", "11-A", "11-Muhasebe", "12-Muhasebe"])
-        submit_btn = st.form_submit_button("Sınava Başla 🚀")
-        
-        if submit_btn:
-            if ad and soyad:
-                sinavi_baslat(ad, soyad, sinif)
-            else:
-                st.warning("Lütfen ad ve soyad alanlarını doldurun.")
+    if st.session_state.yukleniyor:
+        with st.status("🧠 Yapay Zeka Soruları Hazırlıyor...", expanded=True) as status:
+            st.write("Muhasebe veritabanı taranıyor...")
+            time.sleep(1)
+            st.write("Gemini ile bağlantı kuruluyor...")
+            # --- AI BURADA ÇALIŞIYOR ---
+            sorular = yapay_zeka_soru_uret()
+            # ---------------------------
+            st.session_state.soru_listesi = sorular
+            status.update(label="Sorular Hazır! Başarılar...", state="complete", expanded=False)
+            time.sleep(1)
+            st.session_state.oturum_basladi = True
+            st.session_state.sinav_bitti = False
+            st.session_state.yukleniyor = False
+            st.rerun()
+            
+    else:
+        with st.form("giris_formu"):
+            ad = st.text_input("Adınız")
+            soyad = st.text_input("Soyadınız")
+            sinif = st.selectbox("Sınıfınız", ["9-A", "10-A", "11-Muhasebe", "12-Muhasebe", "Öğretmen"])
+            submit = st.form_submit_button("Sınavı Başlat 🚀")
+            
+            if submit:
+                if ad and soyad:
+                    sinavi_baslat(ad, soyad, sinif)
+                else:
+                    st.warning("Lütfen isminizi giriniz.")
 
-# 2. SINAV EKRANI
 elif not st.session_state.sinav_bitti:
-    # İlerleme Çubuğu
-    toplam_soru = len(st.session_state.soru_listesi)
+    # SORU EKRANI
+    soru_data = st.session_state.soru_listesi[st.session_state.mevcut_soru_index]
+    toplam = len(st.session_state.soru_listesi)
     suanki = st.session_state.mevcut_soru_index + 1
-    progress = st.session_state.mevcut_soru_index / toplam_soru
     
-    st.progress(progress)
-    st.caption(f"Soru {suanki} / {toplam_soru} | Oyuncu: {st.session_state.user_info['ad']} {st.session_state.user_info['soyad']}")
+    st.progress(suanki / toplam)
+    st.caption(f"Soru {suanki}/{toplam} | {st.session_state.user_info['ad']} {st.session_state.user_info['soyad']}")
     
-    # Soruyu Getir
-    soru_verisi = st.session_state.soru_listesi[st.session_state.mevcut_soru_index]
+    st.markdown(f"<div class='big-font'>{soru_data['soru']}</div>", unsafe_allow_html=True)
+    st.write("")
     
-    st.markdown(f"<div class='big-font'>{soru_verisi['soru']}</div>", unsafe_allow_html=True)
-    st.write("") # Boşluk
-    
-    # Seçenekleri Karıştır (Ezberi önlemek için)
-    secenekler = soru_verisi["secenekler"]
-    # random.shuffle(secenekler) # İsterseniz seçenek yerlerini de karıştırabilirsiniz
-    
-    col1, col2, col3 = st.columns(3)
-    
-    # Butonları yan yana veya alt alta diz
-    for i, secenek in enumerate(secenekler):
-        if st.button(secenek, key=f"btn_{i}"):
-            cevap_ver(secenek, soru_verisi["cevap"])
+    for secenek in soru_data["secenekler"]:
+        if st.button(secenek, use_container_width=True):
+            cevap_ver(secenek, soru_data["cevap"])
 
-# 3. SONUÇ EKRANI (KARNE)
 else:
+    # SONUÇ EKRANI
     st.balloons()
-    st.title("🏁 Sınav Tamamlandı!")
+    st.title("🏁 Sınav Bitti!")
     
-    skor = st.session_state.puan
-    user = st.session_state.user_info
-    
-    # Karne Kartı
     st.divider()
     col1, col2 = st.columns(2)
-    with col1:
-        st.subheader(f"{user['ad']} {user['soyad']}")
-        st.write(f"📂 Sınıf: {user['sinif']}")
-    with col2:
-        st.metric(label="TOPLAM PUAN", value=f"{skor} / 100")
+    col1.metric("Öğrenci", f"{st.session_state.user_info['ad']}")
+    col2.metric("PUAN", f"{st.session_state.puan}")
     
     st.divider()
-    c1, c2, c3 = st.columns(3)
-    c1.info(f"✅ Doğru: {st.session_state.dogru_sayisi}")
-    c2.error(f"❌ Yanlış: {st.session_state.yanlis_sayisi}")
     
-    # Başarı Mesajı
-    if skor >= 80:
-        st.success("🌟 MÜKEMMEL! Tam bir muhasebe uzmanısın.")
-    elif skor >= 50:
-        st.warning("👏 GÜZEL. Biraz daha tekrarla harika olabilir.")
+    if st.session_state.puan >= 80:
+        st.success("Tebrikler! Yapay zekayı alt ettin. 🦾")
+    elif st.session_state.puan >= 50:
+        st.warning("Güzel sonuç, ama daha iyisi olabilir.")
     else:
-        st.error("⚠️ DAHA ÇOK ÇALIŞMALISIN. Muhasebe defterlerini tekrar aç.")
+        st.error("Biraz daha çalışman lazım.")
         
-    st.write("")
-    if st.button("🔄 Yeni Sınav Başlat"):
+    if st.button("🔄 Yeni Sorularla Tekrar Dene"):
         yeniden_baslat()
