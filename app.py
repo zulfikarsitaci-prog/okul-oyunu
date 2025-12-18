@@ -10,11 +10,53 @@ from datetime import datetime
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası ÇPAL Sınav Merkezi", page_icon="🏫", layout="centered")
 
-# --- STİL ---
+# --- GÖRÜNTÜ AYARLARI (Karanlık Modu Engelleme) ---
 st.markdown("""
     <style>
-    .stButton>button { width: 100%; border-radius: 8px; height: 3.5em; font-weight: bold; background-color: #f0f2f6; }
-    .big-font { font-size: 20px !important; font-weight: 600; color: #1f1f1f; }
+    /* 1. Ana Arka Planı Zorla BEYAZ Yap */
+    .stApp {
+        background-color: #ffffff !important;
+    }
+    
+    /* 2. Başlıklar ve Normal Yazıların Hepsini SİYAH Yap */
+    h1, h2, h3, h4, h5, h6, p, div, span, label {
+        color: #000000 !important;
+    }
+    
+    /* 3. Buton Tasarımı (Net Görünür Gri Kutu, Siyah Yazı) */
+    .stButton>button { 
+        width: 100%; 
+        border-radius: 12px; 
+        height: 3.5em; 
+        font-weight: bold; 
+        background-color: #f0f2f6 !important; 
+        color: #000000 !important; 
+        border: 2px solid #d1d5db !important;
+        transition: all 0.3s;
+    }
+    
+    /* Butonun üzerine gelince hafif koyulaşsın */
+    .stButton>button:hover { 
+        background-color: #e5e7eb !important; 
+        border-color: #000000 !important;
+        color: #000000 !important;
+    }
+
+    /* 4. Soru Yazısı (Daha Büyük ve Kalın) */
+    .big-font { 
+        font-size: 24px !important; 
+        font-weight: 700; 
+        color: #111827 !important; 
+        line-height: 1.4;
+        margin-bottom: 20px;
+    }
+    
+    /* 5. Giriş Kutuları ve Menülerin İçi */
+    .stTextInput input, .stSelectbox div[data-baseweb="select"] > div {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-color: #9ca3af !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -91,13 +133,13 @@ if 'kayit_ok' not in st.session_state: st.session_state.kayit_ok = False
 
 # 1. GİRİŞ EKRANI
 if not st.session_state.oturum_basladi:
-    st.title("Bağarası ÇPAL Sınav Merkezi")
+    # Başlık Alanı
+    st.markdown("<h1 style='text-align: center; color: black;'>Bağarası ÇPAL Sınav Merkezi</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #555;'>Lütfen bilgilerinizi eksiksiz giriniz.</p>", unsafe_allow_html=True)
     
-    # --- DÜZELTME BURADA: Menüler Formun DIŞINA alındı ---
     st.write("### 1. Sınıf ve Ders Seçimi")
     secilen_sinif = st.selectbox("Sınıfınız:", list(MUFREDAT.keys()))
     
-    # Ders listesi seçilen sınıfa göre otomatik güncellenir
     dersler = MUFREDAT[secilen_sinif]
     secilen_ders = st.selectbox("Ders Seçiniz:", dersler)
     
@@ -107,7 +149,6 @@ if not st.session_state.oturum_basladi:
         ad = col1.text_input("Adınız")
         soyad = col2.text_input("Soyadınız")
         
-        # Butona basınca yukarıdaki seçimleri sisteme kaydeder
         btn = st.form_submit_button("Sınavı Başlat 🚀")
         
         if btn:
@@ -119,11 +160,10 @@ if not st.session_state.oturum_basladi:
                 st.session_state.yukleniyor = True
                 st.rerun()
             else:
-                st.warning("Ad Soyad girmelisiniz.")
+                st.warning("Lütfen Ad ve Soyad giriniz.")
 
-    # Yüklenme Ekranı (Form gönderildikten sonra çalışır)
     if st.session_state.yukleniyor:
-        with st.status(f"{st.session_state.kimlik['ders']} Soruları Hazırlanıyor...", expanded=True):
+        with st.status(f"Lütfen Bekleyiniz... {st.session_state.kimlik['ders']} soruları hazırlanıyor.", expanded=True):
             sorular = yapay_zeka_soru_uret(st.session_state.kimlik['sinif'], st.session_state.kimlik['ders'])
             st.session_state.soru_listesi = sorular
             st.session_state.oturum_basladi = True
@@ -136,9 +176,12 @@ elif st.session_state.index < len(st.session_state.soru_listesi):
     toplam = len(st.session_state.soru_listesi)
     
     st.progress((st.session_state.index + 1) / toplam)
-    st.caption(f"Ders: {st.session_state.kimlik['ders']} | Soru {st.session_state.index + 1}/{toplam}")
+    
+    # Bilgi satırı
+    st.markdown(f"**Ders:** {st.session_state.kimlik['ders']} | **Soru:** {st.session_state.index + 1}/{toplam}")
+    
+    # Soru
     st.markdown(f"<div class='big-font'>{soru['soru']}</div>", unsafe_allow_html=True)
-    st.write("")
     
     for sec in soru["secenekler"]:
         if st.button(sec, use_container_width=True):
@@ -155,10 +198,17 @@ elif st.session_state.index < len(st.session_state.soru_listesi):
 else:
     st.balloons()
     st.success("Sınav Bitti!")
-    st.info(f"{st.session_state.kimlik['ad']} {st.session_state.kimlik['soyad']} - Puan: {st.session_state.puan}")
+    
+    st.markdown(f"""
+    <div style='background-color: #f0f2f6; padding: 20px; border-radius: 10px; text-align: center;'>
+        <h2 style='color:black; margin:0;'>{st.session_state.kimlik['ad']} {st.session_state.kimlik['soyad']}</h2>
+        <h3 style='color:#333;'>Puan: {st.session_state.puan}</h3>
+        <p style='color:#555;'>{st.session_state.kimlik['sinif']} - {st.session_state.kimlik['ders']}</p>
+    </div>
+    """, unsafe_allow_html=True)
     
     if not st.session_state.kayit_ok:
-        with st.spinner("Kaydediliyor..."):
+        with st.spinner("Sonuç kaydediliyor..."):
             res = sonuclari_kaydet(
                 st.session_state.kimlik["ad"], st.session_state.kimlik["soyad"],
                 st.session_state.kimlik["sinif"], st.session_state.kimlik["ders"],
@@ -168,6 +218,6 @@ else:
                 st.success("Öğretmene İletildi ✅")
                 st.session_state.kayit_ok = True
     
-    if st.button("Çıkış"):
+    if st.button("Çıkış Yap"):
         st.session_state.oturum_basladi = False
         st.rerun()
