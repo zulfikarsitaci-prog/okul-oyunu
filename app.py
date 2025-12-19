@@ -49,8 +49,8 @@ st.markdown("""
 
 PDF_HARITASI = {
     # --- TÜRKÇE ÖRNEKLERİ ---
-    3: {"ders": "Türkçe", "cevaplar": "ADCBE"},  # Sayfa 3'te 5 soru var (A,D,C,B,E)
-    4: {"ders": "Türkçe", "cevaplar": "CCDA"},   # Sayfa 4'te 4 soru var
+    13: {"ders": "Türkçe", "cevaplar": "ECE"},  # Sayfa 3'te 5 soru var (A,D,C,B,E)
+    14: {"ders": "Türkçe", "cevaplar": "CCDA"},   # Sayfa 4'te 4 soru var
     5: {"ders": "Türkçe", "cevaplar": "EBCA"},
     
     # --- SOSYAL BİLİMLER ÖRNEKLERİ ---
