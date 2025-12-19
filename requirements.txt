@@ -1,5 +1,6 @@
 streamlit
 google-generativeai
+fitz
+PyMuPDF
 gspread
 google-auth
-PyMuPDF
