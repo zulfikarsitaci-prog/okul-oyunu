@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 import os
-import fitz  # PyMuPDF kütüphanesi (PDF'i resme çevirmek için)
+import fitz  # PyMuPDF kütüphanesi
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🎓", layout="wide")
@@ -20,7 +20,7 @@ st.markdown("""
         border: 2px solid #FF7043;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         position: sticky; 
-        top: 20px; /* Kaydırırken form sabit kalsın */
+        top: 20px; 
     }
     
     /* Butonlar */
@@ -39,9 +39,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 📝 PDF HARİTASI (TAM LİSTE)
+# 📝 PDF HARİTASI (SİZİN GÖNDERDİĞİNİZ TAM LİSTE)
 # ==============================================================================
-# Sizin hazırladığınız tam liste buraya eklendi.
 
 PDF_HARITASI = {
     # --- TÜRKÇE ---
@@ -57,80 +56,80 @@ PDF_HARITASI = {
     22: {"ders": "Türkçe", "cevaplar": "BB"},
     23: {"ders": "Türkçe", "cevaplar": "BEA"},
     24: {"ders": "Türkçe", "cevaplar": "ADE"},
-    25: {"ders": "Türkçe", "cevaplar": "EAB"}, 
+    25: {"ders": "Türkçe", "cevaplar": "EAB"},
     26: {"ders": "Türkçe", "cevaplar": "CD"},
-    27: {"ders": "Türkçe", "cevaplar": "CDA"}, 
+    27: {"ders": "Türkçe", "cevaplar": "CDA"},
     28: {"ders": "Türkçe", "cevaplar": "DD"},
-    29: {"ders": "Türkçe", "cevaplar": "BD"}, 
-    30: {"ders": "Türkçe", "cevaplar": "BDA"}, 
-    31: {"ders": "Türkçe", "cevaplar": "EAD"}, 
-    32: {"ders": "Türkçe", "cevaplar": "AB"}, 
-    33: {"ders": "Türkçe", "cevaplar": "BAA"}, 
-    34: {"ders": "Türkçe", "cevaplar": "DCB"}, 
-    35: {"ders": "Türkçe", "cevaplar": "CAD"}, 
-    36: {"ders": "Türkçe", "cevaplar": "DDB"}, 
-    37: {"ders": "Türkçe", "cevaplar": "CBD"}, 
-    38: {"ders": "Türkçe", "cevaplar": "AA"}, 
-    39: {"ders": "Türkçe", "cevaplar": "EBE"}, 
-    40: {"ders": "Türkçe", "cevaplar": "BDE"}, 
-    41: {"ders": "Türkçe", "cevaplar": "ADA"}, 
-    42: {"ders": "Türkçe", "cevaplar": "CDB"}, 
-    43: {"ders": "Türkçe", "cevaplar": "AC"}, 
-    44: {"ders": "Türkçe", "cevaplar": "DEA"}, 
-    112: {"ders": "Türkçe", "cevaplar": "DA"}, 
-    111: {"ders": "Türkçe", "cevaplar": "EC"}, 
-    110: {"ders": "Türkçe", "cevaplar": "BC"}, 
-    109: {"ders": "Türkçe", "cevaplar": "EDD"}, 
-    108: {"ders": "Türkçe", "cevaplar": "AC"}, 
-    107: {"ders": "Türkçe", "cevaplar": "BC"}, 
-    103: {"ders": "Türkçe", "cevaplar": "AA"}, 
-    102: {"ders": "Türkçe", "cevaplar": "CEC"}, 
-    101: {"ders": "Türkçe", "cevaplar": "ED"}, 
-    100: {"ders": "Türkçe", "cevaplar": "BB"}, 
-    99: {"ders": "Türkçe", "cevaplar": "EA"}, 
-    98: {"ders": "Türkçe", "cevaplar": "EB"}, 
-    97: {"ders": "Türkçe", "cevaplar": "DC"}, 
-    93: {"ders": "Türkçe", "cevaplar": "CB"}, 
-    92: {"ders": "Türkçe", "cevaplar": "BAA"}, 
-    91: {"ders": "Türkçe", "cevaplar": "DC"}, 
-    90: {"ders": "Türkçe", "cevaplar": "AB"}, 
-    89: {"ders": "Türkçe", "cevaplar": "EE"}, 
-    88: {"ders": "Türkçe", "cevaplar": "CD"}, 
-    121: {"ders": "Türkçe", "cevaplar": "DCED"}, 
-    122: {"ders": "Türkçe", "cevaplar": "DEDB"}, 
-    123: {"ders": "Türkçe", "cevaplar": "ABA"}, 
-    124: {"ders": "Türkçe", "cevaplar": "EEDA"}, 
-    125: {"ders": "Türkçe", "cevaplar": "DAC"}, 
-    126: {"ders": "Türkçe", "cevaplar": "CBAE"}, 
-    127: {"ders": "Türkçe", "cevaplar": "DEB"}, 
-    128: {"ders": "Türkçe", "cevaplar": "BDDB"}, 
-    129: {"ders": "Türkçe", "cevaplar": "CBCE"}, 
-    130: {"ders": "Türkçe", "cevaplar": "CCCC"}, 
-    131: {"ders": "Türkçe", "cevaplar": "DEDD"}, 
-    132: {"ders": "Türkçe", "cevaplar": "BCCC"}, 
-    133: {"ders": "Türkçe", "cevaplar": "C"}, 
+    29: {"ders": "Türkçe", "cevaplar": "BD"},
+    30: {"ders": "Türkçe", "cevaplar": "BDA"},
+    31: {"ders": "Türkçe", "cevaplar": "EAD"},
+    32: {"ders": "Türkçe", "cevaplar": "AB"},
+    33: {"ders": "Türkçe", "cevaplar": "BAA"},
+    34: {"ders": "Türkçe", "cevaplar": "DCB"},
+    35: {"ders": "Türkçe", "cevaplar": "CAD"},
+    36: {"ders": "Türkçe", "cevaplar": "DDB"},
+    37: {"ders": "Türkçe", "cevaplar": "CBD"},
+    38: {"ders": "Türkçe", "cevaplar": "AA"},
+    39: {"ders": "Türkçe", "cevaplar": "EBE"},
+    40: {"ders": "Türkçe", "cevaplar": "BDE"},
+    41: {"ders": "Türkçe", "cevaplar": "ADA"},
+    42: {"ders": "Türkçe", "cevaplar": "CDB"},
+    43: {"ders": "Türkçe", "cevaplar": "AC"},
+    44: {"ders": "Türkçe", "cevaplar": "DEA"},
+    88: {"ders": "Türkçe", "cevaplar": "CD"},
+    89: {"ders": "Türkçe", "cevaplar": "EE"},
+    90: {"ders": "Türkçe", "cevaplar": "AB"},
+    91: {"ders": "Türkçe", "cevaplar": "DC"},
+    92: {"ders": "Türkçe", "cevaplar": "BAA"},
+    93: {"ders": "Türkçe", "cevaplar": "CB"},
+    97: {"ders": "Türkçe", "cevaplar": "DC"},
+    98: {"ders": "Türkçe", "cevaplar": "EB"},
+    99: {"ders": "Türkçe", "cevaplar": "EA"},
+    100: {"ders": "Türkçe", "cevaplar": "BB"},
+    101: {"ders": "Türkçe", "cevaplar": "ED"},
+    102: {"ders": "Türkçe", "cevaplar": "CEC"},
+    103: {"ders": "Türkçe", "cevaplar": "AA"},
+    107: {"ders": "Türkçe", "cevaplar": "BC"},
+    108: {"ders": "Türkçe", "cevaplar": "AC"},
+    109: {"ders": "Türkçe", "cevaplar": "EDD"},
+    110: {"ders": "Türkçe", "cevaplar": "BC"},
+    111: {"ders": "Türkçe", "cevaplar": "EC"},
+    112: {"ders": "Türkçe", "cevaplar": "DA"},
+    121: {"ders": "Türkçe", "cevaplar": "DCED"},
+    122: {"ders": "Türkçe", "cevaplar": "DEDB"},
+    123: {"ders": "Türkçe", "cevaplar": "ABA"},
+    124: {"ders": "Türkçe", "cevaplar": "EEDA"},
+    125: {"ders": "Türkçe", "cevaplar": "DAC"},
+    126: {"ders": "Türkçe", "cevaplar": "CBAE"},
+    127: {"ders": "Türkçe", "cevaplar": "DEB"},
+    128: {"ders": "Türkçe", "cevaplar": "BDDB"},
+    129: {"ders": "Türkçe", "cevaplar": "CBCE"},
+    130: {"ders": "Türkçe", "cevaplar": "CCCC"},
+    131: {"ders": "Türkçe", "cevaplar": "DEDD"},
+    132: {"ders": "Türkçe", "cevaplar": "BCCC"},
+    133: {"ders": "Türkçe", "cevaplar": "C"},
 
     # --- TARİH ---
     138: {"ders": "Tarih", "cevaplar": "BDEE"},
-    139: {"ders": "Tarih", "cevaplar": "CEDA"}, 
-    140: {"ders": "Tarih", "cevaplar": "CADC"}, 
-    141: {"ders": "Tarih", "cevaplar": "CEEE"}, 
-    142: {"ders": "Tarih", "cevaplar": "DED"}, 
-    143: {"ders": "Tarih", "cevaplar": "AE"}, 
-    144: {"ders": "Tarih", "cevaplar": "BABC"}, 
-    145: {"ders": "Tarih", "cevaplar": "ADCE"}, 
-    146: {"ders": "Tarih", "cevaplar": "BCBD"}, 
-    147: {"ders": "Tarih", "cevaplar": "CBCE"}, 
-    148: {"ders": "Tarih", "cevaplar": "ACE"}, 
+    139: {"ders": "Tarih", "cevaplar": "CEDA"},
+    140: {"ders": "Tarih", "cevaplar": "CADC"},
+    141: {"ders": "Tarih", "cevaplar": "CEEE"},
+    142: {"ders": "Tarih", "cevaplar": "DED"},
+    143: {"ders": "Tarih", "cevaplar": "AE"},
+    144: {"ders": "Tarih", "cevaplar": "BABC"},
+    145: {"ders": "Tarih", "cevaplar": "ADCE"},
+    146: {"ders": "Tarih", "cevaplar": "BCBD"},
+    147: {"ders": "Tarih", "cevaplar": "CBCE"},
+    148: {"ders": "Tarih", "cevaplar": "ACE"},
 
     # --- COĞRAFYA ---
     151: {"ders": "Coğrafya", "cevaplar": "CACE"},
     152: {"ders": "Coğrafya", "cevaplar": "AAB"},
     153: {"ders": "Coğrafya", "cevaplar": "BBB"},
-    154: {"ders": "Coğrafya", "cevaplar": "BBAA"}, 
+    154: {"ders": "Coğrafya", "cevaplar": "BBAA"},
     155: {"ders": "Coğrafya", "cevaplar": "CBC"},
     156: {"ders": "Coğrafya", "cevaplar": "ECA"},
-    157: {"ders": "Coğrafya", "cevaplar": "CD"}, 
+    157: {"ders": "Coğrafya", "cevaplar": "CD"},
     158: {"ders": "Coğrafya", "cevaplar": "EC"},
     159: {"ders": "Coğrafya", "cevaplar": "AC"},
     160: {"ders": "Coğrafya", "cevaplar": "EEDE"},
@@ -182,12 +181,12 @@ PDF_HARITASI = {
     # --- KİMYA ---
     339: {"ders": "Kimya", "cevaplar": "ACAE"},
     340: {"ders": "Kimya", "cevaplar": "BC"},
-    350: {"ders": "Kimya", "cevaplar": "BDEB"},
     344: {"ders": "Kimya", "cevaplar": "DAAD"},
     345: {"ders": "Kimya", "cevaplar": "ADC"},
     346: {"ders": "Kimya", "cevaplar": "CCD"},
     348: {"ders": "Kimya", "cevaplar": "CAC"},
     349: {"ders": "Kimya", "cevaplar": "AEC"},
+    350: {"ders": "Kimya", "cevaplar": "BDEB"},
     351: {"ders": "Kimya", "cevaplar": "AAB"},
 
     # --- BİYOLOJİ ---
@@ -201,32 +200,32 @@ PDF_HARITASI = {
     374: {"ders": "Biyoloji", "cevaplar": "EEE"}
 }
 
-# PDF DOSYA ADI (Dosyanızın tam adını buraya yazın)
+# PDF DOSYA ADI
 PDF_DOSYA_ADI = "06175120_tyt.pdf"
 
 # ==============================================================================
-# PDF SAYFASINI RESME ÇEVİREN FONKSİYON (PyMuPDF)
+# PDF GÖSTERİCİ
 # ==============================================================================
 def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
     if not os.path.exists(dosya_yolu):
-        st.error(f"⚠️ HATA: '{dosya_yolu}' bulunamadı! Dosyayı GitHub'a yüklediğinizden emin olun.")
+        st.error(f"⚠️ HATA: '{dosya_yolu}' bulunamadı! Lütfen dosyayı GitHub'a yüklediğinizden emin olun.")
         return
 
     try:
-        # PDF dosyasını aç
         doc = fitz.open(dosya_yolu)
         
+        # Sayfa sınır kontrolü
         if sayfa_numarasi > len(doc) or sayfa_numarasi < 1:
-            st.error(f"Hata: İstenen sayfa ({sayfa_numarasi}) PDF sınırları dışında.")
+            st.error(f"Hata: İstenen sayfa ({sayfa_numarasi}) PDF sınırları dışında. (Toplam sayfa: {len(doc)})")
             return
 
-        # Sayfayı yükle (0 tabanlı olduğu için -1)
+        # Sayfayı yükle (0 tabanlı index)
         page = doc.load_page(sayfa_numarasi - 1)
         
-        # Sayfayı yüksek çözünürlüklü resme çevir
+        # Yüksek çözünürlüklü resim oluştur
         pix = page.get_pixmap(dpi=150)
         
-        # Resmi ekrana bas
+        # Resmi göster
         st.image(pix.tobytes(), caption=f"Sayfa {sayfa_numarasi}", use_container_width=True)
         
     except Exception as e:
@@ -248,11 +247,13 @@ if not st.session_state.oturum:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=120)
         st.title("TYT Kampı")
         
+        # Mevcut dersleri listele
         mevcut_dersler = sorted(list(set(v["ders"] for v in PDF_HARITASI.values())))
+        # Meslek dersi seçeneğini kaldırıp sadece PDF'teki dersleri koyuyoruz
         secenekler = ["Karışık Deneme"] + mevcut_dersler
         
         secilen_ders = st.selectbox("Ders Seçiniz:", secenekler)
-        sayfa_sayisi = st.slider("Kaç Sayfa Çözmek İstersiniz?", 1, 20, 3)
+        sayfa_sayisi = st.slider("Kaç Sayfa Soru Çözeceksiniz?", 1, 20, 3)
         
         if st.button("Sınavı Başlat 🚀"):
             uygun_sayfalar = []
@@ -272,7 +273,7 @@ if not st.session_state.oturum:
                 st.rerun()
 
     st.markdown("# 📚 Bağarası ÇPAL Dijital Sınav Merkezi")
-    st.info("Tüm branşlar ve çıkmış sorular sisteme yüklenmiştir. Başarılar!")
+    st.info("Sol menüden ders seçerek PDF üzerindeki gerçek çıkmış soruları çözebilirsiniz.")
 
 # --- 2. SINAV EKRANI ---
 elif st.session_state.aktif_index < len(st.session_state.secilen_sayfalar):
@@ -283,11 +284,11 @@ elif st.session_state.aktif_index < len(st.session_state.secilen_sayfalar):
     dogru_cevaplar = veri["cevaplar"]
     soru_sayisi = len(dogru_cevaplar)
     
-    # Ekranı Böl: PDF (Geniş) | Optik Form (Dar)
+    # Ekran Düzeni
     col_pdf, col_form = st.columns([2.5, 1])
     
     with col_pdf:
-        st.markdown(f"### 📄 {ders_adi} - PDF Sayfa {suanki_sayfa}")
+        st.markdown(f"### 📄 {ders_adi} - Sayfa {suanki_sayfa}")
         pdf_sayfa_getir(PDF_DOSYA_ADI, suanki_sayfa)
         
     with col_form:
@@ -299,7 +300,6 @@ elif st.session_state.aktif_index < len(st.session_state.secilen_sayfalar):
         with st.form(key=f"form_{suanki_sayfa}"):
             for i in range(soru_sayisi):
                 st.write(f"**Soru {i+1}**")
-                # Daha önce cevaplandıysa onu göster, yoksa boş
                 key = f"c_{suanki_sayfa}_{i}"
                 st.radio(f"Soru {i+1}", ["A", "B", "C", "D", "E"], key=key, horizontal=True, label_visibility="collapsed", index=None)
                 st.write("---")
@@ -317,9 +317,10 @@ elif st.session_state.aktif_index < len(st.session_state.secilen_sayfalar):
                     else:
                         st.toast(f"Soru {i+1}: Boş (Cevap: {dogru})", icon="⚪")
                 
-                # Puanlama (Her doğru 5 puan)
+                # Puanlama
                 st.session_state.toplam_puan += (dogru_sayisi * 5)
-                time.sleep(1.5)
+                st.success(f"Bu sayfada {dogru_sayisi} doğru yaptınız.")
+                time.sleep(2)
                 st.session_state.aktif_index += 1
                 st.rerun()
                 
