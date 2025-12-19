@@ -13,10 +13,8 @@ st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="�
 # --- TASARIM: IHLAMUR YEŞİLİ & SARI KİREMİT ---
 st.markdown("""
     <style>
-    /* 1. Arka Plan: Ihlamur Yeşili */
-    .stApp {
-        background-color: #F0F4C3 !important; 
-    }
+    /* 1. Arka Plan */
+    .stApp { background-color: #F0F4C3 !important; }
     
     /* 2. Yazı Renkleri */
     h1, h2, h3, h4, h5, h6, p, div, span, label, li, .stMarkdown {
@@ -26,49 +24,35 @@ st.markdown("""
     
     /* 3. Butonlar */
     .stButton>button { 
-        width: 100%; 
-        border-radius: 12px; 
-        min-height: 3.5em; 
-        font-weight: 700; 
-        background-color: #FF7043 !important; 
-        color: #FFFFFF !important; 
-        border: 2px solid #D84315 !important; 
-        white-space: pre-wrap; 
-        padding: 10px;
-        transition: transform 0.2s;
+        width: 100%; border-radius: 12px; min-height: 4em; font-weight: 700; 
+        background-color: #FF7043 !important; color: #FFFFFF !important; 
+        border: 2px solid #D84315 !important; padding: 10px; transition: transform 0.1s;
+        white-space: pre-wrap; /* Uzun şıklar alt satıra geçsin */
     }
+    .stButton>button:hover { background-color: #FF5722 !important; transform: scale(1.01); }
     
-    .stButton>button:hover { 
-        background-color: #FF5722 !important; 
-        transform: scale(1.02);
-    }
-    
-    /* 4. Input Alanları */
+    /* 4. Giriş Alanları */
     .stTextInput input, .stSelectbox div[data-baseweb="select"] > div {
-        background-color: #FFFFFF !important; 
-        color: #000000 !important; 
-        border: 2px solid #FF7043 !important;
+        background-color: #FFFFFF !important; color: #000000 !important; border: 2px solid #FF7043 !important;
     }
     
-    /* 5. Soru Kartı */
+    /* 5. Soru Kartı (DÜZELTİLDİ: Sığmayan yazılar için ayar) */
     .big-font { 
-        font-size: 20px !important; 
+        font-size: 18px !important; /* Font biraz küçültüldü */
         font-weight: 600; 
         color: #000000 !important; 
         margin-bottom: 20px; 
-        padding: 25px; 
+        padding: 20px; 
         background-color: #FFFFFF; 
         border-left: 10px solid #FF7043;
         border-radius: 10px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         line-height: 1.6;
+        overflow-wrap: break-word; /* Kelimeleri kaydır */
     }
     
     /* 6. Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: #DCEDC8 !important; 
-        border-right: 2px solid #AED581;
-    }
+    [data-testid="stSidebar"] { background-color: #DCEDC8 !important; border-right: 2px solid #AED581; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -90,21 +74,23 @@ TYT_KONULARI = {
     "Coğrafya": "Harita Bilgisi, İklim, Nüfus, Doğal Afetler.",
 }
 
-# YEDEK DEPO (TYT - ZOR VE PARAGRAF AĞIRLIKLI)
+# YEDEK DEPO (Genişletilmiş)
 YEDEK_TYT_HAVUZ = {
     "Türkçe": [
-        {"soru": "(2024 TYT) Paragrafta yazarın asıl yakındığı durum nedir? (Uzun Paragraf: Günümüz insanı teknolojiyle birlikte...) ", "secenekler": ["Yalnızlaşma", "İletişimsizlik", "Hız tutkusu", "Duyarsızlık", "Tembellik"], "cevap": "İletişimsizlik"},
+        {"soru": "(2024 TYT) Bu parçada yazarın asıl yakındığı durum aşağıdakilerden hangisidir?\n\n'Günümüz insanı teknolojiyle birlikte hız tutkusuna kapılmış durumda. Her şeye hemen ulaşmak, her şeyi çabucak tüketmek istiyoruz. Bu durum, insan ilişkilerini de yüzeyselleştiriyor. Eskiden saatlerce süren sohbetlerin yerini, kısa mesajlar ve emojiler aldı. Derinlemesine düşünmek yerine, başlıklara göz atıp geçiyoruz. Bilgiye erişim kolaylaştı ama bilgelik azaldı. İnsanlar kalabalıklar içinde yalnızlaşıyor çünkü kimse birbirini gerçekten dinlemiyor.'", "secenekler": ["Teknolojinin hayatı kolaylaştırması", "İletişimin ve ilişkilerin yüzeyselleşmesi", "Bilgiye ulaşmanın zorluğu", "İnsanların çok çalışması", "Eğitim sisteminin yetersizliği"], "cevap": "İletişimin ve ilişkilerin yüzeyselleşmesi"},
         {"soru": "Aşağıdaki cümlelerin hangisinde bir yazım yanlışı yapılmıştır?", "secenekler": ["TDK'nin yeni kılavuzu yayımlandı.", "Akşam üstü bize gelecekler.", "Her şey yolunda gidiyor.", "Ankara'ya gitmekten vazgeçti.", "Türkçeyi çok seviyor."], "cevap": "Akşam üstü bize gelecekler."},
         {"soru": "Bu parçada altı çizili sözle anlatılmak istenen nedir? ('İğneyle kuyu kazmak')", "secenekler": ["Çok zor bir işi sabırla yapmak", "Boşa kürek çekmek", "İmkansızı istemek", "Zaman kaybetmek", "Yanlış yolda olmak"], "cevap": "Çok zor bir işi sabırla yapmak"},
         {"soru": "Hangisi, öğe dizilişi bakımından 'Özne - Zarf Tümleci - Yüklem' şeklindedir?", "secenekler": ["Çocuklar bahçede koşuyor.", "Yarın Ankara'ya gideceğim.", "Hızlıca eve girdi.", "Kitabı masaya bıraktı.", "O, her zaman çalışır."], "cevap": "O, her zaman çalışır."},
-        {"soru": "Paragrafın akışını bozan cümle hangisidir? (I. Sanat evrenseldir. II. Her toplum sanattan etkilenir. III. Sanatçı toplumun aynasıdır. IV. Spor da sanat kadar önemlidir. V. Sanatın dili ortaktır.)", "secenekler": ["I", "II", "III", "IV", "V"], "cevap": "IV"}
+        {"soru": "Paragrafın akışını bozan cümle hangisidir? (I. Sanat evrenseldir. II. Her toplum sanattan etkilenir. III. Sanatçı toplumun aynasıdır. IV. Spor da sanat kadar önemlidir. V. Sanatın dili ortaktır.)", "secenekler": ["I", "II", "III", "IV", "V"], "cevap": "IV"},
+        {"soru": "Aşağıdaki cümlelerin hangisinde 'ki' bağlacının yazımıyla ilgili bir yanlışlık yapılmıştır?", "secenekler": ["Duydumki unutmuşsun.", "Evdeki hesap çarşıya uymaz.", "Sen ki beni tanırsın.", "Anladım ki gelmeyecek.", "O kadar çalıştı ki başardı."], "cevap": "Duydumki unutmuşsun."}
     ],
     "Matematik": [
-        {"soru": "(Yeni Nesil) Bir manav elindeki elmaların 1/3'ünü %20 karla, kalanını %40 karla satıyor. Toplam kar oranı yüzde kaçtır?", "secenekler": ["%30", "%25", "%33", "%35", "%28"], "cevap": "%33"},
+        {"soru": "(Yeni Nesil) Bir manav elindeki elmaların 1/3'ünü %20 karla, kalanını %40 karla satıyor. Toplam kar oranı yüzde kaçtır?", "secenekler": ["%30", "%25", "%33.3", "%35", "%28"], "cevap": "%33.3"},
         {"soru": "Ardışık 5 çift sayının toplamı 130 ise en küçük sayı kaçtır?", "secenekler": ["22", "20", "24", "26", "18"], "cevap": "22"},
         {"soru": "A ve B şehirleri arası 600 km'dir. Bir araç 100 km hızla kaç saatte gider?", "secenekler": ["6", "5", "7", "4", "8"], "cevap": "6"},
         {"soru": "f(x) = 3x - 2 ise f(5) kaçtır?", "secenekler": ["13", "15", "10", "12", "14"], "cevap": "13"},
-        {"soru": "Bir dikdörtgenin kısa kenarı 10 cm, uzun kenarı 20 cm ise alanı kaç cm² dir?", "secenekler": ["200", "100", "300", "50", "150"], "cevap": "200"}
+        {"soru": "Bir dikdörtgenin kısa kenarı 10 cm, uzun kenarı 20 cm ise alanı kaç cm² dir?", "secenekler": ["200", "100", "300", "50", "150"], "cevap": "200"},
+        {"soru": "3x + 4 = 19 ise x kaçtır?", "secenekler": ["5", "4", "6", "3", "7"], "cevap": "5"}
     ],
     "Tarih": [
         {"soru": "Mustafa Kemal'in Samsun'a çıkışı (19 Mayıs 1919) Milli Mücadele açısından neyi ifade eder?", "secenekler": ["Kurtuluş Savaşı'nın fiilen başlaması", "Cumhuriyetin ilanı", "Lozan Antlaşması", "TBMM'nin açılışı", "Saltanatın kaldırılması"], "cevap": "Kurtuluş Savaşı'nın fiilen başlaması"},
@@ -157,11 +143,11 @@ def soru_uret(kategori, alt_baslik):
         
         KURALLAR:
         1. Sorular lise öğrencileri için {zorluk} seviyesinde olsun.
-        2. Türkçe: Uzun Paragraf. Mat: Yeni Nesil. Sosyal: Yorum.
+        2. Türkçe: UZUN PARAGRAF. Mat: YENİ NESİL. Sosyal: YORUM.
         3. Çıktı SADECE JSON formatında.
         
         JSON FORMATI:
-        [ {{ "soru": "...", "secenekler": ["A", "B", "C", "D", "E"], "cevap": "..." }} ]
+        [ {{ "soru": "Uzun soru metni...", "secenekler": ["A", "B", "C", "D", "E"], "cevap": "Cevap Metni (A/B gibi harf değil!)" }} ]
         """
         response = model.generate_content(prompt)
         text = response.text.strip()
@@ -188,6 +174,11 @@ def soru_uret(kategori, alt_baslik):
             yedek_listesi.extend(yedek_listesi)
             
         ai_sorulari.extend(yedek_listesi[:eksik])
+    
+    # KRİTİK DÜZELTME: Şıkları BURADA karıştırıp kaydediyoruz.
+    # Böylece render sırasında tekrar tekrar karışmıyor.
+    for soru in ai_sorulari:
+        random.shuffle(soru["secenekler"])
             
     return ai_sorulari[:soru_sayisi]
 
@@ -206,25 +197,9 @@ def sonuclari_kaydet(ad, soyad, kategori, alt_baslik, puan):
     except:
         return False
 
-def cevap_kontrol(secilen, dogru):
-    soru_puani = 100 / len(st.session_state.soru_listesi)
-    if secilen == dogru:
-        st.session_state.puan += soru_puani
-        st.toast("✅ Doğru!", icon="🎉")
-    else:
-        st.toast(f"❌ Yanlış! Doğru Cevap: {dogru}", icon="⚠️")
-    
-    time.sleep(0.5)
-    st.session_state.index += 1
-    st.rerun()
-
 def reset_app():
-    st.session_state.oturum_basladi = False
-    st.session_state.soru_listesi = []
-    st.session_state.index = 0
-    st.session_state.puan = 0
-    st.session_state.kayit_ok = False
-    st.session_state.yukleniyor = False
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
     st.rerun()
 
 # --- EKRAN AKIŞI ---
@@ -285,21 +260,32 @@ elif st.session_state.index < len(st.session_state.soru_listesi):
     st.progress((st.session_state.index + 1) / toplam)
     st.markdown(f"**{st.session_state.kimlik['baslik']}** | Soru {st.session_state.index + 1} / {toplam}")
     
+    # Soru Metni
     st.markdown(f"<div class='big-font'>{soru['soru']}</div>", unsafe_allow_html=True)
     
+    # Şıklar zaten karıştırılmıştı, direkt gösteriyoruz.
     secenekler = soru["secenekler"]
-    random.shuffle(secenekler) 
     
     col1, col2 = st.columns(2)
     for i, sec in enumerate(secenekler):
+        # Buton callback işlemi
+        def on_click(s=sec, d=soru["cevap"]):
+            # Puanlama
+            soru_puani = 100 / len(st.session_state.soru_listesi)
+            if s == d:
+                st.session_state.puan += soru_puani
+                st.toast("✅ Doğru!", icon="🎉")
+            else:
+                st.toast(f"❌ Yanlış! Cevap: {d}", icon="⚠️")
+            time.sleep(0.5)
+            st.session_state.index += 1
+            
         if i < len(secenekler) / 2:
             with col1:
-                if st.button(sec, key=f"btn_{i}", use_container_width=True):
-                    cevap_kontrol(sec, soru["cevap"])
+                st.button(sec, key=f"btn_{st.session_state.index}_{i}", use_container_width=True, on_click=on_click)
         else:
             with col2:
-                if st.button(sec, key=f"btn_{i}", use_container_width=True):
-                    cevap_kontrol(sec, soru["cevap"])
+                st.button(sec, key=f"btn_{st.session_state.index}_{i}", use_container_width=True, on_click=on_click)
 
 # 3. SONUÇ EKRANI
 else:
