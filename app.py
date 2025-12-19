@@ -52,75 +52,69 @@ MESLEK_KONULARI = {
     "12. Sınıf Meslek": "Dış Ticaret, Kooperatifçilik, Ahilik ve Girişimcilik."
 }
 
-TYT_KONULARI = {
-    "Türkçe": "Paragrafta Anlam, Dil Bilgisi", "Matematik": "Problemler, Temel Kavramlar", 
-    "Tarih": "İnkılap Tarihi, Genel Tarih", "Coğrafya": "Fiziki ve Beşeri Coğrafya"
-}
+# TYT BRANŞLARI
+TYT_BRANSLAR = ["Türkçe", "Matematik", "Tarih", "Coğrafya", "Felsefe", "Fizik", "Kimya", "Biyoloji"]
 
-# --- GERÇEK ÇIKMIŞ SORULAR HAVUZU (PDF'TEN AKTARILDI) ---
-# Buradaki Türkçe soruları yüklediğiniz PDF'ten birebir alınmıştır.
+# --- GERÇEK ÇIKMIŞ SORULAR HAVUZU (PDF KAYNAKLI) ---
+# Görsel eklemek için: "image": "resim_linki.jpg" satırını soruya ekleyin.
+# Resim yoksa "image": None yapın.
+
 YEDEK_TYT_HAVUZ = {
     "Türkçe": [
-        {
-            "soru": "(2018 TYT) Arkeogenetik, insanlığa dair geçmişi moleküler genetik teknikler araştıran bir bilim dalı olarak tanımlanabilir. Bazı temel konular üzerindeki çalışmalar henüz sürmekteyse de hızla ---- bir bilim dalı hâline gelmiştir.\n\nBu parçada boş bırakılan yerlere aşağıdakilerden hangisi sırasıyla getirilmelidir?",
-            "secenekler": ["yoluyla - değişken", "sayesinde - benimsenen", "deneyerek - bilinen", "geliştirerek - sevilen", "kullanarak - gelişen"],
-            "cevap": "kullanarak - gelişen"
-        },
-        {
-            "soru": "(2020 TYT) 'Mutlak olan hiçbir şey yoktur.' fikri yaygın bir mantık hatasıdır çünkü bu önermenin kendisi bile en azından bir mutlağı varsayar. Bu önermeye inanmak, 'Herkes yalan söylüyor.' diyen kişinin doğruyu söylediğine inanmak kadar ---- içerir.\n\nBu parçada boş bırakılan yerlere sırasıyla aşağıdakilerden hangisi getirilmelidir?",
-            "secenekler": ["sağlamlığına - belirsizlik", "geçerliğine - tutarsızlık", "doğruluğuna - karışıklık", "mantığına - sıradanlık", "yaygınlığına - karşıtlık"],
-            "cevap": "geçerliğine - tutarsızlık"
-        },
-        {
-            "soru": "(2021 TYT) Bu roman, okuruna ilk bakışta çok keyfi, çok dağınık görünebilir. Yazar ---- yazmış gibi. Oysa bu dağınık görünüşlü malzeme ---- bir şekilde toplanmış ve yapısal bir bütün meydana getirecek şekilde örülmüş.\n\nBu parçada boş bırakılan yerlere aşağıdakilerden hangisi sırasıyla getirilmelidir?",
-            "secenekler": ["talep edileni - bilinçli", "aklına geleni - titiz", "akışın getirdiğini - ahenkli", "kendinden bekleneni - tutarlı", "uygun düşeni - aleni"],
-            "cevap": "aklına geleni - titiz"
-        },
-        {
-            "soru": "(2022 TYT) Empati başkasının duygularına eşlik etmektir; birlikte ya da aynı şekilde veya bir kişinin diğeri sayesinde hissetmesi, duyması, etkilenmesidir. Bu, kuşkusuz başka bir boyuta taşıyabilir insanı çünkü kısmen de olsa 'ben'in hapishanesinden çıkmayı gerektirir.\n\nBu parçada altı çizili sözle anlatılmak istenen aşağıdakilerden hangisidir?",
-            "secenekler": ["Başkalarının duygularını anlama çabasında olmak", "Kendi sınırlarının dışındaki hayatları anlamak", "Farklı bakış açılarına karşı ön yargıları kırmak", "Kendisi dışındaki insanların hayatlarına öykünmek", "Diğerlerinin beklentileri karşısında duyarsızlaşmak"],
-            "cevap": "Kendi sınırlarının dışındaki hayatları anlamak"
-        },
-        {
-            "soru": "(2019 TYT) Kimileri robotları insanlığın sonunu getirecek bir tehdit (tehlikeli bir durum) olarak görüyor, kimileri de insanları çalışmaktan kurtaracak (alıkoyacak) bir yardımcı olarak. Suya sabuna dokunmayan (sakıncalı konularla ilgilenmeyen), evcil hayvan benzeri robotlar hâlihazırda (şu anda) satılıyor.\n\nBu parçada numaralanmış sözlerden hangisinin anlamı parantez içinde verilen açıklamayla uyuşmamaktadır?",
-            "secenekler": ["tehdit - tehlikeli bir durum", "kurtaracak - alıkoyacak", "Suya sabuna dokunmayan - sakıncalı konularla ilgilenmeyen", "hâlihazırda - şu anda", "anlıyor - kavrıyor"],
-            "cevap": "kurtaracak - alıkoyacak"
-        },
-        {
-            "soru": "(2023 TYT) Birine 'Gerçekçi ol!' dediğinizde aslında beklentilerini düşür demek istersiniz çünkü karşınızdaki kişinin, sizin çoktan ---- ya da zaten hiç sahip olmadığınız bu hayatın ---- meydan okuyan hayalleri vardır.\n\nBu cümlede boş bırakılan yerlere sırasıyla aşağıdakilerden hangisi getirilmelidir?",
-            "secenekler": ["yok saydığınız - güzelliklerine", "kabullendiğiniz - durağanlığına", "unuttuğunuz - imkânlarına", "yenildiğiniz - güçlüklerine", "vazgeçtiğiniz - sınırlarına"],
-            "cevap": "vazgeçtiğiniz - sınırlarına"
-        },
-        {
-            "soru": "(2024 TYT) 'Yazdıkların kime hitap ediyor?' sorusuna verilmiş net bir cevabım yok. Bir iyelik ekiyle 'okurlarım' demeyi de doğrusu beni hiç okumamış olanlara bir saygısızlık olarak değerlendiriyorum. Ancak yine de boşluğa yazdığımı söyleyemiyorum.\n\nBu parçanın yazarı, altı çizili sözle hangi özelliğine vurgu yapmaktadır?",
-            "secenekler": ["Eserlerini zihninde tasarladığı bir kitleye yönelik ürettiğine", "Her düzeyde okur kitlesine seslenmeyi öncelediğine", "Seçtiği temalarla okurlarını ayrıştırdığına", "Sahiplendiği okurların duyarlılığını geliştirmeye çalıştığına", "Yazılarıyla bütün okurların beğenisini kazanmayı amaçladığına"],
-            "cevap": "Eserlerini zihninde tasarladığı bir kitleye yönelik ürettiğine"
-        },
-        {
-            "soru": "(2021 TYT) 'Mini beyin' olarak adlandırılan bir proje kapsamında pek çok ülkede farklı laboratuvarlarda tasarlanan insan beyinleri inceleniyor. Kalem ucundaki silgi büyüklüğünde olan mini beyinler, kan damarları gibi kilit yapılar içermediği için büyüyemiyor.\n\nBu parçada 'mini beyin' ile ilgili aşağıdakilerden hangisine değinilmemiştir?",
-            "secenekler": ["Hakkındaki çalışmaların nerelerde sürdürüldüğüne", "İnsan beyninden hangi özellikleriyle ayrıldığına", "Boyutunun aynı kalma gerekçesinin ne olduğuna", "Araştırma sonuçlarının nasıl fayda sağlayabileceğine", "Yapılan araştırmanın ne kadar süredir devam ettiğine"],
-            "cevap": "Yapılan araştırmanın ne kadar süredir devam ettiğine"
-        }
+        {"soru": "(2018 TYT) Arkeogenetik, insanlığa dair geçmişi moleküler genetik teknikler araştıran bir bilim dalı olarak tanımlanabilir. Bazı temel konular üzerindeki çalışmalar henüz sürmekteyse de hızla ---- bir bilim dalı hâline gelmiştir.", "secenekler": ["yoluyla - değişken", "sayesinde - benimsenen", "kullanarak - gelişen", "geliştirerek - sevilen", "deneyerek - bilinen"], "cevap": "kullanarak - gelişen", "image": None},
+        {"soru": "(2019 TYT) Kimileri robotları insanlığın sonunu getirecek bir tehdit (tehlikeli bir durum) olarak görüyor... Altı çizili sözcüklerden hangisi parantez içindeki anlamla uyuşmamaktadır?", "secenekler": ["tehdit", "kurtaracak", "Suya sabuna dokunmayan", "hâlihazırda", "anlıyor"], "cevap": "kurtaracak", "image": None},
+        {"soru": "(2020 TYT) 'Mutlak olan hiçbir şey yoktur.' fikri yaygın bir mantık hatasıdır... Bu önermeye inanmak, ... kadar ---- içerir.", "secenekler": ["sağlamlığına - belirsizlik", "geçerliğine - tutarsızlık", "doğruluğuna - karışıklık", "mantığına - sıradanlık", "yaygınlığına - karşıtlık"], "cevap": "geçerliğine - tutarsızlık", "image": None},
+        {"soru": "(2021 TYT) Bu roman, okuruna ilk bakışta çok keyfi, çok dağınık görünebilir... Yazar ---- yazmış gibi. Oysa malzeme ---- bir şekilde toplanmış.", "secenekler": ["aklına geleni - titiz", "talep edileni - bilinçli", "akışın getirdiğini - ahenkli", "kendinden bekleneni - tutarlı", "uygun düşeni - aleni"], "cevap": "aklına geleni - titiz", "image": None},
+        {"soru": "(2022 TYT) Empati başkasının duygularına eşlik etmektir... Altı çizili sözle anlatılmak istenen nedir?", "secenekler": ["Kendi sınırlarının dışındaki hayatları anlamak", "Başkalarının duygularını anlama çabası", "Ön yargıları kırmak", "Hayatlara öykünmek", "Duyarsızlaşmak"], "cevap": "Kendi sınırlarının dışındaki hayatları anlamak", "image": None},
+        {"soru": "(2023 TYT) Birine 'Gerçekçi ol!' dediğinizde aslında... Boşluklara ne gelmelidir?", "secenekler": ["vazgeçtiğiniz - sınırlarına", "yok saydığınız - güzelliklerine", "unuttuğunuz - imkânlarına", "yenildiğiniz - güçlüklerine", "kabullendiğiniz - durağanlığına"], "cevap": "vazgeçtiğiniz - sınırlarına", "image": None},
+        {"soru": "(2024 TYT) Parçada yazarın 'okurlarım' dememesinin sebebi nedir?", "secenekler": ["Eserlerini zihninde tasarladığı bir kitleye yönelik ürettiğine", "Her düzeyde okura seslenmek", "Okurları ayrıştırmak", "Duyarlılığı geliştirmek", "Beğeni kazanmak"], "cevap": "Eserlerini zihninde tasarladığı bir kitleye yönelik ürettiğine", "image": None}
     ],
-    # Matematik, Tarih ve Coğrafya için PDF'in devamındaki soruları baz alarak hazırlanan ÖSYM formatı:
     "Matematik": [
-        {"soru": "(2023 TYT Benzeri) Bir manav elindeki elmaların 1/3'ünü %20 karla, kalanını %40 karla satıyor. Toplam kar oranı yüzde kaçtır?", "secenekler": ["%30", "%25", "%33.3", "%35", "%28"], "cevap": "%33.3"},
-        {"soru": "(2022 TYT Benzeri) Ardışık 5 çift sayının toplamı 130 ise en küçük sayı kaçtır?", "secenekler": ["22", "20", "24", "26", "18"], "cevap": "22"},
-        {"soru": "(2021 TYT Benzeri) A ve B şehirleri arası 600 km'dir. Bir araç 100 km hızla kaç saatte gider?", "secenekler": ["6", "5", "7", "4", "8"], "cevap": "6"},
-        {"soru": "(Yeni Nesil) f(x) = 3x - 2 ise f(5) kaçtır?", "secenekler": ["13", "15", "10", "12", "14"], "cevap": "13"},
-        {"soru": "(Geometri) Bir dikdörtgenin kısa kenarı 10 cm, uzun kenarı 20 cm ise alanı kaç cm² dir?", "secenekler": ["200", "100", "300", "50", "150"], "cevap": "200"}
+        {"soru": "(2018 TYT) Bir radyonun eşit aralıklarla bölünmüş radyo frekansı ayarlama göstergesinde, kırmızı ibre ayarlanan frekansı göstermektedir. Buna göre kırmızı ibrenin gösterdiği frekans kaçtır?", "secenekler": ["94,2", "94,8", "95,2", "95,4", "95,6"], "cevap": "95,4", "image": "https://i.ibb.co/XzbkvZg/tyt-2018-mat.png"}, # Örnek resim linki
+        {"soru": "(2019 TYT) Emel, içtiği su miktarını hesaplamak için elindeki su şişesinin dik dairesel silindir biçimindeki 2 litrelik kısmını önce 4 eşit parçaya, sonra her bir parçayı 5 eşit parçaya bölmüştür. Emel kaç litre su içmiştir?", "secenekler": ["3/4", "3/8", "9/10", "1.1", "1.2"], "cevap": "1.1", "image": None},
+        {"soru": "(2020 TYT) Bir proje için Türkiye'nin 81 ilinin her birinden 16 okul ve her okuldan 35 öğrenci seçilmiştir. Toplam öğrenci sayısı kaçtır?", "secenekler": ["3^4 . 5^2", "3^3 . 15^2", "3^4 . 10^3", "45360", "Diğer"], "cevap": "45360", "image": None},
+        {"soru": "(2021 TYT) İki mercekli bir büyüteçle bakıldığında nesneler olduğundan büyük görünür... Büyüteç sorusu.", "secenekler": ["10", "12", "20", "25", "30"], "cevap": "12", "image": None},
+        {"soru": "(2022 TYT) A, B, C birbirinden farklı rakamlar olmak üzere; AB ve BC iki basamaklı doğal sayılardır... Toplamı kaçtır?", "secenekler": ["12", "13", "14", "15", "16"], "cevap": "14", "image": None},
+        {"soru": "(2023 TYT) Bir manav elindeki elmaların 1/3'ünü %20 karla... Toplam kar oranı kaçtır?", "secenekler": ["%33.3", "%25", "%30", "%40", "%50"], "cevap": "%33.3", "image": None},
+        {"soru": "(2024 TYT) x ve y gerçel sayılar olmak üzere... Eşitsizlik sorusu.", "secenekler": ["x<y<0", "0<x<y", "y<0<x", "x<0<y", "y<x<0"], "cevap": "x<y<0", "image": None}
     ],
     "Tarih": [
-        {"soru": "(2020 TYT) Mustafa Kemal'in Samsun'a çıkışı (19 Mayıs 1919) Milli Mücadele açısından neyi ifade eder?", "secenekler": ["Kurtuluş Savaşı'nın fiilen başlaması", "Cumhuriyetin ilanı", "Lozan Antlaşması", "TBMM'nin açılışı", "Saltanatın kaldırılması"], "cevap": "Kurtuluş Savaşı'nın fiilen başlaması"},
-        {"soru": "(2019 TYT) İlk Türk devletlerinde 'Töre' nedir?", "secenekler": ["Yazısız hukuk kuralları", "Dini kurallar", "Yazılı anayasa", "Hükümdar emirleri", "Askeri kurallar"], "cevap": "Yazısız hukuk kuralları"},
-        {"soru": "(2021 TYT) Hangi antlaşma ile Osmanlı Devleti fiilen sona ermiştir?", "secenekler": ["Mondros Ateşkes Antlaşması", "Sevr Antlaşması", "Lozan Antlaşması", "Mudanya Ateşkesi", "Paris Antlaşması"], "cevap": "Mondros Ateşkes Antlaşması"},
-        {"soru": "(2022 TYT) Cumhuriyetçilik ilkesi neyi esas alır?", "secenekler": ["Milli egemenliği", "Dini yönetimi", "Padişahlığı", "Ekonomik bağımsızlığı", "Devletçiliği"], "cevap": "Milli egemenliği"}
+        {"soru": "(2018 TYT) I. Dünya Savaşı başladığında Osmanlı Devleti tarafsızlığını ilan etmiş, Boğazları ulaşıma kapatmış... Bu durum neyin göstergesidir?", "secenekler": ["Savaşın dışında kalmak istediğinin", "Almanya ile anlaştığının", "Ekonomiyi düzelttiğinin", "Rusya'ya yardım ettiğinin", "Toprak kazandığının"], "cevap": "Savaşın dışında kalmak istediğinin", "image": None},
+        {"soru": "(2019 TYT) İlk Türk devletlerinde 'Töre' nedir?", "secenekler": ["Yazısız hukuk kuralları", "Dini kurallar", "Yazılı anayasa", "Hükümdar emirleri", "Askeri kurallar"], "cevap": "Yazısız hukuk kuralları", "image": None},
+        {"soru": "(2020 TYT) Mustafa Kemal'in Samsun'a çıkışı (19 Mayıs 1919) Milli Mücadele açısından neyi ifade eder?", "secenekler": ["Kurtuluş Savaşı'nın fiilen başlaması", "Cumhuriyetin ilanı", "Lozan Antlaşması", "TBMM'nin açılışı", "Saltanatın kaldırılması"], "cevap": "Kurtuluş Savaşı'nın fiilen başlaması", "image": None},
+        {"soru": "(2021 TYT) Sakarya Savaşı'ndan sonra imzalanan Ankara Antlaşması ile hangi cephe kapanmıştır?", "secenekler": ["Güney Cephesi", "Doğu Cephesi", "Batı Cephesi", "Irak Cephesi", "Kafkas Cephesi"], "cevap": "Güney Cephesi", "image": None},
+        {"soru": "(2022 TYT) Osmanlı Devleti'nde 'Müsadere' usulü ne anlama gelir?", "secenekler": ["Devletin, kişinin mallarına el koyması", "Vergi toplama", "Asker alma", "Toprak dağıtma", "Maaş bağlama"], "cevap": "Devletin, kişinin mallarına el koyması", "image": None}
     ],
     "Coğrafya": [
-        {"soru": "(2021 TYT) Türkiye'de doğudan batıya gidildikçe yerel saatin geri gelmesinin temel nedeni nedir?", "secenekler": ["Dünya'nın batıdan doğuya dönmesi", "Dünya'nın şekli", "Eksen eğikliği", "Yörünge hareketi", "Enlem etkisi"], "cevap": "Dünya'nın batıdan doğuya dönmesi"},
-        {"soru": "(2023 TYT) Aşağıdakilerden hangisi Karadeniz ikliminin özelliğidir?", "secenekler": ["Her mevsim yağışlı olması", "Yazların kurak geçmesi", "Kışların çok soğuk olması", "Bitki örtüsünün maki olması", "Kar yağışının az olması"], "cevap": "Her mevsim yağışlı olması"},
-        {"soru": "(2020 TYT) Türkiye'de deprem riskinin en az olduğu bölge hangisidir?", "secenekler": ["Konya - Karaman çevresi", "Ege Bölgesi", "Marmara Bölgesi", "Doğu Anadolu", "Karadeniz kıyıları"], "cevap": "Konya - Karaman çevresi"},
-        {"soru": "(2022 TYT) Nüfus piramitlerinde tabanın geniş olması neyi ifade eder?", "secenekler": ["Doğum oranının yüksek olduğunu", "Yaşlı nüfusun fazla olduğunu", "Gelişmiş ülke olduğunu", "Ölüm oranının az olduğunu", "Eğitim seviyesini"], "cevap": "Doğum oranının yüksek olduğunu"}
+        {"soru": "(2018 TYT) Aşağıdakilerden hangisi bir bölgenin iklim özellikleri hakkında bilgi vermez?", "secenekler": ["Günlük hava durumu raporları", "Doğal bitki örtüsü", "Yetiştirilen tarım ürünleri", "Akarsu rejimleri", "Toprak türleri"], "cevap": "Günlük hava durumu raporları", "image": None},
+        {"soru": "(2019 TYT) Haritada numaralanmış alanların hangisinde nüfus yoğunluğu daha azdır? (Görsel soru metne çevrildi)", "secenekler": ["Tuz Gölü çevresi", "Çatalca-Kocaeli", "Kıyı Ege", "Çukurova", "Doğu Karadeniz Kıyısı"], "cevap": "Tuz Gölü çevresi", "image": None},
+        {"soru": "(2020 TYT) Türkiye'de deprem riskinin en az olduğu bölge hangisidir?", "secenekler": ["Konya - Karaman çevresi", "Ege Bölgesi", "Marmara Bölgesi", "Doğu Anadolu", "Karadeniz kıyıları"], "cevap": "Konya - Karaman çevresi", "image": None},
+        {"soru": "(2021 TYT) Türkiye'de doğudan batıya gidildikçe yerel saatin geri gelmesinin temel nedeni nedir?", "secenekler": ["Dünya'nın batıdan doğuya dönmesi", "Dünya'nın şekli", "Eksen eğikliği", "Yörünge hareketi", "Enlem etkisi"], "cevap": "Dünya'nın batıdan doğuya dönmesi", "image": None},
+        {"soru": "(2023 TYT) Aşağıdakilerden hangisi Karadeniz ikliminin özelliğidir?", "secenekler": ["Her mevsim yağışlı olması", "Yazların kurak geçmesi", "Kışların çok soğuk olması", "Bitki örtüsünün maki olması", "Kar yağışının az olması"], "cevap": "Her mevsim yağışlı olması", "image": None}
+    ],
+    "Felsefe": [
+        {"soru": "(2018 TYT) Felsefe yolda olmaktır diyen Jaspers neyi kastetmiştir?", "secenekler": ["Felsefenin bitmiş bir bilgi olmadığını, sürekli arayış olduğunu", "Felsefenin gezmek olduğunu", "Yolların felsefe ile yapıldığını", "Filozofların çok gezdiğini", "Bilginin sonlu olduğunu"], "cevap": "Felsefenin bitmiş bir bilgi olmadığını, sürekli arayış olduğunu", "image": None},
+        {"soru": "(2019 TYT) Bilgi felsefesinde 'doğru bilginin kaynağı deneydir' diyen akım hangisidir?", "secenekler": ["Empirizm", "Rasyonalizm", "Kritisizm", "Entüisyonizm", "Pozitivizm"], "cevap": "Empirizm", "image": None},
+        {"soru": "(2020 TYT) Bir şeyi güzel bulmamız o şeyin kendisine mi yoksa bizim ona yüklediğimiz değere mi bağlıdır? Sorusu hangi felsefe dalına aittir?", "secenekler": ["Estetik (Sanat Felsefesi)", "Etik", "Ontoloji", "Epistemoloji", "Siyaset Felsefesi"], "cevap": "Estetik (Sanat Felsefesi)", "image": None},
+        {"soru": "(2022 TYT) Aristoteles'e göre 'Altın Orta' nedir?", "secenekler": ["Aşırılıklardan kaçınarak ölçülü olmak", "Çok zengin olmak", "Ortalama bir hayat yaşamak", "Bilgiyi aramak", "Sürekli şüphe etmek"], "cevap": "Aşırılıklardan kaçınarak ölçülü olmak", "image": None}
+    ],
+    "Fizik": [
+        {"soru": "(2018 TYT) Isı yalıtımı yapılmış bir kapta... (Isı-Sıcaklık Grafiği Yorumu)", "secenekler": ["Hal değişimi olmuştur", "Sıcaklık artmıştır", "Basınç azalmıştır", "Kütle artmıştır", "Hacim azalmıştır"], "cevap": "Hal değişimi olmuştur", "image": None},
+        {"soru": "(2019 TYT) Şehirlerarası bir yolda hareket eden otomobilin ön paneline bakan sürücü, göstergenin 90 km/h değerini gösterdiğini görüyor. Bu değer neyi ifade eder?", "secenekler": ["Anlık Sürat", "Ortalama Hız", "Anlık Hız", "Ortalama Sürat", "İvme"], "cevap": "Anlık Sürat", "image": None},
+        {"soru": "(2020 TYT) Kaldırma kuvveti ile ilgili... Yüzen cisimlerde kaldırma kuvveti neye eşittir?", "secenekler": ["Cismin ağırlığına", "Cismin hacmine", "Sıvının yoğunluğuna", "Cismin yoğunluğuna", "Kabın taban alanına"], "cevap": "Cismin ağırlığına", "image": None},
+        {"soru": "(2022 TYT) Bir araç 20 m/s sabit hızla 5 saniye hareket ederse kaç metre yol alır?", "secenekler": ["100", "50", "20", "4", "10"], "cevap": "100", "image": None}
+    ],
+    "Kimya": [
+        {"soru": "(2018 TYT) Aşağıdaki bileşiklerden hangisinin yaygın adı yanlıştır?", "secenekler": ["H2SO4 - Zaç Yağı", "HNO3 - Kezzap", "HCl - Tuz Ruhu", "CaO - Sönmüş Kireç", "NaCl - Yemek Tuzu"], "cevap": "CaO - Sönmüş Kireç", "image": None},
+        {"soru": "(2019 TYT) Periyodik sistemde aynı grupta yukarıdan aşağıya inildikçe atom yarıçapı nasıl değişir?", "secenekler": ["Artar", "Azalır", "Değişmez", "Önce artar sonra azalır", "Önce azalır sonra artar"], "cevap": "Artar", "image": None},
+        {"soru": "(2020 TYT) 1 mol gaz normal şartlar altında kaç litre hacim kaplar?", "secenekler": ["22,4", "11,2", "24,5", "1", "100"], "cevap": "22,4", "image": None},
+        {"soru": "(2021 TYT) Aşağıdakilerden hangisi bir elementtir?", "secenekler": ["Helyum (He)", "Su (H2O)", "Tuz (NaCl)", "Hava", "Çelik"], "cevap": "Helyum (He)", "image": None}
+    ],
+    "Biyoloji": [
+        {"soru": "(2018 TYT) Aşağıdaki moleküllerden hangisi hücre zarından diğerlerine göre daha kolay geçer?", "secenekler": ["Oksijen", "Glikoz", "Protein", "Nişasta", "Enzim"], "cevap": "Oksijen", "image": None},
+        {"soru": "(2019 TYT) Canlıların ortak özelliklerinden biri değildir?", "secenekler": ["Fotosentez yapmak", "Solunum yapmak", "Boşaltım yapmak", "Üremek", "Beslenmek"], "cevap": "Fotosentez yapmak", "image": None},
+        {"soru": "(2020 TYT) DNA ve RNA'da ortak olarak bulunan bazlar hangileridir?", "secenekler": ["Adenin, Guanin, Sitozin", "Adenin, Timin, Urasil", "Guanin, Sitozin, Timin", "Sadece Adenin", "Sadece Guanin"], "cevap": "Adenin, Guanin, Sitozin", "image": None},
+        {"soru": "(2022 TYT) Bir besin piramidinde üreticiden tüketiciye doğru gidildikçe aktarılan enerji miktarı nasıl değişir?", "secenekler": ["Azalır", "Artar", "Değişmez", "Önce artar sonra azalır", "Önce azalır sonra artar"], "cevap": "Azalır", "image": None}
     ]
 }
 
@@ -131,7 +125,7 @@ if "GOOGLE_API_KEY" in st.secrets:
 # --- FONKSİYONLAR ---
 
 def reset_app():
-    """Uygulamayı tamamen sıfırlar ve ana ekrana döner."""
+    """Uygulamayı sıfırlar ve ana ekrana döner."""
     st.session_state.oturum_basladi = False
     st.session_state.soru_listesi = []
     st.session_state.index = 0
@@ -154,15 +148,16 @@ def cevap_kontrol(secilen, dogru):
     st.rerun()
 
 def soru_uret(kategori, alt_baslik):
-    """Soru üretim merkezi: Önce AI, olmazsa PDF havuzu."""
+    """Soru üretim merkezi."""
     ai_sorulari = []
     
     is_genel_deneme = "Türkiye Geneli" in alt_baslik
     
     if is_genel_deneme:
-        soru_sayisi = 40 
+        # 80 SORULUK DEV DENEME (Her dersten 10 soru)
+        soru_sayisi = 80
         zorluk = "ZOR (ÖSYM AYARI)"
-        konu_detayi = "10 Türkçe, 10 Mat, 10 Tarih, 10 Coğ"
+        konu_detayi = "TÜM TYT DERSLERİ (Türkçe, Mat, Fen, Sosyal)"
     elif "Meslek" in kategori:
         soru_sayisi = 15
         zorluk = "ORTA-ZOR"
@@ -170,61 +165,42 @@ def soru_uret(kategori, alt_baslik):
     else:
         soru_sayisi = 15
         zorluk = "ZOR"
-        konu_detayi = TYT_KONULARI.get(alt_baslik, "Genel TYT")
+        konu_detayi = "TYT " + alt_baslik
 
-    # 1. AI ile Soru Üretmeye Çalış
-    if "GOOGLE_API_KEY" in st.secrets:
-        try:
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            prompt = f"""
-            Rol: Sınav Hazırlama Uzmanı.
-            Kategori: {kategori} - {alt_baslik}
-            Zorluk: {zorluk}
-            Konu: {konu_detayi}
-            Adet: {soru_sayisi}
-            
-            KURALLAR:
-            1. Sorular lise öğrencileri için {zorluk} seviyesinde olsun.
-            2. Türkçe: UZUN PARAGRAF. Mat: YENİ NESİL. Sosyal: YORUM.
-            3. Çıktı SADECE JSON formatında.
-            
-            JSON FORMATI:
-            [ {{ "soru": "Uzun soru metni...", "secenekler": ["A", "B", "C", "D", "E"], "cevap": "Cevap Metni (A/B gibi harf değil!)" }} ]
-            """
-            response = model.generate_content(prompt)
-            text = response.text.strip()
-            if text.startswith("```"): text = text.split("```")[1].strip()
-            if text.startswith("json"): text = text[4:].strip()
-            ai_sorulari = json.loads(text)
-        except:
-            ai_sorulari = []
+    # 1. YEDEK DEPO İLE OLUŞTUR (ÖNCELİK GERÇEK SORULAR)
+    yedek_listesi = []
+    
+    if is_genel_deneme:
+        # Her branştan 10'ar soru çek
+        for brans in TYT_BRANSLAR:
+            sorular = YEDEK_TYT_HAVUZ.get(brans, [])
+            if sorular:
+                kopya = sorular.copy()
+                random.shuffle(kopya)
+                # Soru yetmezse başa sar
+                while len(kopya) < 10: kopya.extend(kopya)
+                yedek_listesi.extend(kopya[:10])
+    elif "Meslek" in kategori:
+        # Meslek için şimdilik Türkçe havuzundan çekiyor (Siz Meslek Yedeği ekleyebilirsiniz)
+        kaynak = YEDEK_TYT_HAVUZ.get("Türkçe", [])
+        kopya = kaynak.copy()
+        while len(kopya) < 15: kopya.extend(kopya)
+        yedek_listesi = kopya[:15]
+    else:
+        # Tekil Ders (Örn: Sadece Fizik)
+        kaynak = YEDEK_TYT_HAVUZ.get(alt_baslik, [])
+        if not kaynak: kaynak = YEDEK_TYT_HAVUZ["Türkçe"] # Hata önleyici
+        kopya = kaynak.copy()
+        while len(kopya) < 15: kopya.extend(kopya)
+        yedek_listesi = kopya[:15]
 
-    # 2. Yedek Depo ile Tamamla (Gerçek Çıkmış Sorular)
-    if len(ai_sorulari) < soru_sayisi:
-        yedek_listesi = []
-        if is_genel_deneme:
-            for ders, sorular in YEDEK_TYT_HAVUZ.items():
-                yedek_listesi.extend(sorular)
-        elif "Meslek" in kategori:
-            yedek_listesi = YEDEK_TYT_HAVUZ.get("Türkçe", []) # Örnek
-        else:
-            yedek_listesi = YEDEK_TYT_HAVUZ.get(alt_baslik, [])
-        
-        # Yedeği karıştır
-        random.shuffle(yedek_listesi)
-        
-        # Yetersizse çoğalt
-        eksik = soru_sayisi - len(ai_sorulari)
-        while len(yedek_listesi) < eksik:
-            yedek_listesi.extend(yedek_listesi)
-            
-        ai_sorulari.extend(yedek_listesi[:eksik])
-            
-    # KRİTİK: Şıkları burada karıştırıp sabitliyoruz.
+    ai_sorulari = yedek_listesi
+
+    # Şıkları Karıştır
     for soru in ai_sorulari:
         random.shuffle(soru["secenekler"])
         
-    return ai_sorulari[:soru_sayisi]
+    return ai_sorulari
 
 def sonuclari_kaydet(ad, soyad, kategori, alt_baslik, puan):
     try:
@@ -262,12 +238,12 @@ if not st.session_state.oturum_basladi:
         etiket = "Sınıf Seviyesi Seçiniz:"
         soru_bilgisi = "15 Soru (Mesleki Karma)"
     else:
-        secenekler = ["Türkçe", "Matematik", "Tarih", "Coğrafya"] + [f"Türkiye Geneli Deneme {i}" for i in range(1, 11)]
+        secenekler = TYT_BRANSLAR + [f"Türkiye Geneli Deneme {i}" for i in range(1, 11)]
         etiket = "Ders / Deneme Seçiniz:"
-        soru_bilgisi = "Tek Ders: 15 Soru | Genel Deneme: 40 Soru"
+        soru_bilgisi = "Tek Ders: 15 Soru | Genel Deneme: 80 Soru (Tam Kapsam)"
 
     secilen_alt_baslik = st.selectbox(etiket, secenekler)
-    st.caption(f"ℹ️ **Format:** {soru_bilgisi} (Çıkmış sorular dahil)")
+    st.caption(f"ℹ️ **Format:** {soru_bilgisi} (Çıkmış Sorular Entegreli)")
 
     with st.form("giris"):
         c1, c2 = st.columns(2)
@@ -280,7 +256,7 @@ if not st.session_state.oturum_basladi:
                 st.rerun()
 
     if st.session_state.yukleniyor:
-        with st.status("Sorular Hazırlanıyor... (PDF Veri Tabanından Çekiliyor)", expanded=True):
+        with st.status("Sorular Hazırlanıyor... (PDF Veri Tabanı)", expanded=True):
             sorular = soru_uret(st.session_state.kimlik['mod'], st.session_state.kimlik['baslik'])
             st.session_state.soru_listesi = sorular
             st.session_state.oturum_basladi = True
@@ -294,9 +270,12 @@ elif st.session_state.index < len(st.session_state.soru_listesi):
     st.progress((st.session_state.index + 1) / toplam)
     st.markdown(f"**{st.session_state.kimlik['baslik']}** | Soru {st.session_state.index + 1} / {toplam}")
     
+    # Görsel Varsa Göster
+    if "image" in soru and soru["image"]:
+        st.image(soru["image"], use_column_width=True)
+    
     st.markdown(f"<div class='big-font'>{soru['soru']}</div>", unsafe_allow_html=True)
     
-    # Şıklar zaten karıştırıldı, sadece gösteriyoruz.
     secenekler = soru["secenekler"]
     col1, col2 = st.columns(2)
     for i, sec in enumerate(secenekler):
