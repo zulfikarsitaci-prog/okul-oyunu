@@ -10,7 +10,7 @@ from datetime import datetime
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🎓", layout="wide")
 
-# --- TASARIM: IHLAMUR YEŞİLİ & SARI KİREMİT (Sizin Tarzınız) ---
+# --- TASARIM: IHLAMUR YEŞİLİ & SARI KİREMİT ---
 st.markdown("""
     <style>
     /* 1. Arka Plan: Ihlamur Yeşili */
@@ -18,20 +18,20 @@ st.markdown("""
         background-color: #F0F4C3 !important; 
     }
     
-    /* 2. Yazı Renkleri: Siyah ve Okunaklı */
+    /* 2. Yazı Renkleri */
     h1, h2, h3, h4, h5, h6, p, div, span, label, li, .stMarkdown {
         color: #212121 !important;
         font-family: 'Segoe UI', sans-serif;
     }
     
-    /* 3. Butonlar: Sarı Kiremit (Dikkat Çekici) */
+    /* 3. Butonlar */
     .stButton>button { 
         width: 100%; 
         border-radius: 12px; 
         min-height: 3.5em; 
         font-weight: 700; 
-        background-color: #FF7043 !important; /* Kiremit Rengi */
-        color: #FFFFFF !important; /* Yazı Beyaz */
+        background-color: #FF7043 !important; 
+        color: #FFFFFF !important; 
         border: 2px solid #D84315 !important; 
         white-space: pre-wrap; 
         padding: 10px;
@@ -41,17 +41,16 @@ st.markdown("""
     .stButton>button:hover { 
         background-color: #FF5722 !important; 
         transform: scale(1.02);
-        color: #FFFFFF !important;
     }
     
-    /* 4. Seçim Kutuları */
+    /* 4. Input Alanları */
     .stTextInput input, .stSelectbox div[data-baseweb="select"] > div {
         background-color: #FFFFFF !important; 
         color: #000000 !important; 
         border: 2px solid #FF7043 !important;
     }
     
-    /* 5. Soru Kartı (Okunaklı Beyaz Zemin) */
+    /* 5. Soru Kartı */
     .big-font { 
         font-size: 20px !important; 
         font-weight: 600; 
@@ -65,7 +64,7 @@ st.markdown("""
         line-height: 1.6;
     }
     
-    /* 6. Sidebar (Sol Menü) */
+    /* 6. Sidebar */
     [data-testid="stSidebar"] {
         background-color: #DCEDC8 !important; 
         border-right: 2px solid #AED581;
@@ -77,7 +76,6 @@ st.markdown("""
 # 1. VERİ HAVUZLARI
 # ==============================================================================
 
-# A) MESLEK DERSLERİ (MÜFREDAT)
 MESLEK_KONULARI = {
     "9. Sınıf Meslek": "Temel Muhasebe, Mesleki Matematik, Ofis Uygulamaları, Mesleki Gelişim.",
     "10. Sınıf Meslek": "Genel Muhasebe, Temel Hukuk, Ekonomi, Klavye Teknikleri.",
@@ -85,7 +83,6 @@ MESLEK_KONULARI = {
     "12. Sınıf Meslek": "Dış Ticaret, Kooperatifçilik, Ahilik Kültürü ve Girişimcilik."
 }
 
-# B) TYT KONULARI (ÖSYM ÇIKMIŞ SORU TARZI)
 TYT_KONULARI = {
     "Türkçe": "Paragrafta Anlam (Uzun), Cümlede Anlam, Ses Bilgisi, Yazım Kuralları, Noktalama.",
     "Matematik": "Yeni Nesil Problemler (Hız, Yaş, Yüzde), Temel Kavramlar, Sayı Basamakları, Fonksiyonlar.",
@@ -93,8 +90,7 @@ TYT_KONULARI = {
     "Coğrafya": "Harita Bilgisi, İklim, Nüfus, Doğal Afetler.",
 }
 
-# C) YEDEK DEPO (TYT - ZOR VE PARAGRAF AĞIRLIKLI)
-# Eğer AI çalışmazsa buradan çekecek. 40 Soruluk denemeyi dolduracak kadar çeşitlilik eklendi.
+# YEDEK DEPO (TYT - ZOR VE PARAGRAF AĞIRLIKLI)
 YEDEK_TYT_HAVUZ = {
     "Türkçe": [
         {"soru": "(2024 TYT) Paragrafta yazarın asıl yakındığı durum nedir? (Uzun Paragraf: Günümüz insanı teknolojiyle birlikte...) ", "secenekler": ["Yalnızlaşma", "İletişimsizlik", "Hız tutkusu", "Duyarsızlık", "Tembellik"], "cevap": "İletişimsizlik"},
@@ -130,47 +126,42 @@ YEDEK_TYT_HAVUZ = {
 if "GOOGLE_API_KEY" in st.secrets:
     genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
+# --- FONKSİYONLAR ---
+
 def soru_uret(kategori, alt_baslik):
     ai_sorulari = []
     
-    # 1. SORU SAYISI VE İÇERİK AYARI
     is_genel_deneme = "Türkiye Geneli" in alt_baslik
     
     if is_genel_deneme:
-        # GENEL DENEME MODU: 40 SORU (10 Türkçe, 10 Mat, 10 Tarih, 10 Coğ)
         soru_sayisi = 40 
         zorluk = "ZOR (ÖSYM AYARI)"
-        konu_detayi = "10 Adet Paragraf Ağırlıklı Türkçe, 10 Adet Yeni Nesil Matematik, 10 Adet Yorum Ağırlıklı Tarih, 10 Adet Coğrafya."
+        konu_detayi = "10 Türkçe, 10 Matematik, 10 Tarih, 10 Coğrafya"
     elif "Meslek" in kategori:
-        # MESLEK DERSLERİ: 15 SORU
         soru_sayisi = 15
         zorluk = "ORTA-ZOR"
         konu_detayi = MESLEK_KONULARI.get(alt_baslik, "Genel Meslek")
     else:
-        # TEKİL TYT DERSİ: 15 SORU
         soru_sayisi = 15
         zorluk = "ZOR"
         konu_detayi = TYT_KONULARI.get(alt_baslik, "Genel TYT")
 
-    # 2. YAPAY ZEKA İSTEĞİ (PROMPT)
     try:
         model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"""
-        Rol: Kıdemli Sınav Hazırlama Komisyonu Üyesi.
+        Rol: Sınav Hazırlama Uzmanı.
         Kategori: {kategori} - {alt_baslik}
-        Zorluk Seviyesi: {zorluk}
-        İstenen İçerik: {konu_detayi}
-        Soru Adedi: {soru_sayisi}
+        Zorluk: {zorluk}
+        Konu: {konu_detayi}
+        Adet: {soru_sayisi}
         
-        KESİN KURALLAR:
-        1. Sorular lise öğrencileri için {zorluk} seviyesinde olsun. Basit sorular sorma.
-        2. Türkçe soruları MUTLAKA UZUN PARAGRAF veya DİL BİLGİSİ analizi olsun.
-        3. Matematik soruları YENİ NESİL PROBLEM kurgusunda olsun.
-        4. Tarih ve Coğrafya soruları salt bilgi değil, YORUM ve ANALİZ gerektirsin.
-        5. Çıktı SADECE JSON formatında olsun. Başka yazı yazma.
+        KURALLAR:
+        1. Sorular lise öğrencileri için {zorluk} seviyesinde olsun.
+        2. Türkçe: Uzun Paragraf. Mat: Yeni Nesil. Sosyal: Yorum.
+        3. Çıktı SADECE JSON formatında.
         
         JSON FORMATI:
-        [ {{ "soru": "Uzun soru metni...", "secenekler": ["A", "B", "C", "D", "E"], "cevap": "Doğru şıkkın tam metni" }} ]
+        [ {{ "soru": "...", "secenekler": ["A", "B", "C", "D", "E"], "cevap": "..." }} ]
         """
         response = model.generate_content(prompt)
         text = response.text.strip()
@@ -180,26 +171,19 @@ def soru_uret(kategori, alt_baslik):
     except:
         ai_sorulari = []
 
-    # 3. YEDEK DEPO İLE TAMAMLAMA (EĞER AI EKSİK VERİRSE)
-    # Genel deneme için her branştan yedek çekip karıştıracağız.
+    # YEDEKLEME
     if len(ai_sorulari) < soru_sayisi:
         yedek_listesi = []
         if is_genel_deneme:
-            # Her dersten eşit miktarda al
             for ders, sorular in YEDEK_TYT_HAVUZ.items():
                 yedek_listesi.extend(sorular)
         elif "Meslek" in kategori:
-            # Meslek için genel yedek (Şimdilik örnek olarak TYT havuzunu kullanıyorum, buraya meslek eklenebilir)
             yedek_listesi = YEDEK_TYT_HAVUZ.get("Genel", []) 
         else:
-            # Tekil ders (Örn: Sadece Tarih)
             yedek_listesi = YEDEK_TYT_HAVUZ.get(alt_baslik, [])
 
-        # Karıştır ve ekle
         random.shuffle(yedek_listesi)
         eksik = soru_sayisi - len(ai_sorulari)
-        
-        # Yedek yetmezse kopyalayarak çoğalt (Sınavın boş kalmasından iyidir)
         while len(yedek_listesi) < eksik:
             yedek_listesi.extend(yedek_listesi)
             
@@ -207,7 +191,6 @@ def soru_uret(kategori, alt_baslik):
             
     return ai_sorulari[:soru_sayisi]
 
-# --- KAYIT SİSTEMİ ---
 def sonuclari_kaydet(ad, soyad, kategori, alt_baslik, puan):
     try:
         if "gcp_service_account" in st.secrets:
@@ -223,13 +206,28 @@ def sonuclari_kaydet(ad, soyad, kategori, alt_baslik, puan):
     except:
         return False
 
-# --- UYGULAMA RESETLEME (YENİ SINAV İÇİN) ---
-def restart_app():
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
+def cevap_kontrol(secilen, dogru):
+    soru_puani = 100 / len(st.session_state.soru_listesi)
+    if secilen == dogru:
+        st.session_state.puan += soru_puani
+        st.toast("✅ Doğru!", icon="🎉")
+    else:
+        st.toast(f"❌ Yanlış! Doğru Cevap: {dogru}", icon="⚠️")
+    
+    time.sleep(0.5)
+    st.session_state.index += 1
     st.rerun()
 
-# --- EKRAN AKIŞI (SESSION STATE) ---
+def reset_app():
+    st.session_state.oturum_basladi = False
+    st.session_state.soru_listesi = []
+    st.session_state.index = 0
+    st.session_state.puan = 0
+    st.session_state.kayit_ok = False
+    st.session_state.yukleniyor = False
+    st.rerun()
+
+# --- EKRAN AKIŞI ---
 if 'oturum_basladi' not in st.session_state: st.session_state.oturum_basladi = False
 if 'soru_listesi' not in st.session_state: st.session_state.soru_listesi = []
 if 'index' not in st.session_state: st.session_state.index = 0
@@ -237,14 +235,12 @@ if 'puan' not in st.session_state: st.session_state.puan = 0
 if 'yukleniyor' not in st.session_state: st.session_state.yukleniyor = False
 if 'kayit_ok' not in st.session_state: st.session_state.kayit_ok = False
 
-# GİRİŞ EKRANI
+# 1. GİRİŞ EKRANI
 if not st.session_state.oturum_basladi:
-    # Sidebar
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=120)
         st.title("Sınav Kategorisi")
         mod_secimi = st.radio("Seçim Yapınız:", ["Meslek Lisesi Sınavları", "TYT Hazırlık Kampı"])
-        st.write("---")
         st.info("Bağarası ÇPAL Online Sınav Merkezi")
 
     st.markdown(f"<h1 style='text-align: center; color:#D84315;'>{mod_secimi}</h1>", unsafe_allow_html=True)
@@ -252,18 +248,16 @@ if not st.session_state.oturum_basladi:
     if mod_secimi == "Meslek Lisesi Sınavları":
         secenekler = list(MESLEK_KONULARI.keys())
         etiket = "Sınıf Seviyesi Seçiniz:"
-        soru_bilgisi = "15 Soru (Orta-Zor)"
+        soru_bilgisi = "15 Soru (Mesleki Karma)"
     else:
-        # TYT Kampı Seçenekleri
         temel_dersler = ["Türkçe", "Matematik", "Tarih", "Coğrafya"]
-        # Deneme sınavları (1'den 10'a)
         denemeler = [f"Türkiye Geneli Deneme {i}" for i in range(1, 11)] 
         secenekler = temel_dersler + denemeler
         etiket = "Ders veya Deneme Sınavı Seçiniz:"
-        soru_bilgisi = "Tek Ders: 15 Soru | Genel Deneme: 40 Soru (ÖSYM Tarzı)"
+        soru_bilgisi = "Tek Ders: 15 Soru | Genel Deneme: 40 Soru"
 
     secilen_alt_baslik = st.selectbox(etiket, secenekler)
-    st.caption(f"ℹ️ **Sınav Formatı:** {soru_bilgisi}")
+    st.caption(f"ℹ️ **Format:** {soru_bilgisi}")
 
     with st.form("giris"):
         c1, c2 = st.columns(2)
@@ -276,27 +270,24 @@ if not st.session_state.oturum_basladi:
                 st.rerun()
 
     if st.session_state.yukleniyor:
-        with st.status("Yapay Zeka Soruları Hazırlıyor... (ÖSYM Veritabanına Bağlanılıyor...)", expanded=True):
+        with st.status("Yapay Zeka Soruları Hazırlıyor...", expanded=True):
             sorular = soru_uret(st.session_state.kimlik['mod'], st.session_state.kimlik['baslik'])
             st.session_state.soru_listesi = sorular
             st.session_state.oturum_basladi = True
             st.session_state.yukleniyor = False
             st.rerun()
 
-# SORU EKRANI
+# 2. SORU EKRANI
 elif st.session_state.index < len(st.session_state.soru_listesi):
     soru = st.session_state.soru_listesi[st.session_state.index]
     toplam = len(st.session_state.soru_listesi)
     
-    # İlerleme Çubuğu ve Başlık
     st.progress((st.session_state.index + 1) / toplam)
     st.markdown(f"**{st.session_state.kimlik['baslik']}** | Soru {st.session_state.index + 1} / {toplam}")
     
-    # Soru Metni
     st.markdown(f"<div class='big-font'>{soru['soru']}</div>", unsafe_allow_html=True)
     
     secenekler = soru["secenekler"]
-    # Şıkları karıştırmak istemiyorsanız aşağıdaki satırı silin, ama karıştırmak iyidir.
     random.shuffle(secenekler) 
     
     col1, col2 = st.columns(2)
@@ -310,19 +301,7 @@ elif st.session_state.index < len(st.session_state.soru_listesi):
                 if st.button(sec, key=f"btn_{i}", use_container_width=True):
                     cevap_kontrol(sec, soru["cevap"])
 
-def cevap_kontrol(secilen, dogru):
-    soru_puani = 100 / len(st.session_state.soru_listesi)
-    if secilen == dogru:
-        st.session_state.puan += soru_puani
-        st.toast("✅ Doğru!", icon="🎉")
-    else:
-        st.toast(f"❌ Yanlış! Doğru Cevap: {dogru}", icon="⚠️")
-    
-    time.sleep(0.5)
-    st.session_state.index += 1
-    st.rerun()
-
-# SONUÇ EKRANI
+# 3. SONUÇ EKRANI
 else:
     st.balloons()
     final_puan = int(st.session_state.puan)
@@ -343,6 +322,5 @@ else:
     st.write("")
     col_x, col_y, col_z = st.columns([1,2,1])
     with col_y:
-        # YENİDEN BAŞLAT BUTONU
-        if st.button("🔄 YENİ SINAV ÇÖZ (Ana Menüye Dön)", type="primary", use_container_width=True):
-            restart_app()
+        if st.button("🔄 YENİ SINAV ÇÖZ (Ana Menü)", type="primary", use_container_width=True):
+            reset_app()
