@@ -1,6 +1,7 @@
 import streamlit as st
-import base64
 import random
+import os
+import fitz  # PyMuPDF kütüphanesi (PDF'i resme çevirmek için)
 
 # --- SAYFA AYARLARI ---
 st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🎓", layout="wide")
@@ -11,20 +12,15 @@ st.markdown("""
     .stApp { background-color: #F0F4C3 !important; }
     h1, h2, h3, h4, .stMarkdown { color: #212121 !important; }
     
-    /* PDF Alanı */
-    iframe {
-        border: 4px solid #FF7043;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-    
-    /* Optik Form */
+    /* Optik Form Alanı */
     .optik-alan {
         background-color: white;
         padding: 20px;
         border-radius: 15px;
-        border: 2px solid #AED581;
+        border: 2px solid #FF7043;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        position: sticky; 
+        top: 20px; /* Kaydırırken form sabit kalsın */
     }
     
     /* Butonlar */
@@ -34,6 +30,7 @@ st.markdown("""
         border-radius: 8px;
         font-weight: bold;
         width: 100%;
+        border: 2px solid #D84315 !important;
     }
     .stButton>button:hover {
         background-color: #E64A19 !important;
@@ -42,15 +39,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 📝 BURAYI DOLDURMANIZ YETERLİ (CEVAP ANAHTARI MERKEZİ)
+# 📝 PDF HARİTASI (TAM LİSTE)
 # ==============================================================================
-# Format:  Sayfa_No: {"ders": "Ders Adı", "cevaplar": "Cevaplar_Bitişik_Yazılır"}
-# ÖNEMLİ: PDF'teki sayfa numarası ile buradaki numara tutmalıdır.
+# Sizin hazırladığınız tam liste buraya eklendi.
 
 PDF_HARITASI = {
-    # --- TÜRKÇE ÖRNEKLERİ ---
-    13: {"ders": "Türkçe", "cevaplar": "ECE"},  # Sayfa 3'te 5 soru var (A,D,C,B,E)
-    14: {"ders": "Türkçe", "cevaplar": "BAC"},   # Sayfa 4'te 4 soru var
+    # --- TÜRKÇE ---
+    13: {"ders": "Türkçe", "cevaplar": "ECE"},
+    14: {"ders": "Türkçe", "cevaplar": "BAC"},
     15: {"ders": "Türkçe", "cevaplar": "BEA"},
     16: {"ders": "Türkçe", "cevaplar": "CBCD"},
     17: {"ders": "Türkçe", "cevaplar": "AABA"},
@@ -113,237 +109,217 @@ PDF_HARITASI = {
     131: {"ders": "Türkçe", "cevaplar": "DEDD"}, 
     132: {"ders": "Türkçe", "cevaplar": "BCCC"}, 
     133: {"ders": "Türkçe", "cevaplar": "C"}, 
-   
-    
-    # --- SOSYAL BİLİMLER ÖRNEKLERİ ---
+
+    # --- TARİH ---
     138: {"ders": "Tarih", "cevaplar": "BDEE"},
     139: {"ders": "Tarih", "cevaplar": "CEDA"}, 
- 140: {"ders": "Tarih", "cevaplar": "CADC"}, 
- 141: {"ders": "Tarih", "cevaplar": "CEEE"}, 
- 142: {"ders": "Tarih", "cevaplar": "DED"}, 
- 143: {"ders": "Tarih", "cevaplar": "AE"}, 
- 144: {"ders": "Tarih", "cevaplar": "BABC"}, 
- 145: {"ders": "Tarih", "cevaplar": "ADCE"}, 
- 146: {"ders": "Tarih", "cevaplar": "BCBD"}, 
- 147: {"ders": "Tarih", "cevaplar": "CBCE"}, 
- 148: {"ders": "Tarih", "cevaplar": "ACE"}, 
- 
- 151: {"ders": "Coğrafya", "cevaplar": "CACE"},
- 152: {"ders": "Coğrafya", "cevaplar": "AAB"},
- 153: {"ders": "Coğrafya", "cevaplar": "BBB"},
- 154: {"ders": "Coğrafya", "cevaplar": "BBAA"}, 
- 155: {"ders": "Coğrafya", "cevaplar": "CBC"},
- 156: {"ders": "Coğrafya", "cevaplar": "ECA"},
- 157: {"ders": "Coğrafya", "cevaplar": "CD"}, 
- 158: {"ders": "Coğrafya", "cevaplar": "EC"},
- 159: {"ders": "Coğrafya", "cevaplar": "AC"},
- 160: {"ders": "Coğrafya", "cevaplar": "EEDE"},
- 161: {"ders": "Coğrafya", "cevaplar": "DCBD"},
- 162: {"ders": "Coğrafya", "cevaplar": "CDDD"},
- 163: {"ders": "Coğrafya", "cevaplar": "CD"},
+    140: {"ders": "Tarih", "cevaplar": "CADC"}, 
+    141: {"ders": "Tarih", "cevaplar": "CEEE"}, 
+    142: {"ders": "Tarih", "cevaplar": "DED"}, 
+    143: {"ders": "Tarih", "cevaplar": "AE"}, 
+    144: {"ders": "Tarih", "cevaplar": "BABC"}, 
+    145: {"ders": "Tarih", "cevaplar": "ADCE"}, 
+    146: {"ders": "Tarih", "cevaplar": "BCBD"}, 
+    147: {"ders": "Tarih", "cevaplar": "CBCE"}, 
+    148: {"ders": "Tarih", "cevaplar": "ACE"}, 
 
+    # --- COĞRAFYA ---
+    151: {"ders": "Coğrafya", "cevaplar": "CACE"},
+    152: {"ders": "Coğrafya", "cevaplar": "AAB"},
+    153: {"ders": "Coğrafya", "cevaplar": "BBB"},
+    154: {"ders": "Coğrafya", "cevaplar": "BBAA"}, 
+    155: {"ders": "Coğrafya", "cevaplar": "CBC"},
+    156: {"ders": "Coğrafya", "cevaplar": "ECA"},
+    157: {"ders": "Coğrafya", "cevaplar": "CD"}, 
+    158: {"ders": "Coğrafya", "cevaplar": "EC"},
+    159: {"ders": "Coğrafya", "cevaplar": "AC"},
+    160: {"ders": "Coğrafya", "cevaplar": "EEDE"},
+    161: {"ders": "Coğrafya", "cevaplar": "DCBD"},
+    162: {"ders": "Coğrafya", "cevaplar": "CDDD"},
+    163: {"ders": "Coğrafya", "cevaplar": "CD"},
 
+    # --- FELSEFE ---
     168: {"ders": "Felsefe", "cevaplar": "CD"},
-     169: {"ders": "Felsefe", "cevaplar": "BD"},
-      170: {"ders": "Felsefe", "cevaplar": "EB"},
-      171: {"ders": "Felsefe", "cevaplar": "BE"},
-      172: {"ders": "Felsefe", "cevaplar": "BB"},
-      173: {"ders": "Felsefe", "cevaplar": "BAA"},
-      174: {"ders": "Felsefe", "cevaplar": "BDD"},
-      175: {"ders": "Felsefe", "cevaplar": "AAB"},
-     176: {"ders": "Felsefe", "cevaplar": "DA"},
-   
-    
-    # --- MATEMATİK ÖRNEKLERİ ---
+    169: {"ders": "Felsefe", "cevaplar": "BD"},
+    170: {"ders": "Felsefe", "cevaplar": "EB"},
+    171: {"ders": "Felsefe", "cevaplar": "BE"},
+    172: {"ders": "Felsefe", "cevaplar": "BB"},
+    173: {"ders": "Felsefe", "cevaplar": "BAA"},
+    174: {"ders": "Felsefe", "cevaplar": "BDD"},
+    175: {"ders": "Felsefe", "cevaplar": "AAB"},
+    176: {"ders": "Felsefe", "cevaplar": "DA"},
+
+    # --- MATEMATİK ---
     213: {"ders": "Matematik", "cevaplar": "AEB"},
     214: {"ders": "Matematik", "cevaplar": "ECA"},
-     215: {"ders": "Matematik", "cevaplar": "CDCE"},
-     216: {"ders": "Matematik", "cevaplar": "DDCD"},
-     217: {"ders": "Matematik", "cevaplar": "AEC"},
-     218: {"ders": "Matematik", "cevaplar": "CAA"},
-     219: {"ders": "Matematik", "cevaplar": "BEAB"},
-     221: {"ders": "Matematik", "cevaplar": "DEAA"},
-     222: {"ders": "Matematik", "cevaplar": "BBC"},
-      226: {"ders": "Matematik", "cevaplar": "ABAE"},
-      227: {"ders": "Matematik", "cevaplar": "CBB"},
-      230: {"ders": "Matematik", "cevaplar": "BCCD"},
-      231: {"ders": "Matematik", "cevaplar": "DADB"},
-       232: {"ders": "Matematik", "cevaplar": "EE"},
-       246: {"ders": "Matematik", "cevaplar": "CCB"},
-       247: {"ders": "Matematik", "cevaplar": "EACE"},
-       249: {"ders": "Matematik", "cevaplar": "DAAC"},
-       250: {"ders": "Matematik", "cevaplar": "BE"},
-    
-      
-    # --- FEN BİLİMLERİ ÖRNEKLERİ ---
+    215: {"ders": "Matematik", "cevaplar": "CDCE"},
+    216: {"ders": "Matematik", "cevaplar": "DDCD"},
+    217: {"ders": "Matematik", "cevaplar": "AEC"},
+    218: {"ders": "Matematik", "cevaplar": "CAA"},
+    219: {"ders": "Matematik", "cevaplar": "BEAB"},
+    221: {"ders": "Matematik", "cevaplar": "DEAA"},
+    222: {"ders": "Matematik", "cevaplar": "BBC"},
+    226: {"ders": "Matematik", "cevaplar": "ABAE"},
+    227: {"ders": "Matematik", "cevaplar": "CBB"},
+    230: {"ders": "Matematik", "cevaplar": "BCCD"},
+    231: {"ders": "Matematik", "cevaplar": "DADB"},
+    232: {"ders": "Matematik", "cevaplar": "EE"},
+    246: {"ders": "Matematik", "cevaplar": "CCB"},
+    247: {"ders": "Matematik", "cevaplar": "EACE"},
+    249: {"ders": "Matematik", "cevaplar": "DAAC"},
+    250: {"ders": "Matematik", "cevaplar": "BE"},
+
+    # --- FİZİK ---
     312: {"ders": "Fizik", "cevaplar": "EBC"},
- 313: {"ders": "Fizik", "cevaplar": "BA"},
-314: {"ders": "Fizik", "cevaplar": "EDE"},
-316: {"ders": "Fizik", "cevaplar": "DAE"},
-317: {"ders": "Fizik", "cevaplar": "BDEA"},
-318: {"ders": "Fizik", "cevaplar": "DDD"},
-320: {"ders": "Fizik", "cevaplar": "ABE"},
-321: {"ders": "Fizik", "cevaplar": "ADA"},
+    313: {"ders": "Fizik", "cevaplar": "BA"},
+    314: {"ders": "Fizik", "cevaplar": "EDE"},
+    316: {"ders": "Fizik", "cevaplar": "DAE"},
+    317: {"ders": "Fizik", "cevaplar": "BDEA"},
+    318: {"ders": "Fizik", "cevaplar": "DDD"},
+    320: {"ders": "Fizik", "cevaplar": "ABE"},
+    321: {"ders": "Fizik", "cevaplar": "ADA"},
 
-
+    # --- KİMYA ---
     339: {"ders": "Kimya", "cevaplar": "ACAE"},
-340: {"ders": "Kimya", "cevaplar": "BC"},
-350: {"ders": "Kimya", "cevaplar": "BDEB"},
-344: {"ders": "Kimya", "cevaplar": "DAAD"},
-345: {"ders": "Kimya", "cevaplar": "ADC"},
-346: {"ders": "Kimya", "cevaplar": "CCD"},
-348: {"ders": "Kimya", "cevaplar": "CAC"},
-349: {"ders": "Kimya", "cevaplar": "AEC"},
-351: {"ders": "Kimya", "cevaplar": "AAB"},
+    340: {"ders": "Kimya", "cevaplar": "BC"},
+    350: {"ders": "Kimya", "cevaplar": "BDEB"},
+    344: {"ders": "Kimya", "cevaplar": "DAAD"},
+    345: {"ders": "Kimya", "cevaplar": "ADC"},
+    346: {"ders": "Kimya", "cevaplar": "CCD"},
+    348: {"ders": "Kimya", "cevaplar": "CAC"},
+    349: {"ders": "Kimya", "cevaplar": "AEC"},
+    351: {"ders": "Kimya", "cevaplar": "AAB"},
 
-
-
-
+    # --- BİYOLOJİ ---
     359: {"ders": "Biyoloji", "cevaplar": "CBEE"},
-360: {"ders": "Biyoloji", "cevaplar": "DADC"},
-361: {"ders": "Biyoloji", "cevaplar": "BBD"},
-362: {"ders": "Biyoloji", "cevaplar": "AEDB"},
-363: {"ders": "Biyoloji", "cevaplar": "ECB"},
-365: {"ders": "Biyoloji", "cevaplar": "AEC"},
-373: {"ders": "Biyoloji", "cevaplar": "DE"},
-374: {"ders": "Biyoloji", "cevaplar": "EEE"},
-
-    
-    # Kendi PDF'inize bakarak burayı istediğiniz kadar uzatabilirsiniz...
-    # 40: {"ders": "Fizik", "cevaplar": "ACD"}, gibi...
+    360: {"ders": "Biyoloji", "cevaplar": "DADC"},
+    361: {"ders": "Biyoloji", "cevaplar": "BBD"},
+    362: {"ders": "Biyoloji", "cevaplar": "AEDB"},
+    363: {"ders": "Biyoloji", "cevaplar": "ECB"},
+    365: {"ders": "Biyoloji", "cevaplar": "AEC"},
+    373: {"ders": "Biyoloji", "cevaplar": "DE"},
+    374: {"ders": "Biyoloji", "cevaplar": "EEE"}
 }
 
-# Yüklediğiniz PDF dosyasının tam adı (Değişirse burayı da değiştirin)
-PDF_DOSYA_ADI = "tytson8.pdf"
+# PDF DOSYA ADI (Dosyanızın tam adını buraya yazın)
+PDF_DOSYA_ADI = "06175120_tyt.pdf"
 
 # ==============================================================================
-# PDF GÖSTERME FONKSİYONU
+# PDF SAYFASINI RESME ÇEVİREN FONKSİYON (PyMuPDF)
 # ==============================================================================
-def pdf_goster(dosya_yolu, sayfa_no):
+def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
+    if not os.path.exists(dosya_yolu):
+        st.error(f"⚠️ HATA: '{dosya_yolu}' bulunamadı! Dosyayı GitHub'a yüklediğinizden emin olun.")
+        return
+
     try:
-        with open(dosya_yolu, "rb") as f:
-            base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-        # PDF'i embed et ve sayfa numarasına yönlendir (#page=X)
-        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}#page={sayfa_no}" width="100%" height="850" type="application/pdf"></iframe>'
-        st.markdown(pdf_display, unsafe_allow_html=True)
-    except FileNotFoundError:
-        st.error(f"⚠️ PDF Dosyası ({PDF_DOSYA_ADI}) Bulunamadı! Dosyayı GitHub'a yüklediğinizden emin olun.")
+        # PDF dosyasını aç
+        doc = fitz.open(dosya_yolu)
+        
+        if sayfa_numarasi > len(doc) or sayfa_numarasi < 1:
+            st.error(f"Hata: İstenen sayfa ({sayfa_numarasi}) PDF sınırları dışında.")
+            return
+
+        # Sayfayı yükle (0 tabanlı olduğu için -1)
+        page = doc.load_page(sayfa_numarasi - 1)
+        
+        # Sayfayı yüksek çözünürlüklü resme çevir
+        pix = page.get_pixmap(dpi=150)
+        
+        # Resmi ekrana bas
+        st.image(pix.tobytes(), caption=f"Sayfa {sayfa_numarasi}", use_container_width=True)
+        
+    except Exception as e:
+        st.error(f"PDF okuma hatası: {e}")
 
 # ==============================================================================
 # EKRAN AKIŞI
 # ==============================================================================
 
-# Session State (Hafıza) Tanımları
 if 'oturum' not in st.session_state: st.session_state.oturum = False
 if 'secilen_sayfalar' not in st.session_state: st.session_state.secilen_sayfalar = []
 if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
 if 'toplam_puan' not in st.session_state: st.session_state.toplam_puan = 0
 if 'cevaplarim' not in st.session_state: st.session_state.cevaplarim = {}
 
-# --- 1. GİRİŞ EKRANI (SOL MENÜ) ---
+# --- 1. GİRİŞ EKRANI ---
 if not st.session_state.oturum:
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=120)
-        st.title("TYT Kampı Giriş")
-        st.info("Bağarası ÇPAL - Dijital Sınav Merkezi")
+        st.title("TYT Kampı")
         
-        # Ders Seçimi
-        dersler = ["Karışık Deneme", "Türkçe", "Matematik", "Tarih", "Coğrafya", "Fizik", "Kimya", "Biyoloji", "Felsefe"]
-        secilen_ders = st.selectbox("Çözmek İstediğiniz Ders:", dersler)
+        mevcut_dersler = sorted(list(set(v["ders"] for v in PDF_HARITASI.values())))
+        secenekler = ["Karışık Deneme"] + mevcut_dersler
         
-        # Soru Sayısı (Sayfa Bazlı)
-        sayfa_sayisi = st.slider("Kaç Sayfa Soru Çözeceksiniz?", 1, 10, 3)
+        secilen_ders = st.selectbox("Ders Seçiniz:", secenekler)
+        sayfa_sayisi = st.slider("Kaç Sayfa Çözmek İstersiniz?", 1, 20, 3)
         
         if st.button("Sınavı Başlat 🚀"):
-            # Havuzdan uygun sayfaları bul
             uygun_sayfalar = []
             for sayfa, detay in PDF_HARITASI.items():
                 if secilen_ders == "Karışık Deneme" or detay["ders"] == secilen_ders:
                     uygun_sayfalar.append(sayfa)
             
             if not uygun_sayfalar:
-                st.warning(f"Henüz '{secilen_ders}' dersi için sisteme sayfa tanımlanmamış. Lütfen 'PDF_HARITASI' kısmını güncelleyin.")
+                st.warning(f"⚠️ '{secilen_ders}' için tanımlı sayfa bulunamadı.")
             else:
-                # Rastgele sayfalar seç
                 random.shuffle(uygun_sayfalar)
-                # İstenilen adetten fazla sayfa varsa kes, azsa hepsini al
                 st.session_state.secilen_sayfalar = uygun_sayfalar[:sayfa_sayisi]
-                
-                # Sınavı Başlat
                 st.session_state.oturum = True
                 st.session_state.aktif_index = 0
                 st.session_state.toplam_puan = 0
                 st.session_state.cevaplarim = {}
                 st.rerun()
 
-    # Ana Sayfa Karşılama
-    st.markdown("""
-    # 📚 Gerçek Çıkmış Sorularla Sınav Kampı
-    
-    Bu sistem, elinizdeki **Çıkmış Sorular Kitapçığını (PDF)** interaktif bir sınava dönüştürür.
-    
-    ### 🎯 Nasıl Kullanılır?
-    1. Sol menüden **Ders** seçin.
-    2. Sistem size rastgele bir **PDF Sayfası** getirecek.
-    3. Sorular **orijinal görüntüleriyle** (Resim, Grafik, Tablo) karşınızda olacak.
-    4. Yandaki **Sanal Optik Form**'a cevaplarınızı işaretleyin.
-    5. Anında sonucunuzu öğrenin!
-    """)
+    st.markdown("# 📚 Bağarası ÇPAL Dijital Sınav Merkezi")
+    st.info("Tüm branşlar ve çıkmış sorular sisteme yüklenmiştir. Başarılar!")
 
 # --- 2. SINAV EKRANI ---
 elif st.session_state.aktif_index < len(st.session_state.secilen_sayfalar):
     
-    # Şu anki sayfa bilgilerini al
     suanki_sayfa = st.session_state.secilen_sayfalar[st.session_state.aktif_index]
     veri = PDF_HARITASI[suanki_sayfa]
     ders_adi = veri["ders"]
-    dogru_cevap_anahtari = veri["cevaplar"] # Örn: "ADCB"
-    soru_sayisi = len(dogru_cevap_anahtari)
+    dogru_cevaplar = veri["cevaplar"]
+    soru_sayisi = len(dogru_cevaplar)
     
     # Ekranı Böl: PDF (Geniş) | Optik Form (Dar)
     col_pdf, col_form = st.columns([2.5, 1])
     
     with col_pdf:
-        st.markdown(f"### 📄 {ders_adi} - Sayfa {suanki_sayfa}")
-        pdf_goster(PDF_DOSYA_ADI, suanki_sayfa)
+        st.markdown(f"### 📄 {ders_adi} - PDF Sayfa {suanki_sayfa}")
+        pdf_sayfa_getir(PDF_DOSYA_ADI, suanki_sayfa)
         
     with col_form:
         st.markdown("<div class='optik-alan'>", unsafe_allow_html=True)
         st.subheader("📝 Cevap Kağıdı")
         
-        sayfa_puani = 0
         dogru_sayisi = 0
         
-        # Formu Oluştur
         with st.form(key=f"form_{suanki_sayfa}"):
             for i in range(soru_sayisi):
                 st.write(f"**Soru {i+1}**")
-                # Radyo butonları (A, B, C, D, E)
-                st.radio(f"Soru {i+1}", ["A", "B", "C", "D", "E"], key=f"c_{suanki_sayfa}_{i}", horizontal=True, label_visibility="collapsed", index=None)
+                # Daha önce cevaplandıysa onu göster, yoksa boş
+                key = f"c_{suanki_sayfa}_{i}"
+                st.radio(f"Soru {i+1}", ["A", "B", "C", "D", "E"], key=key, horizontal=True, label_visibility="collapsed", index=None)
                 st.write("---")
             
-            # Kontrol Butonu
             if st.form_submit_button("Sayfayı Bitir ve Kontrol Et ✅"):
-                # Cevapları Kontrol Et
                 for i in range(soru_sayisi):
-                    kullanici_cevabi = st.session_state.get(f"c_{suanki_sayfa}_{i}")
-                    gercek_cevap = dogru_cevap_anahtari[i]
+                    val = st.session_state.get(f"c_{suanki_sayfa}_{i}")
+                    dogru = dogru_cevaplar[i]
                     
-                    if kullanici_cevabi == gercek_cevap:
+                    if val == dogru:
                         dogru_sayisi += 1
                         st.toast(f"Soru {i+1}: Doğru! 🎉")
-                    elif kullanici_cevabi:
-                        st.toast(f"Soru {i+1}: Yanlış! (Cevap: {gercek_cevap})", icon="⚠️")
+                    elif val:
+                        st.toast(f"Soru {i+1}: Yanlış! (Cevap: {dogru})", icon="⚠️")
                     else:
-                        st.toast(f"Soru {i+1}: Boş Bırakıldı (Cevap: {gercek_cevap})", icon="⚪")
+                        st.toast(f"Soru {i+1}: Boş (Cevap: {dogru})", icon="⚪")
                 
-                # Puanlama (Örn: Soru başı 5 puan)
-                sayfa_puani = dogru_sayisi * 5
-                st.session_state.toplam_puan += sayfa_puani
-                
-                # Bildirim ve Geçiş
-                st.success(f"Sayfa Sonucu: {dogru_sayisi} / {soru_sayisi} Doğru")
-                time.sleep(2) # Sonucu görmesi için bekle
+                # Puanlama (Her doğru 5 puan)
+                st.session_state.toplam_puan += (dogru_sayisi * 5)
+                time.sleep(1.5)
                 st.session_state.aktif_index += 1
                 st.rerun()
                 
@@ -354,9 +330,9 @@ else:
     st.balloons()
     st.markdown(f"""
     <div style='background-color:#FF7043; padding:50px; border-radius:20px; text-align:center; color:white;'>
-        <h1>🏁 Sınav Tamamlandı!</h1>
+        <h1>🏁 Sınav Bitti!</h1>
         <h2 style='font-size:60px;'>Toplam Puan: {st.session_state.toplam_puan}</h2>
-        <p>Tüm seçilen sayfalar başarıyla çözüldü.</p>
+        <p>Tüm seçilen sayfalar başarıyla tamamlandı.</p>
     </div>
     """, unsafe_allow_html=True)
     
