@@ -2,41 +2,30 @@ import streamlit as st
 import random
 import os
 import time
-import fitz  # PyMuPDF kütüphanesi
+import json
+import fitz  # PyMuPDF
+import google.generativeai as genai
 
 # --- SAYFA AYARLARI ---
-st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🏫", layout="wide")
+st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🎓", layout="wide")
 
-# --- TASARIM VE CSS ---
+# --- API KEY KONTROLÜ (Meslek Soruları İçin) ---
+if "GOOGLE_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+
+# --- TASARIM ---
 st.markdown("""
     <style>
-    /* Arka Plan */
     .stApp { background-color: #F0F4C3 !important; }
+    h1, h2, h3, h4, .stMarkdown { color: #212121 !important; }
     
-    /* Yazı Renkleri */
-    h1, h2, h3, h4, .stMarkdown { color: #212121 !important; font-family: 'Segoe UI', sans-serif; }
-    
-    /* Optik Form Alanı (Sticky - Sabit Duran) */
+    /* Optik Form Alanı */
     .optik-alan {
         background-color: white;
-        padding: 20px;
+        padding: 15px;
         border-radius: 15px;
         border: 2px solid #FF7043;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        position: sticky; 
-        top: 20px; 
-        z-index: 999;
-    }
-    
-    /* Özel Bilgi Kutusu (İmza Alanı) */
-    .imza-kutusu {
-        background-color: #FFECB3;
-        border-left: 5px solid #FF6F00;
-        padding: 15px;
-        border-radius: 5px;
         margin-bottom: 20px;
-        font-weight: bold;
-        color: #3E2723;
     }
     
     /* Butonlar */
@@ -48,23 +37,41 @@ st.markdown("""
         width: 100%;
         border: 2px solid #D84315 !important;
         min-height: 50px;
-        transition: transform 0.2s;
     }
     .stButton>button:hover {
         background-color: #E64A19 !important;
-        transform: scale(1.02);
     }
     
-    /* İlerleme Çubuğu Rengi */
-    .stProgress > div > div > div > div {
-        background-color: #FF7043;
+    /* Sekme (Tab) Tasarımı */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background-color: #FFFFFF;
+        border-radius: 5px;
+        padding: 10px 20px;
+        border: 1px solid #FF7043;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #FF7043 !important;
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 📝 PDF HARİTASI (VERİ TABANI)
+# 1. VERİ HAVUZLARI
 # ==============================================================================
+
+# A) MESLEK LİSESİ KONULARI (Yapay Zeka Üretecek)
+MESLEK_KONULARI = {
+    "9. Sınıf Meslek": "Temel Muhasebe, Mesleki Matematik, Ofis Programları",
+    "10. Sınıf Meslek": "Genel Muhasebe, Klavye Teknikleri, Hukuk",
+    "11. Sınıf Meslek": "Şirketler Muhasebesi, Maliyet, Vergi",
+    "12. Sınıf Meslek": "Girişimcilik, Finansal Okuryazarlık"
+}
+
+# B) TYT PDF HARİTASI (PDF'ten Çekilecek)
 PDF_HARITASI = {
     # --- TÜRKÇE ---
     13: {"ders": "Türkçe", "cevaplar": "ECE"},
@@ -170,7 +177,7 @@ PDF_HARITASI = {
     174: {"ders": "Felsefe", "cevaplar": "BDD"},
     175: {"ders": "Felsefe", "cevaplar": "AAB"},
     176: {"ders": "Felsefe", "cevaplar": "DA"},
-   
+
     # --- MATEMATİK ---
     213: {"ders": "Matematik", "cevaplar": "AEB"},
     214: {"ders": "Matematik", "cevaplar": "ECA"},
@@ -190,7 +197,7 @@ PDF_HARITASI = {
     247: {"ders": "Matematik", "cevaplar": "EACE"},
     249: {"ders": "Matematik", "cevaplar": "DAAC"},
     250: {"ders": "Matematik", "cevaplar": "BE"},
-      
+
     # --- FİZİK ---
     312: {"ders": "Fizik", "cevaplar": "EBC"},
     313: {"ders": "Fizik", "cevaplar": "BA"},
@@ -223,177 +230,179 @@ PDF_HARITASI = {
     374: {"ders": "Biyoloji", "cevaplar": "EEE"}
 }
 
-# PDF DOSYA ADI
 PDF_DOSYA_ADI = "tytson8.pdf"
 
 # ==============================================================================
-# PDF GÖSTERİCİ (ZOOM + RESME ÇEVİRME)
+# FONKSİYONLAR
 # ==============================================================================
+
+# 1. PDF GÖSTERİCİ (PyMuPDF)
 def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
     if not os.path.exists(dosya_yolu):
-        st.error(f"⚠️ HATA: '{dosya_yolu}' bulunamadı! Lütfen dosyayı GitHub'a yüklediğinizden emin olun.")
+        st.error(f"⚠️ PDF Dosyası ({dosya_yolu}) bulunamadı!")
         return
-
     try:
         doc = fitz.open(dosya_yolu)
-        if sayfa_numarasi > len(doc) or sayfa_numarasi < 1:
-            st.error(f"Hata: İstenen sayfa ({sayfa_numarasi}) PDF sınırları dışında.")
-            return
-
         page = doc.load_page(sayfa_numarasi - 1)
         
-        # --- ZOOM AYARI ---
-        c1, c2 = st.columns([1, 4])
-        with c1:
-            zoom_oran = st.select_slider(
-                "🔍 Yakınlaştır:", 
-                options=[100, 150, 200, 300], 
-                value=150,
-                format_func=lambda x: f"%{int(x/1.5)}"
-            )
-        
-        with c2:
-             st.caption("ℹ️ Bilgisayarda resmin sağ üstündeki oklara (↔) basarak tam ekran yapabilirsiniz.")
-
-        pix = page.get_pixmap(dpi=zoom_oran)
+        # Mobil için varsayılan zoom 150 yeterlidir
+        pix = page.get_pixmap(dpi=150)
         st.image(pix.tobytes(), caption=f"Sayfa {sayfa_numarasi}", use_container_width=True)
-        
     except Exception as e:
-        st.error(f"PDF okuma hatası: {e}")
+        st.error(f"Hata: {e}")
+
+# 2. AI SORU ÜRETİCİ (Meslek Lisesi İçin)
+def ai_soru_uret(ders_adi):
+    if "GOOGLE_API_KEY" not in st.secrets:
+        return [{"soru": "API Key Eksik!", "secenekler": ["A"], "cevap": "A"}]
+    
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = f"""
+        Rol: Meslek Lisesi Öğretmeni.
+        Ders: {ders_adi}
+        Görev: 5 adet çoktan seçmeli soru hazırla.
+        Format: JSON listesi.
+        [ {{"soru": "...", "secenekler": ["A", "B", "C", "D", "E"], "cevap": "Doğru Cevabın Metni"}} ]
+        """
+        resp = model.generate_content(prompt)
+        text = resp.text.strip().replace("```json", "").replace("```", "")
+        return json.loads(text)
+    except:
+        return []
 
 # ==============================================================================
 # EKRAN AKIŞI
 # ==============================================================================
 
 if 'oturum' not in st.session_state: st.session_state.oturum = False
-if 'secilen_sayfalar' not in st.session_state: st.session_state.secilen_sayfalar = []
+if 'mod' not in st.session_state: st.session_state.mod = ""
+if 'secilen_liste' not in st.session_state: st.session_state.secilen_liste = [] # PDF Sayfaları veya AI Soruları
 if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
 if 'toplam_puan' not in st.session_state: st.session_state.toplam_puan = 0
 if 'cevaplarim' not in st.session_state: st.session_state.cevaplarim = {}
 
-# --- 1. GİRİŞ EKRANI VE KULLANIM KILAVUZU ---
+# --- GİRİŞ MENÜSÜ ---
 if not st.session_state.oturum:
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=120)
-        st.title("Giriş Paneli")
+        st.title("Sınav Modu")
         
-        mevcut_dersler = sorted(list(set(v["ders"] for v in PDF_HARITASI.values())))
-        secenekler = ["Karışık Deneme"] + mevcut_dersler
+        mod_secimi = st.radio("Hangisini Çözeceksiniz?", ["TYT Kampı (PDF)", "Meslek Lisesi Sınavları"])
         
-        secilen_ders = st.selectbox("Ders Seçiniz:", secenekler)
-        sayfa_sayisi = st.slider("Çözülecek Sayfa Sayısı:", 1, 30, 3)
-        
-        if st.button("SINAVI BAŞLAT 🚀"):
-            uygun_sayfalar = []
-            for sayfa, detay in PDF_HARITASI.items():
-                if secilen_ders == "Karışık Deneme" or detay["ders"] == secilen_ders:
-                    uygun_sayfalar.append(sayfa)
+        if mod_secimi == "TYT Kampı (PDF)":
+            # PDF DERSLERİ
+            mevcut = sorted(list(set(v["ders"] for v in PDF_HARITASI.values())))
+            ders = st.selectbox("Ders Seç:", ["Karışık Deneme"] + mevcut)
+            adet = st.slider("Kaç Sayfa?", 1, 10, 3)
             
-            if not uygun_sayfalar:
-                st.warning(f"⚠️ '{secilen_ders}' için tanımlı sayfa bulunamadı.")
-            else:
-                random.shuffle(uygun_sayfalar)
-                st.session_state.secilen_sayfalar = uygun_sayfalar[:sayfa_sayisi]
-                st.session_state.oturum = True
-                st.session_state.aktif_index = 0
-                st.session_state.toplam_puan = 0
-                st.session_state.cevaplarim = {}
-                st.rerun()
-
-    # --- ANA EKRAN İÇERİĞİ ---
-    st.markdown("<h1 style='text-align: center; color: #D84315;'>🏫 Bağarası ÇPAL Dijital Sınav Merkezi</h1>", unsafe_allow_html=True)
-    st.markdown("<h4 style='text-align: center; color: #555;'>TYT Çıkmış Sorular Kampı</h4>", unsafe_allow_html=True)
-    st.divider()
-
-    # İMZA ALANI
-    st.markdown("""
-    <div class='imza-kutusu'>
-        🛠️ <b>NOT:</b> Bu arayüz <b>Zülfikar SITACI</b> tarafından hibrit sistem olarak tasarlanmıştır.
-    </div>
-    """, unsafe_allow_html=True)
-
-    # KULLANIM KILAVUZU (ACCORDION)
-    with st.expander("📖 SİSTEM KULLANIM KILAVUZU (Okumak için Tıklayın)", expanded=True):
-        st.markdown("""
-        ### 🚀 Nasıl Sınav Olurum?
-        1.  **Ders Seçimi:** Sol menüden çözmek istediğiniz dersi (Matematik, Türkçe vb.) veya **"Karışık Deneme"** modunu seçin.
-        2.  **Süre/Miktar:** Kaç sayfa soru çözmek istediğinizi kaydırma çubuğu ile belirleyin.
-        3.  **Başlat:** "Sınavı Başlat" butonuna basın.
-
-        ### 🖥️ Sınav Ekranı Özellikleri
-        * **Sol Taraf (Soru Kitapçığı):** Gerçek sınav kitapçığının sayfası olduğu gibi görünür.
-        * **Sağ Taraf (Optik Form):** Cevaplarınızı buraya işaretleyin.
-        * **🔍 Yakınlaştırma (Zoom):** Sorular küçük gelirse, sol üstteki **"Yakınlaştır"** çubuğunu kullanarak sayfayı büyütebilirsiniz.
-        * **İlerleme:** Bir sayfadaki soruları bitirince **"BU SAYFAYI BİTİR VE İLERLE"** butonuna basın. Sistem otomatik kontrol eder, puanlar ve sonraki sayfaya geçer.
-        """)
-
-# --- 2. SINAV EKRANI ---
-elif st.session_state.aktif_index < len(st.session_state.secilen_sayfalar):
-    
-    toplam_sayfa = len(st.session_state.secilen_sayfalar)
-    mevcut_sayfa_sirasi = st.session_state.aktif_index + 1
-    st.progress(st.session_state.aktif_index / toplam_sayfa)
-    
-    suanki_sayfa = st.session_state.secilen_sayfalar[st.session_state.aktif_index]
-    veri = PDF_HARITASI[suanki_sayfa]
-    ders_adi = veri["ders"]
-    dogru_cevaplar = veri["cevaplar"]
-    soru_sayisi = len(dogru_cevaplar)
-    
-    col_pdf, col_form = st.columns([2.5, 1])
-    
-    with col_pdf:
-        st.markdown(f"### 📄 {ders_adi} (Sayfa {mevcut_sayfa_sirasi}/{toplam_sayfa})")
-        pdf_sayfa_getir(PDF_DOSYA_ADI, suanki_sayfa)
-        
-    with col_form:
-        st.markdown("<div class='optik-alan'>", unsafe_allow_html=True)
-        st.subheader("📝 Cevap Kağıdı")
-        
-        dogru_sayisi = 0
-        
-        with st.form(key=f"form_{suanki_sayfa}"):
-            for i in range(soru_sayisi):
-                st.write(f"**Soru {i+1}**")
-                key = f"c_{suanki_sayfa}_{i}"
-                st.radio(f"Soru {i+1}", ["A", "B", "C", "D", "E"], key=key, horizontal=True, label_visibility="collapsed", index=None)
-                st.write("---")
-            
-            if st.form_submit_button("BU SAYFAYI BİTİR VE İLERLE ➡️"):
-                for i in range(soru_sayisi):
-                    val = st.session_state.get(f"c_{suanki_sayfa}_{i}")
-                    dogru = dogru_cevaplar[i]
+            if st.button("TYT Başlat 🚀"):
+                # Sayfaları Hazırla
+                uygun = []
+                for s, d in PDF_HARITASI.items():
+                    if ders == "Karışık Deneme" or d["ders"] == ders:
+                        uygun.append(s)
+                
+                if uygun:
+                    random.shuffle(uygun)
+                    st.session_state.secilen_liste = uygun[:adet]
+                    st.session_state.mod = "PDF"
+                    st.session_state.oturum = True
+                    st.session_state.aktif_index = 0
+                    st.session_state.toplam_puan = 0
+                    st.rerun()
+                else:
+                    st.error("Bu ders için sayfa bulunamadı.")
                     
-                    if val == dogru:
-                        dogru_sayisi += 1
-                        st.toast(f"Soru {i+1}: Doğru! 🎉")
-                    elif val:
-                        st.toast(f"Soru {i+1}: Yanlış! (Cevap: {dogru})", icon="⚠️")
-                    else:
-                        st.toast(f"Soru {i+1}: Boş (Cevap: {dogru})", icon="⚪")
-                
-                st.session_state.toplam_puan += (dogru_sayisi * 5)
-                st.success(f"Sayfa Tamamlandı! {dogru_sayisi} Doğru.")
-                time.sleep(2)
-                st.session_state.aktif_index += 1
-                st.rerun()
-                
-        st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            # MESLEK SINAVLARI (AI)
+            ders = st.selectbox("Alan Seç:", list(MESLEK_KONULARI.keys()))
+            if st.button("Meslek Sınavını Başlat 🤖"):
+                with st.spinner("Yapay Zeka Soruları Hazırlıyor..."):
+                    sorular = ai_soru_uret(MESLEK_KONULARI[ders])
+                    st.session_state.secilen_liste = sorular
+                    st.session_state.mod = "AI"
+                    st.session_state.oturum = True
+                    st.session_state.aktif_index = 0
+                    st.session_state.toplam_puan = 0
+                    st.rerun()
 
-# --- 3. SONUÇ EKRANI ---
+    st.info("👈 Sınavı başlatmak için sol menüyü kullanın.")
+
+# --- SINAV EKRANI ---
+elif st.session_state.aktif_index < len(st.session_state.secilen_liste):
+    
+    # 1. MOD: PDF (TYT)
+    if st.session_state.mod == "PDF":
+        sayfa_no = st.session_state.secilen_liste[st.session_state.aktif_index]
+        veri = PDF_HARITASI[sayfa_no]
+        ders_adi = veri["ders"]
+        cevaplar = veri["cevaplar"]
+        soru_sayisi = len(cevaplar)
+        
+        st.subheader(f"📄 {ders_adi} - Sayfa {sayfa_no}")
+        
+        # --- MOBİL DOSTU SEKME SİSTEMİ (TAB) ---
+        tab1, tab2 = st.tabs(["📄 SORU KİTAPÇIĞI (Görsel)", "📝 CEVAP KAĞIDI (İşaretle)"])
+        
+        with tab1:
+            # PDF Göster
+            pdf_sayfa_getir(PDF_DOSYA_ADI, sayfa_no)
+            
+        with tab2:
+            st.warning("Cevaplarınızı buradan işaretleyin:")
+            dogru_sayisi = 0
+            with st.form(key=f"form_{sayfa_no}"):
+                for i in range(soru_sayisi):
+                    st.write(f"**Soru {i+1}**")
+                    st.radio(f"S_{i}", ["A", "B", "C", "D", "E"], key=f"c_{sayfa_no}_{i}", horizontal=True, label_visibility="collapsed", index=None)
+                    st.divider()
+                
+                if st.form_submit_button("KONTROL ET VE GEÇ ➡️"):
+                    for i in range(soru_sayisi):
+                        val = st.session_state.get(f"c_{sayfa_no}_{i}")
+                        dogru = cevaplar[i]
+                        if val == dogru:
+                            dogru_sayisi += 1
+                            st.toast(f"{i+1}. Soru: DOĞRU! ✅")
+                        else:
+                            st.toast(f"{i+1}. Soru: YANLIŞ! (Cevap: {dogru}) ❌")
+                    
+                    st.session_state.toplam_puan += (dogru_sayisi * 5)
+                    time.sleep(2)
+                    st.session_state.aktif_index += 1
+                    st.rerun()
+
+    # 2. MOD: AI (MESLEK)
+    else:
+        soru = st.session_state.secilen_liste[st.session_state.aktif_index]
+        st.subheader(f"🤖 Soru {st.session_state.aktif_index + 1}")
+        
+        st.info(soru["soru"])
+        
+        secenekler = soru["secenekler"]
+        random.shuffle(secenekler)
+        
+        c1, c2 = st.columns(2)
+        for i, sec in enumerate(secenekler):
+            def click(s=sec, d=soru["cevap"]):
+                if s == d:
+                    st.toast("Doğru! ✅")
+                    st.session_state.toplam_puan += 20
+                else:
+                    st.toast(f"Yanlış! Cevap: {d} ❌")
+                time.sleep(1)
+                st.session_state.aktif_index += 1
+                
+            if i < len(secenekler)/2:
+                with c1: st.button(sec, on_click=click, key=f"btn_{st.session_state.aktif_index}_{i}")
+            else:
+                with c2: st.button(sec, on_click=click, key=f"btn_{st.session_state.aktif_index}_{i}")
+
+# --- SONUÇ EKRANI ---
 else:
     st.balloons()
-    st.markdown(f"""
-    <div style='background-color:#FF7043; padding:50px; border-radius:20px; text-align:center; color:white;'>
-        <h1>🏁 Sınav Bitti!</h1>
-        <h2 style='font-size:60px;'>Toplam Puan: {st.session_state.toplam_puan}</h2>
-        <p>Tüm seçilen sayfalar başarıyla tamamlandı.</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.write("")
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        if st.button("🔄 Ana Menüye Dön"):
-            st.session_state.oturum = False
-            st.rerun()
+    st.success(f"Sınav Bitti! Toplam Puan: {st.session_state.toplam_puan}")
+    if st.button("Başa Dön"):
+        st.session_state.oturum = False
+        st.rerun()
