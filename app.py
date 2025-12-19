@@ -72,7 +72,7 @@ PDF_HARITASI = {
 }
 
 # Yüklediğiniz PDF dosyasının tam adı (Değişirse burayı da değiştirin)
-PDF_DOSYA_ADI = "tytson7.pdf"
+PDF_DOSYA_ADI = "tytson8.pdf"
 
 # ==============================================================================
 # PDF GÖSTERME FONKSİYONU
