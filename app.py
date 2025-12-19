@@ -201,7 +201,7 @@ PDF_HARITASI = {
 }
 
 # PDF DOSYA ADI
-PDF_DOSYA_ADI = "tytson8pdf"
+PDF_DOSYA_ADI = "tytson8.pdf"
 
 # ==============================================================================
 # PDF GÖSTERİCİ
