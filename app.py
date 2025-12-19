@@ -5,23 +5,38 @@ import time
 import fitz  # PyMuPDF kütüphanesi
 
 # --- SAYFA AYARLARI ---
-st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="Bağarası Hibrit Eğitim Merkezi", page_icon="🏫", layout="wide")
 
-# --- TASARIM ---
+# --- TASARIM VE CSS ---
 st.markdown("""
     <style>
+    /* Arka Plan */
     .stApp { background-color: #F0F4C3 !important; }
-    h1, h2, h3, h4, .stMarkdown { color: #212121 !important; }
     
-    /* Optik Form Alanı */
+    /* Yazı Renkleri */
+    h1, h2, h3, h4, .stMarkdown { color: #212121 !important; font-family: 'Segoe UI', sans-serif; }
+    
+    /* Optik Form Alanı (Sticky - Sabit Duran) */
     .optik-alan {
         background-color: white;
         padding: 20px;
         border-radius: 15px;
         border: 2px solid #FF7043;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         position: sticky; 
         top: 20px; 
+        z-index: 999;
+    }
+    
+    /* Özel Bilgi Kutusu (İmza Alanı) */
+    .imza-kutusu {
+        background-color: #FFECB3;
+        border-left: 5px solid #FF6F00;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #3E2723;
     }
     
     /* Butonlar */
@@ -33,12 +48,14 @@ st.markdown("""
         width: 100%;
         border: 2px solid #D84315 !important;
         min-height: 50px;
+        transition: transform 0.2s;
     }
     .stButton>button:hover {
         background-color: #E64A19 !important;
+        transform: scale(1.02);
     }
     
-    /* İlerleme Çubuğu */
+    /* İlerleme Çubuğu Rengi */
     .stProgress > div > div > div > div {
         background-color: #FF7043;
     }
@@ -46,7 +63,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 📝 PDF HARİTASI (SİZİN GİRDİĞİNİZ TAM LİSTE)
+# 📝 PDF HARİTASI (VERİ TABANI)
 # ==============================================================================
 PDF_HARITASI = {
     # --- TÜRKÇE ---
@@ -219,12 +236,10 @@ def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
 
     try:
         doc = fitz.open(dosya_yolu)
-        
         if sayfa_numarasi > len(doc) or sayfa_numarasi < 1:
-            st.error(f"Hata: İstenen sayfa ({sayfa_numarasi}) PDF sınırları dışında. (Toplam sayfa: {len(doc)})")
+            st.error(f"Hata: İstenen sayfa ({sayfa_numarasi}) PDF sınırları dışında.")
             return
 
-        # Sayfayı yükle
         page = doc.load_page(sayfa_numarasi - 1)
         
         # --- ZOOM AYARI ---
@@ -238,9 +253,8 @@ def pdf_sayfa_getir(dosya_yolu, sayfa_numarasi):
             )
         
         with c2:
-             st.caption("ℹ️ Telefondan giriyorsanız görseli parmakla büyütebilirsiniz. Bilgisayarda resmin sağ üstündeki oklara tıklayın.")
+             st.caption("ℹ️ Bilgisayarda resmin sağ üstündeki oklara (↔) basarak tam ekran yapabilirsiniz.")
 
-        # Resmi oluştur
         pix = page.get_pixmap(dpi=zoom_oran)
         st.image(pix.tobytes(), caption=f"Sayfa {sayfa_numarasi}", use_container_width=True)
         
@@ -257,20 +271,19 @@ if 'aktif_index' not in st.session_state: st.session_state.aktif_index = 0
 if 'toplam_puan' not in st.session_state: st.session_state.toplam_puan = 0
 if 'cevaplarim' not in st.session_state: st.session_state.cevaplarim = {}
 
-# --- 1. GİRİŞ EKRANI ---
+# --- 1. GİRİŞ EKRANI VE KULLANIM KILAVUZU ---
 if not st.session_state.oturum:
     with st.sidebar:
         st.image("https://cdn-icons-png.flaticon.com/512/2997/2997321.png", width=120)
-        st.title("TYT Kampı")
+        st.title("Giriş Paneli")
         
-        # Mevcut dersleri listele
         mevcut_dersler = sorted(list(set(v["ders"] for v in PDF_HARITASI.values())))
         secenekler = ["Karışık Deneme"] + mevcut_dersler
         
         secilen_ders = st.selectbox("Ders Seçiniz:", secenekler)
-        sayfa_sayisi = st.slider("Kaç Sayfa Çözmek İstersiniz?", 1, 30, 3)
+        sayfa_sayisi = st.slider("Çözülecek Sayfa Sayısı:", 1, 30, 3)
         
-        if st.button("Sınavı Başlat 🚀"):
+        if st.button("SINAVI BAŞLAT 🚀"):
             uygun_sayfalar = []
             for sayfa, detay in PDF_HARITASI.items():
                 if secilen_ders == "Karışık Deneme" or detay["ders"] == secilen_ders:
@@ -280,40 +293,57 @@ if not st.session_state.oturum:
                 st.warning(f"⚠️ '{secilen_ders}' için tanımlı sayfa bulunamadı.")
             else:
                 random.shuffle(uygun_sayfalar)
-                # İstenen sayı kadar sayfayı al
                 st.session_state.secilen_sayfalar = uygun_sayfalar[:sayfa_sayisi]
-                
-                # Sıfırla ve Başlat
                 st.session_state.oturum = True
                 st.session_state.aktif_index = 0
                 st.session_state.toplam_puan = 0
                 st.session_state.cevaplarim = {}
                 st.rerun()
 
-    st.markdown("# 📚 Bağarası ÇPAL Dijital Sınav Merkezi")
-    st.info("Sol menüden ders seçerek PDF üzerindeki gerçek çıkmış soruları çözebilirsiniz.")
+    # --- ANA EKRAN İÇERİĞİ ---
+    st.markdown("<h1 style='text-align: center; color: #D84315;'>🏫 Bağarası ÇPAL Dijital Sınav Merkezi</h1>", unsafe_allow_html=True)
+    st.markdown("<h4 style='text-align: center; color: #555;'>TYT Çıkmış Sorular Kampı</h4>", unsafe_allow_html=True)
+    st.divider()
+
+    # İMZA ALANI
+    st.markdown("""
+    <div class='imza-kutusu'>
+        🛠️ <b>NOT:</b> Bu arayüz <b>Zülfikar SITACI</b> tarafından hibrit sistem olarak tasarlanmıştır.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # KULLANIM KILAVUZU (ACCORDION)
+    with st.expander("📖 SİSTEM KULLANIM KILAVUZU (Okumak için Tıklayın)", expanded=True):
+        st.markdown("""
+        ### 🚀 Nasıl Sınav Olurum?
+        1.  **Ders Seçimi:** Sol menüden çözmek istediğiniz dersi (Matematik, Türkçe vb.) veya **"Karışık Deneme"** modunu seçin.
+        2.  **Süre/Miktar:** Kaç sayfa soru çözmek istediğinizi kaydırma çubuğu ile belirleyin.
+        3.  **Başlat:** "Sınavı Başlat" butonuna basın.
+
+        ### 🖥️ Sınav Ekranı Özellikleri
+        * **Sol Taraf (Soru Kitapçığı):** Gerçek sınav kitapçığının sayfası olduğu gibi görünür.
+        * **Sağ Taraf (Optik Form):** Cevaplarınızı buraya işaretleyin.
+        * **🔍 Yakınlaştırma (Zoom):** Sorular küçük gelirse, sol üstteki **"Yakınlaştır"** çubuğunu kullanarak sayfayı büyütebilirsiniz.
+        * **İlerleme:** Bir sayfadaki soruları bitirince **"BU SAYFAYI BİTİR VE İLERLE"** butonuna basın. Sistem otomatik kontrol eder, puanlar ve sonraki sayfaya geçer.
+        """)
 
 # --- 2. SINAV EKRANI ---
 elif st.session_state.aktif_index < len(st.session_state.secilen_sayfalar):
     
-    # İlerleme Durumu (Progress Bar)
     toplam_sayfa = len(st.session_state.secilen_sayfalar)
     mevcut_sayfa_sirasi = st.session_state.aktif_index + 1
     st.progress(st.session_state.aktif_index / toplam_sayfa)
     
-    # Sayfa Verilerini Çek
     suanki_sayfa = st.session_state.secilen_sayfalar[st.session_state.aktif_index]
     veri = PDF_HARITASI[suanki_sayfa]
     ders_adi = veri["ders"]
     dogru_cevaplar = veri["cevaplar"]
     soru_sayisi = len(dogru_cevaplar)
     
-    # Ekran Düzeni (Sol: PDF, Sağ: Form)
     col_pdf, col_form = st.columns([2.5, 1])
     
     with col_pdf:
         st.markdown(f"### 📄 {ders_adi} (Sayfa {mevcut_sayfa_sirasi}/{toplam_sayfa})")
-        # PDF'i Zoom özelliğiyle göster
         pdf_sayfa_getir(PDF_DOSYA_ADI, suanki_sayfa)
         
     with col_form:
@@ -329,7 +359,6 @@ elif st.session_state.aktif_index < len(st.session_state.secilen_sayfalar):
                 st.radio(f"Soru {i+1}", ["A", "B", "C", "D", "E"], key=key, horizontal=True, label_visibility="collapsed", index=None)
                 st.write("---")
             
-            # BU BUTON OTOMATİK İLERLETİR
             if st.form_submit_button("BU SAYFAYI BİTİR VE İLERLE ➡️"):
                 for i in range(soru_sayisi):
                     val = st.session_state.get(f"c_{suanki_sayfa}_{i}")
@@ -343,12 +372,8 @@ elif st.session_state.aktif_index < len(st.session_state.secilen_sayfalar):
                     else:
                         st.toast(f"Soru {i+1}: Boş (Cevap: {dogru})", icon="⚪")
                 
-                # Puanı ekle
                 st.session_state.toplam_puan += (dogru_sayisi * 5)
-                
                 st.success(f"Sayfa Tamamlandı! {dogru_sayisi} Doğru.")
-                
-                # 2 Saniye Bekle ve SONRAKİ SAYFAYA GEÇ
                 time.sleep(2)
                 st.session_state.aktif_index += 1
                 st.rerun()
