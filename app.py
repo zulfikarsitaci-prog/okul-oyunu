@@ -50,22 +50,164 @@ st.markdown("""
 PDF_HARITASI = {
     # --- TÜRKÇE ÖRNEKLERİ ---
     13: {"ders": "Türkçe", "cevaplar": "ECE"},  # Sayfa 3'te 5 soru var (A,D,C,B,E)
-    14: {"ders": "Türkçe", "cevaplar": "CCDA"},   # Sayfa 4'te 4 soru var
-    5: {"ders": "Türkçe", "cevaplar": "EBCA"},
+    14: {"ders": "Türkçe", "cevaplar": "BAC"},   # Sayfa 4'te 4 soru var
+    15: {"ders": "Türkçe", "cevaplar": "BEA"},
+    16: {"ders": "Türkçe", "cevaplar": "CBCD"},
+    17: {"ders": "Türkçe", "cevaplar": "AABA"},
+    18: {"ders": "Türkçe", "cevaplar": "CEA"},
+    19: {"ders": "Türkçe", "cevaplar": "EBA"},
+    20: {"ders": "Türkçe", "cevaplar": "ADB"},
+    21: {"ders": "Türkçe", "cevaplar": "CBBE"},
+    22: {"ders": "Türkçe", "cevaplar": "BB"},
+    23: {"ders": "Türkçe", "cevaplar": "BEA"},
+    24: {"ders": "Türkçe", "cevaplar": "ADE"},
+    25: {"ders": "Türkçe", "cevaplar": "EAB"} 
+    26: {"ders": "Türkçe", "cevaplar": "CD"} 
+    27: {"ders": "Türkçe", "cevaplar": "CDA"} 
+    28: {"ders": "Türkçe", "cevaplar": "DD"} 
+    29: {"ders": "Türkçe", "cevaplar": "BD"} 
+    30: {"ders": "Türkçe", "cevaplar": "BDA"} 
+    31: {"ders": "Türkçe", "cevaplar": "EAD"} 
+    32: {"ders": "Türkçe", "cevaplar": "AB"} 
+    33: {"ders": "Türkçe", "cevaplar": "BAA"} 
+    34: {"ders": "Türkçe", "cevaplar": "DCB"} 
+    35: {"ders": "Türkçe", "cevaplar": "CAD"} 
+    36: {"ders": "Türkçe", "cevaplar": "DDB"} 
+    37: {"ders": "Türkçe", "cevaplar": "CBD"} 
+    38: {"ders": "Türkçe", "cevaplar": "AA"} 
+    39: {"ders": "Türkçe", "cevaplar": "EBE"} 
+    40: {"ders": "Türkçe", "cevaplar": "BDE"} 
+    41: {"ders": "Türkçe", "cevaplar": "ADA"} 
+    42: {"ders": "Türkçe", "cevaplar": "CDB"} 
+    43: {"ders": "Türkçe", "cevaplar": "AC"} 
+    44: {"ders": "Türkçe", "cevaplar": "DEA"} 
+    112: {"ders": "Türkçe", "cevaplar": "DA"} 
+    111: {"ders": "Türkçe", "cevaplar": "EC"} 
+    110: {"ders": "Türkçe", "cevaplar": "BC"} 
+    109: {"ders": "Türkçe", "cevaplar": "EDD"} 
+    108: {"ders": "Türkçe", "cevaplar": "AC"} 
+    107: {"ders": "Türkçe", "cevaplar": "BC"} 
+    103: {"ders": "Türkçe", "cevaplar": "AA"} 
+    102: {"ders": "Türkçe", "cevaplar": "CEC"} 
+    101: {"ders": "Türkçe", "cevaplar": "ED"} 
+    100: {"ders": "Türkçe", "cevaplar": "BB"} 
+    99: {"ders": "Türkçe", "cevaplar": "EA"} 
+    98: {"ders": "Türkçe", "cevaplar": "EB"} 
+    97: {"ders": "Türkçe", "cevaplar": "DC"} 
+    93: {"ders": "Türkçe", "cevaplar": "CB"} 
+    92: {"ders": "Türkçe", "cevaplar": "BAA"} 
+    91: {"ders": "Türkçe", "cevaplar": "DC"} 
+    90: {"ders": "Türkçe", "cevaplar": "AB"} 
+    89: {"ders": "Türkçe", "cevaplar": "EE"} 
+    88: {"ders": "Türkçe", "cevaplar": "CD"} 
+    121: {"ders": "Türkçe", "cevaplar": "DCED"} 
+    122: {"ders": "Türkçe", "cevaplar": "DEDB"} 
+    123: {"ders": "Türkçe", "cevaplar": "ABA"} 
+    124: {"ders": "Türkçe", "cevaplar": "EEDA"} 
+    125: {"ders": "Türkçe", "cevaplar": "DAC"} 
+    126: {"ders": "Türkçe", "cevaplar": "CBAE"} 
+    127: {"ders": "Türkçe", "cevaplar": "DEB"} 
+    128: {"ders": "Türkçe", "cevaplar": "BDDB"} 
+    129: {"ders": "Türkçe", "cevaplar": "CBCE"} 
+    130: {"ders": "Türkçe", "cevaplar": "CCCC"} 
+    131: {"ders": "Türkçe", "cevaplar": "DEDD"} 
+    132: {"ders": "Türkçe", "cevaplar": "BCCC"} 
+    133: {"ders": "Türkçe", "cevaplar": "C"} 
+   
     
     # --- SOSYAL BİLİMLER ÖRNEKLERİ ---
-    15: {"ders": "Tarih", "cevaplar": "ABCDE"}, 
-    16: {"ders": "Coğrafya", "cevaplar": "EDCBA"},
-    17: {"ders": "Felsefe", "cevaplar": "CCDAA"},
+    138: {"ders": "Tarih", "cevaplar": "BDEE"},
+    139: {"ders": "Tarih", "cevaplar": "CEDA"}, 
+ 140: {"ders": "Tarih", "cevaplar": "CADC"}, 
+ 141: {"ders": "Tarih", "cevaplar": "CEEE"}, 
+ 142: {"ders": "Tarih", "cevaplar": "DED"}, 
+ 143: {"ders": "Tarih", "cevaplar": "AE"}, 
+ 144: {"ders": "Tarih", "cevaplar": "BABC"}, 
+ 145: {"ders": "Tarih", "cevaplar": "ADCE"}, 
+ 146: {"ders": "Tarih", "cevaplar": "BCBD"}, 
+ 147: {"ders": "Tarih", "cevaplar": "CBCE"}, 
+ 148: {"ders": "Tarih", "cevaplar": "ACE"}, 
+ 
+ 151: {"ders": "Coğrafya", "cevaplar": "CACE"},
+ 152: {"ders": "Coğrafya", "cevaplar": "AAB"},
+ 153: {"ders": "Coğrafya", "cevaplar": "BBB"},
+ 154: {"ders": "Coğrafya", "cevaplar": "BBAA"}, 
+ 155: {"ders": "Coğrafya", "cevaplar": "CBC"},
+ 156: {"ders": "Coğrafya", "cevaplar": "ECA"},
+ 157: {"ders": "Coğrafya", "cevaplar": "CD"}, 
+ 158: {"ders": "Coğrafya", "cevaplar": "EC"},
+ 159: {"ders": "Coğrafya", "cevaplar": "AC"},
+ 160: {"ders": "Coğrafya", "cevaplar": "EEDE"},
+ 161: {"ders": "Coğrafya", "cevaplar": "DCBD"},
+ 162: {"ders": "Coğrafya", "cevaplar": "CDDD"},
+ 163: {"ders": "Coğrafya", "cevaplar": "CD"},
+
+
+    168: {"ders": "Felsefe", "cevaplar": "CD"},
+     169: {"ders": "Felsefe", "cevaplar": "BD"},
+      170: {"ders": "Felsefe", "cevaplar": "EB"},
+      171: {"ders": "Felsefe", "cevaplar": "BE"},
+      172: {"ders": "Felsefe", "cevaplar": "BB"},
+      173: {"ders": "Felsefe", "cevaplar": "BAA"},
+      174: {"ders": "Felsefe", "cevaplar": "BDD"},
+      175: {"ders": "Felsefe", "cevaplar": "AAB"},
+     176: {"ders": "Felsefe", "cevaplar": "DA"},
+   
     
     # --- MATEMATİK ÖRNEKLERİ ---
-    25: {"ders": "Matematik", "cevaplar": "AAABB"},
-    26: {"ders": "Matematik", "cevaplar": "CCDDD"},
+    213: {"ders": "Matematik", "cevaplar": "AEB"},
+    214: {"ders": "Matematik", "cevaplar": "ECA"},
+     215: {"ders": "Matematik", "cevaplar": "CDCE"},
+     216: {"ders": "Matematik", "cevaplar": "DDCD"},
+     217: {"ders": "Matematik", "cevaplar": "AEC"},
+     218: {"ders": "Matematik", "cevaplar": "CAA"},
+     219: {"ders": "Matematik", "cevaplar": "BEAB"},
+     221: {"ders": "Matematik", "cevaplar": "DEAA"},
+     222: {"ders": "Matematik", "cevaplar": "BBC"},
+      226: {"ders": "Matematik", "cevaplar": "ABAE"},
+      227: {"ders": "Matematik", "cevaplar": "CBB"},
+      230: {"ders": "Matematik", "cevaplar": "BCCD"},
+      231: {"ders": "Matematik", "cevaplar": "DADB"},
+       232: {"ders": "Matematik", "cevaplar": "EE"},
+       246: {"ders": "Matematik", "cevaplar": "CCB"},
+       247: {"ders": "Matematik", "cevaplar": "EACE"},
+       249: {"ders": "Matematik", "cevaplar": "DAAC"},
+       250: {"ders": "Matematik", "cevaplar": "BE"},
     
+      
     # --- FEN BİLİMLERİ ÖRNEKLERİ ---
-    35: {"ders": "Fizik", "cevaplar": "EEAAB"},
-    36: {"ders": "Kimya", "cevaplar": "CCBBA"},
-    37: {"ders": "Biyoloji", "cevaplar": "DDDEE"},
+    312: {"ders": "Fizik", "cevaplar": "EBC"},
+ 313: {"ders": "Fizik", "cevaplar": "BA"},
+314: {"ders": "Fizik", "cevaplar": "EDE"},
+316: {"ders": "Fizik", "cevaplar": "DAE"},
+317: {"ders": "Fizik", "cevaplar": "BDEA"},
+318: {"ders": "Fizik", "cevaplar": "DDD"},
+320: {"ders": "Fizik", "cevaplar": "ABE"},
+321: {"ders": "Fizik", "cevaplar": "ADA"},
+
+
+    339: {"ders": "Kimya", "cevaplar": "ACAE"},
+340: {"ders": "Kimya", "cevaplar": "BC"},
+350: {"ders": "Kimya", "cevaplar": "BDEB"},
+344: {"ders": "Kimya", "cevaplar": "DAAD"},
+345: {"ders": "Kimya", "cevaplar": "ADC"},
+346: {"ders": "Kimya", "cevaplar": "CCD"},
+348: {"ders": "Kimya", "cevaplar": "CAC"},
+349: {"ders": "Kimya", "cevaplar": "AEC"},
+351: {"ders": "Kimya", "cevaplar": "AAB"},
+
+
+
+
+    359: {"ders": "Biyoloji", "cevaplar": "CBEE"},
+360: {"ders": "Biyoloji", "cevaplar": "DADC"},
+361: {"ders": "Biyoloji", "cevaplar": "BBD"},
+362: {"ders": "Biyoloji", "cevaplar": "AEDB"},
+363: {"ders": "Biyoloji", "cevaplar": "ECB"},
+365: {"ders": "Biyoloji", "cevaplar": "AEC"},
+373: {"ders": "Biyoloji", "cevaplar": "DE"},
+374: {"ders": "Biyoloji", "cevaplar": "EEE"},
+
     
     # Kendi PDF'inize bakarak burayı istediğiniz kadar uzatabilirsiniz...
     # 40: {"ders": "Fizik", "cevaplar": "ACD"}, gibi...
