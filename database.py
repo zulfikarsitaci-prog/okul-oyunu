@@ -22,6 +22,7 @@ def add_user(username, password, role):
     cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, hashed_password, role))
     conn.commit()
     conn.close()
+    print(f"Kullanıcı eklendi: {username}")
 
 def connect():
     return sqlite3.connect('education_platform.db')
