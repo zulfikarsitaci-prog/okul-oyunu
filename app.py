@@ -26,6 +26,7 @@ with st.form("login_form"):
             st.rerun()
         else:
             st.error("Hatalı kullanıcı adı veya şifre")
+            print(f"Hatalı giriş: {username}")
         conn.close()
 
 # Kullanıcı girişi başarılıysa
