@@ -6,7 +6,7 @@ import hashlib
 database.create_database()
 
 def create_admin_user():
-    database.add_user("admin", "6626", "admin")
+    database.add_user("admin", "password123", "admin")
 
 create_admin_user()
 
