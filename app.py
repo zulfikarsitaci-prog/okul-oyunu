@@ -1,51 +1,77 @@
-# Öğretmen Paneli
-elif st.session_state.user_role == "teacher":
-    st.header("Öğretmen Paneli")
-    st.write("Ders programları ve öğrenci notlarını buradan yönetebilirsiniz.")
-    tab1, tab2 = st.tabs(["Ders Programları", "Öğrenci Notları"])
-    with tab1:
-        st.subheader("Ders Programları")
-        with st.form("add_lesson_form"):
-            lesson_name = st.text_input("Ders Adı")
-            lesson_time = st.text_input("Ders Saati")
-            lesson_day = st.selectbox("Ders Günü", ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma"])
-            submitted = st.form_submit_button("Ders Ekle")
-            if submitted:
-                database.add_lesson(lesson_name, lesson_time, lesson_day)
-                st.success("Ders eklendi")
-        lessons = database.get_lessons()
-        for lesson in lessons:
-            st.write(f"{lesson[1]} - {lesson[2]} - {lesson[3]}")
-    with tab2:
-        st.subheader("Öğrenci Notları")
-        with st.form("add_grade_form"):
-            student_name = st.text_input("Öğrenci Adı")
-            lesson_name = st.text_input("Ders Adı")
-            grade = st.text_input("Not")
-            submitted = st.form_submit_button("Not Ekle")
-            if submitted:
-                database.add_grade(student_name, lesson_name, grade)
-                st.success("Not eklendi")
-        grades = database.get_grades()
-        for grade in grades:
-            st.write(f"{grade[1]} - {grade[2]} - {grade[3]}")
+# App.py
+import streamlit as st
+import database
+import time
 
-# Admin Paneli
-elif st.session_state.user_role == "admin":
-    st.header("Admin Paneli")
-    st.info("Sistem yönetimi ve kullanıcı işlemleri.")
-    tab1, tab2 = st.tabs(["Kullanıcı Yönetimi", "Sistem Ayarları"])
-    with tab1:
-        st.subheader("Kullanıcı Yönetimi")
-        users = database.get_users()
-        for user in users:
-            st.write(f"{user[1]} - {user[3]}")
+# Sayfa ayarları
+st.set_page_config(page_title="Eğitim Platformu", page_icon="🎓")
+
+# 1. Veritabanını başlat
+database.create_database()
+
+# 2. Admin kullanıcısını oluştur (Sadece veritabanı boşsa veya admin yoksa çalışır)
+# Database.py'deki UNIQUE kısıtlaması sayesinde hata vermeden geçer.
+database.add_user("admin", "6626", "admin") 
+
+# 3. Session State Tanımlamaları (Oturum durumunu hafızada tutmak için)
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "user_role" not in st.session_state:
+    st.session_state.user_role = None
+if "username" not in st.session_state:
+    st.session_state.username = None
+
+# --- ARAYÜZ MANTIĞI ---
+
+st.title("🎓 Eğitim Platformu")
+
+# DURUM 1: KULLANICI GİRİŞ YAPMAMIŞSA
+if not st.session_state.logged_in:
+    st.subheader("Giriş Yap")
+    
+    with st.form("login_form"):
+        username = st.text_input("Kullanıcı Adı")
+        password = st.text_input("Şifre", type="password")
+        submit_btn = st.form_submit_button("Giriş Yap")
+        
+        if submit_btn:
+            user = database.login_user(username, password)
+            if user:
+                # Giriş başarılı, session bilgilerini güncelle
+                st.session_state.logged_in = True
+                st.session_state.user_role = user[3] # Role sütunu
+                st.session_state.username = user[1]  # Username sütunu
+                st.success("Giriş başarılı! Yönlendiriliyorsunuz...")
+                time.sleep(1)
+                st.rerun() # Sayfayı yenile ve paneli göster
+            else:
+                st.error("Hatalı kullanıcı adı veya şifre!")
+
+# DURUM 2: KULLANICI GİRİŞ YAPMIŞSA
+else:
+    # Yan menü (Sidebar) oluştur
+    with st.sidebar:
+        st.write(f"👤 Aktif Kullanıcı: **{st.session_state.username}**")
+        st.write(f"Rol: {st.session_state.user_role}")
+        
+        if st.button("Çıkış Yap"):
+            st.session_state.logged_in = False
+            st.session_state.user_role = None
+            st.rerun()
+
+    # Rol tabanlı içerik gösterimi
+    if st.session_state.user_role == "admin":
+        st.header("Admin Paneli")
+        st.info("Sistem yönetimi ve kullanıcı işlemleri.")
+        
+        # --- KULLANICI EKLEME (Sadece Admin Görebilir) ---
         st.subheader("Yeni Kullanıcı Ekle")
         with st.form("add_user_form"):
             new_user = st.text_input("Yeni Kullanıcı Adı")
             new_pass = st.text_input("Yeni Şifre", type="password")
             new_role = st.selectbox("Rol Seçin", ["admin", "teacher", "student"])
             add_submitted = st.form_submit_button("Kullanıcıyı Kaydet")
+            
             if add_submitted:
                 if len(new_pass) < 4:
                     st.warning("Şifre en az 4 karakter olmalı.")
@@ -55,6 +81,13 @@ elif st.session_state.user_role == "admin":
                         st.success(f"{new_user} kullanıcısı başarıyla oluşturuldu.")
                     else:
                         st.error("Bu kullanıcı adı zaten kullanılıyor!")
-    with tab2:
-        st.subheader("Sistem Ayarları")
-        st.write("Sistem ayarları buradan yönetilebilir.")
+
+    elif st.session_state.user_role == "teacher":
+        st.header("Öğretmen Paneli")
+        st.write("Ders programları ve öğrenci notlarını buradan yönetebilirsiniz.")
+        # Buraya öğretmen fonksiyonları gelecek
+
+    elif st.session_state.user_role == "student":
+        st.header("Öğrenci Paneli")
+        st.write("Ders notlarınızı ve duyuruları buradan takip edebilirsiniz.")
+        # Buraya öğrenci fonksiyonları gelecek
