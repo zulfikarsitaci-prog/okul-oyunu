@@ -1,50 +1,93 @@
+# App.py
 import streamlit as st
 import database
-import hashlib
+import time
 
-# Veritabanı oluştur
+# Sayfa ayarları
+st.set_page_config(page_title="Eğitim Platformu", page_icon="🎓")
+
+# 1. Veritabanını başlat
 database.create_database()
 
-def create_admin_user():
-    database.add_user("admin", "password123", "admin")
+# 2. Admin kullanıcısını oluştur (Sadece veritabanı boşsa veya admin yoksa çalışır)
+# Database.py'deki UNIQUE kısıtlaması sayesinde hata vermeden geçer.
+database.add_user("admin", "6626", "admin") 
 
-create_admin_user()
+# 3. Session State Tanımlamaları (Oturum durumunu hafızada tutmak için)
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "user_role" not in st.session_state:
+    st.session_state.user_role = None
+if "username" not in st.session_state:
+    st.session_state.username = None
 
-# Uygulama başlığı
-st.title("Eğitim Platformu")
+# --- ARAYÜZ MANTIĞI ---
 
-# Kullanıcı girişi formu
-with st.form("login_form"):
-    username = st.text_input("Kullanıcı Adı")
-    password = st.text_input("Şifre", type="password")
-    if st.form_submit_button("Giriş Yap"):
-        # Şifreyi hashle
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        # Veritabanında kullanıcı ara
-        conn = database.connect()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, hashed_password))
-        user = cursor.fetchone()
-        if user:
-            st.session_state.logged_in = True
-            st.session_state.user_role = user[3]
+st.title("🎓 Eğitim Platformu")
+
+# DURUM 1: KULLANICI GİRİŞ YAPMAMIŞSA
+if not st.session_state.logged_in:
+    st.subheader("Giriş Yap")
+    
+    with st.form("login_form"):
+        username = st.text_input("Kullanıcı Adı")
+        password = st.text_input("Şifre", type="password")
+        submit_btn = st.form_submit_button("Giriş Yap")
+        
+        if submit_btn:
+            user = database.login_user(username, password)
+            if user:
+                # Giriş başarılı, session bilgilerini güncelle
+                st.session_state.logged_in = True
+                st.session_state.user_role = user[3] # Role sütunu
+                st.session_state.username = user[1]  # Username sütunu
+                st.success("Giriş başarılı! Yönlendiriliyorsunuz...")
+                time.sleep(1)
+                st.rerun() # Sayfayı yenile ve paneli göster
+            else:
+                st.error("Hatalı kullanıcı adı veya şifre!")
+
+# DURUM 2: KULLANICI GİRİŞ YAPMIŞSA
+else:
+    # Yan menü (Sidebar) oluştur
+    with st.sidebar:
+        st.write(f"👤 Aktif Kullanıcı: **{st.session_state.username}**")
+        st.write(f"Rol: {st.session_state.user_role}")
+        
+        if st.button("Çıkış Yap"):
+            st.session_state.logged_in = False
+            st.session_state.user_role = None
             st.rerun()
-        else:
-            st.error("Hatalı kullanıcı adı veya şifre")
-        conn.close()
 
-# Kullanıcı girişi başarılıysa
-if st.session_state.get("logged_in", False):
-    # Kullanıcı rolüne göre işlem yap
+    # Rol tabanlı içerik gösterimi
     if st.session_state.user_role == "admin":
-        st.write("Admin paneli")
-    elif st.session_state.user_role == "teacher":
-        st.write("Öğretmen paneli")
-    elif st.session_state.user_role == "student":
-        st.write("Öğrenci paneli")
+        st.header("Admin Paneli")
+        st.info("Sistem yönetimi ve kullanıcı işlemleri.")
+        
+        # --- KULLANICI EKLEME (Sadece Admin Görebilir) ---
+        st.subheader("Yeni Kullanıcı Ekle")
+        with st.form("add_user_form"):
+            new_user = st.text_input("Yeni Kullanıcı Adı")
+            new_pass = st.text_input("Yeni Şifre", type="password")
+            new_role = st.selectbox("Rol Seçin", ["admin", "teacher", "student"])
+            add_submitted = st.form_submit_button("Kullanıcıyı Kaydet")
+            
+            if add_submitted:
+                if len(new_pass) < 4:
+                    st.warning("Şifre en az 4 karakter olmalı.")
+                else:
+                    result = database.add_user(new_user, new_pass, new_role)
+                    if result:
+                        st.success(f"{new_user} kullanıcısı başarıyla oluşturuldu.")
+                    else:
+                        st.error("Bu kullanıcı adı zaten kullanılıyor!")
 
-# Kullanıcı ekleme formu
-with st.form("add_user_form"):
-    username = st.text_input("Kullanıcı Adı", key="add_username")
-    password = st.text_input("Şifre", type="password", key="add_password")
-    role = st.selectbox("Rol", ["admin", "teacher", "student"], key="add_role")
+    elif st.session_state.user_role == "teacher":
+        st.header("Öğretmen Paneli")
+        st.write("Ders programları ve öğrenci notlarını buradan yönetebilirsiniz.")
+        # Buraya öğretmen fonksiyonları gelecek
+
+    elif st.session_state.user_role == "student":
+        st.header("Öğrenci Paneli")
+        st.write("Ders notlarınızı ve duyuruları buradan takip edebilirsiniz.")
+        # Buraya öğrenci fonksiyonları gelecek
