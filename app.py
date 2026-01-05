@@ -134,6 +134,46 @@ else:
                     st.success(f"{selected_student} için not kaydedildi: {grade_val}")
 
     # ---------------- ÖĞRENCİ PANELİ ----------------
+        # ---------------- ÖĞRENCİ PANELİ ----------------
     elif st.session_state.user_role == "student":
-        st.header("🎒 Öğrenci Paneli")
-        st.info("Bu modül yapım aşamasında. Çok yakında notlarınızı ve duyuruları burada göreceksiniz.")
+        st.header(f"🎒 Öğrenci Paneli - Hoşgeldin, {st.session_state.username}")
+        
+        tab_notlar, tab_duyurular = st.tabs(["📝 Notlarım", "📢 Duyurular"])
+        
+        # TAB 1: NOTLAR
+        with tab_notlar:
+            st.subheader("Ders Notlarınız")
+            # Database'den sadece bu öğrencinin notlarını çek
+            grades = database.get_student_grades(st.session_state.username)
+            
+            if grades:
+                # Veriyi Pandas Tablosuna çevirip gösterelim
+                df_grades = pd.DataFrame(grades, columns=["Ders", "Not", "Tarih"])
+                
+                # Tabloyu göster
+                st.dataframe(df_grades, use_container_width=True)
+                
+                # İstatistik Gösterimi (Ortalama Hesaplama)
+                ortalama = df_grades["Not"].mean()
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric(label="Genel Ortalamanız", value=f"{ortalama:.2f}")
+                with col2:
+                    en_yuksek = df_grades["Not"].max()
+                    st.metric(label="En Yüksek Notunuz", value=f"{en_yuksek}")
+            else:
+                st.info("Henüz sisteme girilmiş bir notunuz bulunmuyor.")
+
+        # TAB 2: DUYURULAR
+        with tab_duyurular:
+            st.subheader("Okul Duyuruları")
+            announcements = database.get_announcements()
+            
+            if announcements:
+                for ann in announcements:
+                    # ann verisi: (id, title, content, date, author)
+                    with st.expander(f"📌 {ann[1]} ({ann[3]})"):
+                        st.markdown(f"**{ann[2]}**")
+                        st.caption(f"Yayınlayan: {ann[4]}")
+            else:
+                st.warning("Henüz yayınlanmış bir duyuru yok.")
