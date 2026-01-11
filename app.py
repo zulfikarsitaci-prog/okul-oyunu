@@ -26,7 +26,7 @@ def check_exams_json():
         with open("exams.json", "w", encoding="utf-8") as f: json.dump(data, f, ensure_ascii=False)
 check_exams_json()
 
-# --- CSS (Mavi Kutu, Cinzel - BOZULMADI) ---
+# --- CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Orbitron:wght@700&family=Roboto:wght@300;700&display=swap');
@@ -222,7 +222,7 @@ else:
         noti_txt = f"🔔 ({noti_count})" if noti_count > 0 else "🔔"
         
         menus = ["📢 Kampüs Duvar", "💬 Mesaj", "🏆 Puan", "📚 Dersler", "🎮 Oyunlar", "🛒 Mağaza", noti_txt]
-        if st.session_state['role'] == 'admin': menus.append("⚙️ Admin")
+        if st.session_state['user_role'] == 'admin': menus.append("⚙️ Admin")
         
         sel = st.radio("Menü", menus, label_visibility="collapsed")
         
@@ -238,10 +238,10 @@ else:
     if sel == "📢 Kampüs Duvar" or sel == "📢 Kampüs Duvarı":
         st.subheader("Kampüs Akışı")
         
-        # TABLI YAPI: İki duvar yan yana
-        tab_campus, tab_my_wall = st.tabs(["📢 Tüm Kampüs", "👤 Benim Duvarım"])
+        # TABLI YAPI
+        tab_main, tab_class = st.tabs(["📢 Genel Kampüs", "🏫 Sınıf Duvarı"])
         
-        with tab_campus:
+        with tab_main:
             my_score = server.get_score("GENEL", st.session_state['username'])
             POST_COST = 100000
             POST_LIMIT = 500000
@@ -261,7 +261,6 @@ else:
             for p in posts:
                 st.markdown(f"""<div class="post-card"><div class="post-header">{get_user_display_html(p[1],35)} <small style="margin-left:auto">{p[5]}</small></div><div class="post-content">{p[2]}</div>{f'<img src="data:image/jpeg;base64,{p[3]}" style="width:100%;border-radius:10px;">' if p[3] else ''}</div>""", unsafe_allow_html=True)
                 if p[4]: st.video(p[4])
-                
                 c1, c2 = st.columns([1, 4])
                 if c1.button(f"❤️ {p[6]}", key=f"l_{p[0]}"): database.like_post(p[0]); st.rerun()
                 with c2.popover("➕"):
@@ -270,25 +269,41 @@ else:
                         else: st.session_state['open_comments'].append(p[0])
                         st.rerun()
                     if st.session_state['role']=='admin' and st.button("Sil", key=f"d_{p[0]}"): database.delete_post(p[0]); st.rerun()
-
                 if p[0] in st.session_state['open_comments']:
                     for cm in database.get_comments(p[0]): st.info(f"{cm[0]}: {cm[1]}")
                     with st.form(f"f_{p[0]}"):
                         nc = st.text_input("Yorum")
                         if st.form_submit_button("Gönder"): database.add_comment(p[0], me, nc); st.rerun()
         
-        with tab_my_wall:
-            st.info("Burası senin kişisel alanın. Ücretsiz paylaşım yapabilirsin.")
-            with st.form("p_personal"):
-                t = st.text_area("Bugün nasılsın?")
-                if st.form_submit_button("Paylaş"):
-                    database.add_post(me, t, None, None, "campus") # Teknik olarak aynı tablo ama filtreli göstereceğiz
-                    st.rerun()
-            
-            # Kendi postlarını filtrele
-            my_posts = database.get_posts(50, user_filter=me)
-            for p in my_posts:
-                st.markdown(f"<div class='post-card'><b>{p[1]}</b>: {p[2]}<br><small>{p[5]}</small></div>", unsafe_allow_html=True)
+        with tab_class:
+            my_class = database.get_user_data(me)[6] # 6. index class_code
+            if not my_class:
+                st.info("Henüz bir sınıfa üye değilsin.")
+                c_code = st.text_input("Öğretmeninden aldığın kodu gir:")
+                if st.button("Sınıfa Katıl"):
+                    ok, cname = database.join_class(me, c_code)
+                    if ok: st.success(f"{cname} sınıfına hoşgeldin!"); st.rerun()
+                    else: st.error("Kod geçersiz.")
+                
+                if st.session_state['role'] == 'teacher':
+                    st.divider()
+                    with st.expander("Yeni Sınıf Oluştur (Öğretmen)"):
+                        cn = st.text_input("Sınıf Adı (Örn: 9/A Muhasebe)"); cc = st.text_input("Sınıf Kodu (Benzersiz)")
+                        if st.button("Sınıfı Kur"):
+                            if database.create_class(me, cn, cc): st.success("Sınıf oluşturuldu!"); database.join_class(me, cc); st.rerun()
+                            else: st.error("Hata oluştu.")
+            else:
+                st.success(f"🏫 Sınıf: {my_class}")
+                with st.form("p_class"):
+                    t = st.text_area("Sınıfa duyuru/mesaj...")
+                    if st.form_submit_button("Paylaş"):
+                        database.add_post(me, t, None, None, "class", my_class)
+                        st.rerun()
+                
+                class_posts = database.get_posts(20, "class", my_class)
+                if not class_posts: st.info("Sınıf duvarı tertemiz.")
+                for cp in class_posts:
+                    st.markdown(f"<div class='post-card'><b>{cp[1]}</b>: {cp[2]}<br><small>{cp[5]}</small></div>", unsafe_allow_html=True)
 
     elif sel == "🛒 Mağaza":
         st.header("💎 Mağaza")
@@ -317,7 +332,7 @@ else:
                                 else: st.error(msg)
 
         with tabs[0]:
-            items = [{"n":"Gold","v":"Gold","c":50000}, {"n":"Neon","v":"Neon","c":150000}, {"n":"Alev","v":"Fire","c":300000}, {"n":"Kral","v":"King","c":1000000}]
+            items = [{"n":"Gold","v":"Gold","c":50000}, {"n":"Neon","v":"Neon","c":150000}, {"n":"Alev","v":"Fire","c":300000}, {"n":"Matrix","v":"Matrix","c":500000}, {"n":"Kral","v":"King","c":1000000}]
             render_shop(items, "frame")
         with tabs[1]:
             items = [{"n":"Glitch","v":"Glitch","c":100000}, {"n":"Gold","v":"Gold","c":750000}]
@@ -337,9 +352,12 @@ else:
     elif sel.startswith("💬") or sel.startswith("🔔"):
         st.header("💬 Mesajlar")
         
-        # Bildirimleri göster
-        notis = database.get_unread_notifications(me) # Aslında henüz DB'de yok ama placeholder
-        
+        notis = database.get_unread_notifications(me)
+        if notis:
+            with st.expander(f"Okunmamış Mesajlar ({len(notis)})", expanded=True):
+                for n in notis: st.warning(f"**{n[0]}**: {n[1]}")
+                if st.button("Hepsini Okundu İşaretle"): database.mark_notifications_read(me); st.rerun()
+
         fr = database.get_mutual_friends(me)
         if not fr: st.info("Mesajlaşmak için karşılıklı takipleşmelisiniz.")
         else:
@@ -376,36 +394,22 @@ else:
         else: components.html(get_matrix_game_html(st.session_state['username']), height=750)
 
     elif sel == "⚙️ Admin":
-        st.header("Sınırsız Yönetici Paneli")
+        st.header("Admin")
         
-        tab_u, tab_spy = st.tabs(["👥 Kullanıcı İşlemleri", "🕵️ Casus Modu"])
+        tab_u, tab_spy = st.tabs(["Kullanıcılar", "Casus Modu"])
         
         with tab_u:
-            st.subheader("Kullanıcı Düzenle / Sil")
+            st.subheader("Kullanıcı Düzenle")
             all_u = [u[0] for u in database.get_all_users()]
-            df_users = pd.DataFrame(database.get_all_users(), columns=["Kullanıcı", "Puan", "Rol", "Sınıf"])
-            st.dataframe(df_users)
+            target_u = st.selectbox("Kullanıcı", all_u)
+            new_p = st.number_input("Puan Ekle", value=0)
+            if st.button("Güncelle"): database.add_score(target_u, new_p, "Admin"); st.success("Tamam!")
+            st.divider()
+            if st.button("Sil"): database.delete_user(target_u); st.error("Silindi!"); st.rerun()
             
-            target_u = st.selectbox("Hedef Kullanıcı", all_u)
-            
-            c1, c2 = st.columns(2)
-            with c1:
-                new_p = st.number_input("Puan Ekle/Sil", value=0)
-                if st.button("Puanı İşle"): 
-                    database.add_score(target_u, new_p, "Admin")
-                    st.success("İşlendi!")
-            with c2:
-                st.write("")
-                st.write("")
-                if st.button("⚠️ KULLANICIYI YOK ET", type="primary"): 
-                    database.delete_user(target_u)
-                    st.error(f"{target_u} veritabanından tamamen silindi!")
-                    time.sleep(2)
-                    st.rerun()
-
         with tab_spy:
-            st.subheader("🕵️ Canlı Mesaj Akışı (Tüm Sistem)")
-            st.info("Sistemdeki tüm mesajları buradan görebilirsin.")
-            all_msgs = database.get_all_system_messages()
-            df_msg = pd.DataFrame(all_msgs, columns=["Gönderen", "Alan", "Mesaj", "Tarih"])
-            st.dataframe(df_msg, use_container_width=True)
+            st.subheader("🕵️ Canlı Mesaj Akışı")
+            st.info("Sistemdeki tüm mesajlar aşağıdadır.")
+            msgs = database.get_all_system_messages()
+            df_msgs = pd.DataFrame(msgs, columns=["Gönderen", "Alan", "Mesaj", "Tarih"])
+            st.dataframe(df_msgs, use_container_width=True)
