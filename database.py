@@ -11,7 +11,7 @@ import io
 @st.cache_resource(ttl=3600)
 def get_db_connection():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DB_PATH = os.path.join(BASE_DIR, "education_platform_pro.db")
+    DB_PATH = os.path.join(BASE_DIR, "education_platform_emergency.db")
     return sqlite3.connect(DB_PATH, check_same_thread=False)
 
 def run_query(query, params=(), fetch=False):
@@ -26,7 +26,7 @@ def run_query(query, params=(), fetch=False):
 
 def create_database():
     tables = [
-        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, score INTEGER DEFAULT 5000, bio TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, class_code TEXT)',
+        'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, role TEXT, score INTEGER DEFAULT 5000, bio TEXT, avatar_data TEXT, frame TEXT, name_style TEXT, class_code TEXT, emoji_packs TEXT DEFAULT "Temel")',
         'CREATE TABLE IF NOT EXISTS posts (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, content TEXT, image_data TEXT, youtube_link TEXT, wall_type TEXT, target_class TEXT, timestamp TEXT, likes INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY AUTOINCREMENT, post_id INTEGER, username TEXT, content TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
         'CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, sender TEXT, receiver TEXT, message TEXT, timestamp TEXT, is_read INTEGER DEFAULT 0)',
@@ -50,8 +50,8 @@ def add_user(u, p, r):
     try:
         h = hashlib.sha256(p.encode()).hexdigest()
         run_query("INSERT INTO users (username, password, role, score, bio) VALUES (?, ?, ?, ?, ?)", (u, h, r, 5000, "Yeni Öğrenci"))
-        return True, 0
-    except: return False, 0
+        return True
+    except: return False
 
 def get_user_data(u):
     res = run_query("SELECT score, bio, avatar_data, frame, name_style, role, class_code FROM users WHERE username = ?", (u,), fetch=True)
@@ -80,10 +80,7 @@ def change_username_logic(old_u, new_u):
 def follow_user(follower, followed):
     if follower == followed: return False
     if not run_query("SELECT id FROM followers WHERE follower = ? AND followed = ?", (follower, followed), fetch=True):
-        run_query("INSERT INTO followers (follower, followed) VALUES (?, ?)", (follower, followed))
-        # Takip bildirim
-        send_message("Sistem", followed, f"{follower} seni takip etmeye başladı!")
-        return True
+        run_query("INSERT INTO followers (follower, followed) VALUES (?, ?)", (follower, followed)); return True
     return False
 
 def get_followers_count(u): return run_query("SELECT COUNT(*) FROM followers WHERE followed = ?", (u,), fetch=True)[0][0]
@@ -108,17 +105,12 @@ def add_post(u, c, img=None, yt=None, w_type="campus", t_class=None):
     run_query("INSERT INTO posts (username, content, image_data, youtube_link, wall_type, target_class, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)", (u, c, img_d, yt, w_type, t_class, t))
 
 def get_posts(limit=50, wall_type="campus", target_class=None, user_filter=None):
-    if user_filter: 
-        return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE username = ? ORDER BY id DESC LIMIT ?", (user_filter, limit), fetch=True)
-    elif wall_type == "class":
-        return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE wall_type = 'class' AND target_class = ? ORDER BY id DESC LIMIT ?", (target_class, limit), fetch=True)
-    else: # Campus
-        return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE wall_type = 'campus' ORDER BY id DESC LIMIT ?", (limit,), fetch=True)
+    if user_filter: return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE username = ? ORDER BY id DESC LIMIT ?", (user_filter, limit), fetch=True)
+    return run_query("SELECT id, username, content, image_data, youtube_link, timestamp, likes FROM posts WHERE wall_type = 'campus' ORDER BY id DESC LIMIT ?", (limit,), fetch=True)
 
 def like_post(id): run_query("UPDATE posts SET likes = likes + 1 WHERE id = ?", (id,))
 def delete_post(pid): run_query("DELETE FROM posts WHERE id=?",(pid,)); run_query("DELETE FROM comments WHERE post_id=?",(pid,))
-def add_comment(pid, u, c): 
-    run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (pid, u, c, datetime.now().strftime("%Y-%m-%d %H:%M")))
+def add_comment(pid, u, c): run_query("INSERT INTO comments (post_id, username, content, timestamp) VALUES (?, ?, ?, ?)", (pid, u, c, datetime.now().strftime("%Y-%m-%d %H:%M")))
 def get_comments(pid): return run_query("SELECT username, content FROM comments WHERE post_id = ?", (pid,), fetch=True) or []
 
 # --- PUAN & MAĞAZA ---
@@ -138,31 +130,29 @@ def send_gift(s, r, item, cost):
         return True, "Gönderildi"
     return False, "Yetersiz Bakiye"
 
-# --- MESAJLAŞMA & BİLDİRİM ---
+# --- MESAJLAŞMA ---
 def send_message(s, r, m): run_query("INSERT INTO messages (sender, receiver, message, timestamp) VALUES (?, ?, ?, ?)", (s, r, m, datetime.now().strftime("%Y-%m-%d %H:%M")))
 def get_conversation(u1, u2): return run_query("SELECT sender, message, timestamp FROM messages WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?) ORDER BY id ASC", (u1, u2, u2, u1), fetch=True) or []
 def get_unread_notification_count(u): return run_query("SELECT COUNT(*) FROM messages WHERE receiver = ? AND is_read = 0", (u,), fetch=True)[0][0]
-def get_unread_notifications(u):
-    # Hem mesajları hem okunmamış yorumları çekebilirdik ama burada sadece mesajları bildirim olarak dönelim
-    return run_query("SELECT sender, message, timestamp FROM messages WHERE receiver = ? AND is_read = 0", (u,), fetch=True) or []
 def mark_notifications_read(u): run_query("UPDATE messages SET is_read = 1 WHERE receiver = ?", (u,))
 
-# --- DİĞER ---
-def create_class(t, n, c): 
-    try: run_query("INSERT INTO classes (code, name, teacher) VALUES (?, ?, ?)", (c, n, t)); return True
-    except: return False
-def join_class(u, c):
-    res = run_query("SELECT name FROM classes WHERE code = ?", (c,), fetch=True)
-    if res: run_query("UPDATE users SET class_code = ? WHERE username = ?", (c, u)); return True, res[0][0]
-    return False, None
+# --- DİĞER & ADMIN ---
 def get_leaderboard_data(): return run_query("SELECT username, score FROM users WHERE role != 'admin' ORDER BY score DESC LIMIT 50", fetch=True) or []
 def get_all_users(): return run_query("SELECT username, score, role, class_code FROM users", fetch=True)
+
 def delete_user(u):
+    # Sınırsız temizlik
     run_query("DELETE FROM users WHERE username=?",(u,))
     run_query("DELETE FROM posts WHERE username=?",(u,))
     run_query("DELETE FROM comments WHERE username=?",(u,))
     run_query("DELETE FROM messages WHERE sender=? OR receiver=?",(u,u))
-def admin_get_all_messages(): return run_query("SELECT sender, receiver, message, timestamp FROM messages ORDER BY id DESC LIMIT 100", fetch=True)
+    run_query("DELETE FROM followers WHERE follower=? OR followed=?",(u,u))
+    run_query("DELETE FROM grades WHERE student_username=?",(u,))
+
+def get_all_system_messages():
+    # Admin için tüm mesajlar (Casus modu)
+    return run_query("SELECT sender, receiver, message, timestamp FROM messages ORDER BY id DESC LIMIT 100", fetch=True)
+
 def update_activity(u): pass 
 def get_user_styles(u):
     res = run_query("SELECT avatar_data, frame, name_style FROM users WHERE username = ?", (u,), fetch=True)
